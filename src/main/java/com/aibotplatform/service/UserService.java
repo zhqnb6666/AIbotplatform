@@ -55,9 +55,32 @@ public class UserService implements UserDetailsService {
 //        return userRepository.save(user);
 //    }
 
+//    public void sendVerificationCode(String email) {
+//        String code = verificationService.generateVerificationCode(email);
+//        emailService.sendVerificationEmail(email, code);
+//    }
+
     public void sendVerificationCode(String email) {
-        String code = verificationService.generateVerificationCode(email);
-        emailService.sendVerificationEmail(email, code);
+        if (verificationService.canResendCode(email)) {
+            String code = verificationService.generateVerificationCode(email);
+            emailService.sendVerificationEmail(email, code);
+        } else {
+            throw new RuntimeException("Please wait before requesting a new code");
+        }
+    }
+
+    public void resetPassword(String email, String verificationCode, String newPassword) {
+        if (verificationService.verifyCode(email, verificationCode)) {
+            User user = userRepository.findByEmail(email);
+            if(user == null) {
+                throw new IllegalArgumentException("User not found");
+            }
+            user.setPasswordHash(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+            verificationService.clearCode(email);
+        } else {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
     }
 
     public User registerNewUser(User user, String verificationCode) {
