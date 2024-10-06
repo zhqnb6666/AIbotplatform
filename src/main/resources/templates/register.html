@@ -2,24 +2,61 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Register</title>
+    <!-- CSRF meta tags for fetch requests -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 <body>
-    <form th:action="@{/register}" th:object="${user}" method="post">
-        <div>
-            <label for="username">Username:</label>
-            <input type="text" id="username" th:field="*{username}" />
-        </div>
-        <div>
-            <label for="password">Password:</label>
-            <input type="password" id="password" th:field="*{passwordHash}" />
-        </div>
-        <div>
-            <label for="email">Email:</label>
-            <input type="email" id="email" th:field="*{email}" />
-        </div>
-        <div>
-            <button type="submit">Register</button>
-        </div>
-    </form>
+<form th:action="@{/register}" th:object="${user}" method="post">
+    <!-- CSRF token hidden field for form submission -->
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" th:field="*{username}" />
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" th:field="*{passwordHash}" />
+    </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" th:field="*{email}" required>
+        <button type="button" onclick="sendVerificationCode()">Send Code</button>
+    </div>
+    <div>
+        <label for="verificationCode">Verification Code:</label>
+        <input type="text" id="verificationCode" name="verificationCode" required>
+    </div>
+    <div>
+        <button type="submit">Register</button>
+    </div>
+</form>
 </body>
+<script>
+    function sendVerificationCode() {
+        // Get the email input field value
+        var email = document.getElementById('email').value;
+
+        // Get the CSRF token from the hidden meta tag
+        var csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        var csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+        // Use fetch to send the POST request, including the CSRF token
+        fetch('/send-verification?email=' + email, {
+            method: 'POST',
+            headers: {
+                [csrfHeader]: csrfToken, // Adding the CSRF token to the request header
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Verification code sent!');
+                } else {
+                    alert('Failed to send verification code');
+                }
+            });
+    }
+</script>
 </html>

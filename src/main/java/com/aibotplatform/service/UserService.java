@@ -19,9 +19,14 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    private final VerificationService verificationService;
+    private final EmailService emailService;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationService verificationService, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.verificationService = verificationService;
+        this.emailService = emailService;
     }
 
     @Override
@@ -33,20 +38,43 @@ public class UserService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPasswordHash(), new ArrayList<>());
     }
 
-    public User registerNewUser(User user) {
-        // Hash the password before saving
-        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+//    public User registerNewUser(User user) {
+//        // Hash the password before saving
+//        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+//
+//        // Set default values for credits, createdAt, and updatedAt
+//        Timestamp currentTimestamp = Timestamp.from(Instant.now());
+//        user.setCreatedAt(currentTimestamp);  // Set current time as createdAt
+//        user.setUpdatedAt(currentTimestamp);  // Set current time as updatedAt
+//
+//        // Set the default role if not already set (it defaults to USER)
+//        if (user.getRole() == null) {
+//            user.setRole(User.Role.USER);
+//        }
+//
+//        return userRepository.save(user);
+//    }
 
-        // Set default values for credits, createdAt, and updatedAt
+    public void sendVerificationCode(String email) {
+        String code = verificationService.generateVerificationCode(email);
+        emailService.sendVerificationEmail(email, code);
+    }
+
+    public User registerNewUser(User user, String verificationCode) {
+        if (!verificationService.verifyCode(user.getEmail(), verificationCode)) {
+            throw new IllegalArgumentException("Invalid verification code");
+        }
+        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
+        //        // Set default values for credits, createdAt, and updatedAt
         Timestamp currentTimestamp = Timestamp.from(Instant.now());
         user.setCreatedAt(currentTimestamp);  // Set current time as createdAt
         user.setUpdatedAt(currentTimestamp);  // Set current time as updatedAt
-
         // Set the default role if not already set (it defaults to USER)
         if (user.getRole() == null) {
             user.setRole(User.Role.USER);
         }
-
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        verificationService.clearCode(user.getEmail());
+        return savedUser;
     }
 }
