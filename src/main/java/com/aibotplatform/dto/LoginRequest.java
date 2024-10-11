@@ -4,7 +4,7 @@ public class LoginRequest {
     private String usernameOrEmail;
     private String password;
 
-    public String getUsername() {
+    public String getUsernameOrEmail() {
         return usernameOrEmail;
     }
 
