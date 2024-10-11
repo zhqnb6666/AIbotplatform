@@ -1,80 +1,82 @@
 package com.aibotplatform.controller;
 
+import com.aibotplatform.dto.*;
 import com.aibotplatform.model.User;
+import com.aibotplatform.security.JwtUtil;
 import com.aibotplatform.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 
-
-
-@Controller
+@RestController
+@RequestMapping("/api/auth")
 public class AuthController {
 
-    private UserService userService;
+    private final UserService userService;
+
+    private final AuthenticationManager authenticationManager;
+
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.userService = userService;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+            );
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.badRequest().body("Incorrect username or password");
+        }
+
+        final UserDetails userDetails = userService.loadUserByUsername(loginRequest.getUsername());
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthResponse(jwt));
     }
 
-    @GetMapping("/register")
-    public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
-    }
-    @GetMapping("/forgot-password")
-    public String showForgetPasswordForm(Model model){
-        model.addAttribute("user",new User());
-        return "forgot-password";
-    }
-
-    @GetMapping("/hello")
-    public String hello(Model model, Principal principal) {
-        String username = principal.getName();
-        model.addAttribute("username", username);
-        return "hello";
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        try {
+            User user = new User();
+            user.setUsername(registerRequest.getUsername());
+            user.setEmail(registerRequest.getEmail());
+            user.setPasswordHash(registerRequest.getPassword());
+            userService.registerNewUser(user, registerRequest.getVerificationCode());
+            return ResponseEntity.ok("User registered successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/send-verification")
-    public ResponseEntity<?> sendVerificationCode(@RequestParam String email) {
-        System.out.println("Sending verification code to " + email);
-        userService.sendVerificationCode(email);
+    public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequest emailRequest) {
+        userService.sendVerificationCode(emailRequest.getEmail());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestParam String email,
-                                           @RequestParam String verificationCode,
-                                           @RequestParam String newPassword) {
+    public ResponseEntity<?> resetPassword(@RequestBody PasswordResetRequest request) {
         try {
-            userService.resetPassword(email, verificationCode, newPassword);
-            return ResponseEntity.ok().body("Password reset successfully");
+            userService.resetPassword(request.getEmail(), request.getVerificationCode(), request.getNewPassword());
+            return ResponseEntity.ok("Password reset successfully");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (UsernameNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-    @PostMapping("/register")
-    public String registerUser(@ModelAttribute("user") User user, @RequestParam String verificationCode) {
-        try {
-            userService.registerNewUser(user, verificationCode);
-            return "redirect:/login";
-        } catch (IllegalArgumentException e) {
-            return "register";
         }
     }
 }

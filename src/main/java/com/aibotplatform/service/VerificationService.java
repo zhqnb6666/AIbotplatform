@@ -30,7 +30,7 @@ import java.util.Random;
 @Service
 public class VerificationService {
     private final Map<String, VerificationCodeInfo> verificationCodes = new HashMap<>();
-    private static final long CODE_EXPIRATION_TIME = 300000; // 5 minutes
+    private static final long CODE_EXPIRATION_TIME = 1800000; // 30 minutes
     private static final long RESEND_COOLDOWN = 60000; // 1 minute
 
     public String generateVerificationCode(String email) {

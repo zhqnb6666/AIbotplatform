@@ -1,5 +1,6 @@
 package com.aibotplatform.service;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +23,7 @@ public class UserService implements UserDetailsService {
     private final VerificationService verificationService;
     private final EmailService emailService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, VerificationService verificationService, EmailService emailService) {
+    public UserService(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, VerificationService verificationService, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificationService = verificationService;
@@ -30,35 +31,14 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        User user = userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("User not found with username or email: " + usernameOrEmail);
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPasswordHash(), new ArrayList<>());
     }
 
-//    public User registerNewUser(User user) {
-//        // Hash the password before saving
-//        user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
-//
-//        // Set default values for credits, createdAt, and updatedAt
-//        Timestamp currentTimestamp = Timestamp.from(Instant.now());
-//        user.setCreatedAt(currentTimestamp);  // Set current time as createdAt
-//        user.setUpdatedAt(currentTimestamp);  // Set current time as updatedAt
-//
-//        // Set the default role if not already set (it defaults to USER)
-//        if (user.getRole() == null) {
-//            user.setRole(User.Role.USER);
-//        }
-//
-//        return userRepository.save(user);
-//    }
-
-//    public void sendVerificationCode(String email) {
-//        String code = verificationService.generateVerificationCode(email);
-//        emailService.sendVerificationEmail(email, code);
-//    }
 
     public void sendVerificationCode(String email) {
         if (verificationService.canResendCode(email)) {
@@ -76,6 +56,7 @@ public class UserService implements UserDetailsService {
                 throw new IllegalArgumentException("User not found");
             }
             user.setPasswordHash(passwordEncoder.encode(newPassword));
+            user.setUpdatedAt(Timestamp.from(Instant.now()));
             userRepository.save(user);
             verificationService.clearCode(email);
         } else {
@@ -84,6 +65,12 @@ public class UserService implements UserDetailsService {
     }
 
     public User registerNewUser(User user, String verificationCode) {
+        if(userRepository.findByUsername(user.getUsername()) != null) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if(userRepository.findByEmail(user.getEmail()) != null) {
+            throw new IllegalArgumentException("Email already exists");
+        }
         if (!verificationService.verifyCode(user.getEmail(), verificationCode)) {
             throw new IllegalArgumentException("Invalid verification code");
         }
