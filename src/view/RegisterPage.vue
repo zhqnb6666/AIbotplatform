@@ -1,6 +1,7 @@
 <template>
 <div class="hero hero-body">
   <div class="container" style="width: 30%">
+    <form @submit.prevent="submit" v-if="!isSubmitting">
     <div class="field">
       <label class="label is-medium">用户名</label>
       <div class="control has-icons-left">
@@ -28,22 +29,22 @@
 
     <div class="field">
       <label class="label is-medium">验证码</label>
-      <div class="control columns">
-        <div class="column is-9" style="margin-left: -0.8rem">
-          <div class="control has-icons-left">
-            <input v-model="userInfo.verificationCode" :class="`input is-medium ${userInfoCheck.verificationCode ? 'is-success' : 'is-danger'}`" type="text" placeholder="请输入验证码" required/>
-            <span class="icon is-small is-left">
-              <i class="fas fa-key"> </i>
-            </span>
-          </div>
-          <p class="help" :class="{'is-success': userInfoCheck.verificationCode, 'is-danger': !userInfoCheck.verificationCode}">
-            {{ userInfoCheck.verificationCode ? '验证码正确' : '验证码错误' }}
-          </p>
-        </div>
-        <div class="column" style="margin-left: -1rem">
-          <button class="button is-medium" @click="sendVerificationCode">发送验证码</button>
+      <div class="columns">
+      <div class="column is-8" style="padding-top: 0;padding-left: 0">
+        <div class="control has-icons-left">
+          <input v-model="userInfo.verificationCode" class="input is-medium" type="text" placeholder="请输入验证码" required/>
+          <span class="icon is-small is-left">
+            <i class="fas fa-key"> </i>
+          </span>
         </div>
       </div>
+      <div class="column" style="padding-top: 0;padding-right: 0">
+        <button class="button is-medium fixed-width-button label" :disabled="isSendingCode" @click="sendVerificationCode">
+          {{ isSendingCode ? `${verificationCodeValidTime}s` : verificationText }}
+        </button>
+      </div>
+      </div>
+
     </div>
     <div class="field">
       <label class="label is-medium">密码</label>
@@ -80,12 +81,17 @@
         <button class="button is-link is-light is-medium" @click = 'cancel'>取消</button>
       </div>
     </div>
+    </form>
+    <div class="skeleton-lines" v-else>
+      <div v-for="n in 6" :key="n" class="skeleton-block"></div>
+    </div>
   </div>
 </div>
 
 
 </template>
 <script>
+import axiosInstance from '@/axiosInstance';
 export default {
   name: 'RegisterPage',
   data() {
@@ -105,6 +111,11 @@ export default {
         password: false,
         confirmPassword: false,
       },
+      verificationCodeValidTime: 10,
+      isSendingCode: false,
+      isSubmitting: false,
+      timer: null,
+      verificationText: '发送验证码'
     }
   },
   watch: {
@@ -112,13 +123,16 @@ export default {
       this.userInfoCheck.username = newVal.length > 0 && newVal.length < 15;
     },
     'userInfo.email'(newVal) {
-      this.userInfoCheck.email = /^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(newVal);
+      this.userInfoCheck.email = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$/.test(newVal);
     },
     'userInfo.password'(newVal) {
       this.userInfoCheck.password = this.validatePassword(newVal);
     },
     'userInfo.confirmPassword'(newVal) {
       this.userInfoCheck.confirmPassword = newVal === this.userInfo.password && this.userInfoCheck.password;
+    },
+    'userInfo.verificationCode'(newVal) {
+      this.userInfoCheck.verificationCode = newVal.length === 6;
     }
   },
   methods: {
@@ -129,10 +143,26 @@ export default {
       const isLongEnough = password.length > 8;
       return hasUpperCase && hasLowerCase && hasNumber && isLongEnough;
     },
-    submit() {
+    async submit() {
       if (Object.values(this.userInfoCheck).every(value => value)) {
-        // 路由跳转到首页
-        this.$router.push('/');
+        this.isSubmitting = true;
+        try {
+          const response = await axiosInstance.post('/register', {
+            username: this.userInfo.username,
+            email: this.userInfo.email,
+            password: this.userInfo.password
+          }, {
+            params: {
+              verificationCode: this.userInfo.verificationCode
+            }
+          });
+          console.log(response.data);
+          this.$router.push('/login');
+        } catch (error) {
+          this.isSubmitting = false;
+          console.error('Error during registration:', error);
+          alert("注册时出现错误，请稍后再试");
+        }
       } else {
         alert('请检查输入');
       }
@@ -141,14 +171,45 @@ export default {
       // 路由跳转到登录页
       this.$router.push('/login');
     },
-    sendVerificationCode() {
-      // todo:发送验证码
+    async sendVerificationCode() {
+      if (this.isSendingCode) return;
+      if (!this.userInfoCheck.email) {
+        alert('请输入正确的邮箱');
+        return;
+      }
+      this.isSendingCode = true;
+      try {
+        await axiosInstance.post("/send-verification", null, {
+          params: {
+            email: this.userInfo.email
+          }
+        });
+      } catch (error) {
+        alert('发送验证码时发生错误，请稍后再试');
+        return;
+      }
+      this.verificationCodeValidTime = 10;
+      this.timer = setInterval(() => {
+        if (this.verificationCodeValidTime > 0) {
+          this.verificationCodeValidTime--;
+        } else {
+          clearInterval(this.timer);
+          this.isSendingCode = false;
+          this.verificationText = '重新发送';
+        }
+      }, 1000);
+    },
+    beforeDestroy() {
+      if (this.timer) {
+        clearInterval(this.timer);
+      }
     }
-
   }
 }
 </script>
 
 <style scoped>
-
+.fixed-width-button{
+  width: 100%;
+}
 </style>

@@ -11,17 +11,31 @@
           <span></span>
         </div>
       </div>
-      <div class="navbar-start">
+
+
+      <div class="navbar-start" v-if="Object.keys(personalProfile).length === 0">
         <router-link class="navbar-item" to="/login">登录</router-link>
         <router-link class="navbar-item" to="/register">注册</router-link>
+      </div>
+      <div class="navbar-start" v-else>
+        <router-link class="navbar-item" to="/logout">登出</router-link>
       </div>
     </div>
   </nav>
 
 </template>
 
+
+
 <script>
+import { mapState, mapActions } from 'vuex';
 export default {
+  computed: {
+    ...mapState(['personalProfile'])
+  },
+  methods: {
+    ...mapActions(['updatePersonalProfile'])
+  },
   name: 'NavigationBar',
 }
 </script>

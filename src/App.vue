@@ -1,26 +1,37 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+
+    <div v-if="showSideBar">
+      <NavigationBar />
+      <div class="container">
+        <div class="columns">
+          <SideBar />
+          <router-view />
+        </div>
+      </div>
+    </div>
+    <router-view v-else />
+
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import NavigationBar from "@/components/NavigationBar.vue";
+import SideBar from "@/components/SideBar.vue";
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    SideBar,
+    NavigationBar
+  },
+  data() {
+    return {
+      showSideBar: true
+    }
+  },
+  watch: {
+    $route(to) {
+      this.showSideBar = to.path !== '/login' && to.path !== '/register';
+    }
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
