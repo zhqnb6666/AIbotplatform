@@ -73,7 +73,7 @@
     </div>
 
 
-    <div class="field is-grouped">
+    <div class="field is-grouped is-grouped-centered">
       <div class="control">
         <button class="button is-link is-medium" @click = 'submit'>提交</button>
       </div>
@@ -150,13 +150,13 @@ export default {
           const response = await axiosInstance.post('/register', {
             username: this.userInfo.username,
             email: this.userInfo.email,
-            password: this.userInfo.password
-          }, {
-            params: {
-              verificationCode: this.userInfo.verificationCode
-            }
+            password: this.userInfo.password,
+            verificationCode: this.userInfo.verificationCode
           });
-          console.log(response.data);
+          if (response.data !== "User registered successfully") {
+            alert('注册失败，请确保验证码正确，稍后再试');
+            return;
+          }
           this.$router.push('/login');
         } catch (error) {
           this.isSubmitting = false;
@@ -177,17 +177,16 @@ export default {
         alert('请输入正确的邮箱');
         return;
       }
-      this.isSendingCode = true;
       try {
-        await axiosInstance.post("/send-verification", null, {
-          params: {
-            email: this.userInfo.email
-          }
-        });
+        await axiosInstance.post("/send-verification", {
+              email: this.userInfo.email
+            }
+        );
       } catch (error) {
         alert('发送验证码时发生错误，请稍后再试');
         return;
       }
+      this.isSendingCode = true;
       this.verificationCodeValidTime = 10;
       this.timer = setInterval(() => {
         if (this.verificationCodeValidTime > 0) {

@@ -12,22 +12,22 @@ const axiosInstance = axios.create({
 
 });
 
-// 获取 CSRF 令牌并存储到 localStorage
-axiosInstance.get('/csrf-token').then(response => {
-    localStorage.setItem('csrfToken', response.data.token);
-}).catch(error => {
-    console.error('Error fetching CSRF token:', error);
-});
-
-// 请求拦截器，添加 CSRF 令牌到请求头
-axiosInstance.interceptors.request.use(config => {
-    const csrfToken = localStorage.getItem('csrfToken'); // 从 localStorage 获取 CSRF 令牌
-    if (csrfToken) {
-        config.headers['X-CSRF-Token'] = csrfToken; // 设置 CSRF 令牌到请求头
-    }
-    return config;
-}, error => {
-    return Promise.reject(error);
-});
+// // 获取 CSRF 令牌并存储到 localStorage
+// axiosInstance.get('/csrf-token').then(response => {
+//     localStorage.setItem('csrfToken', response.data.token);
+// }).catch(error => {
+//     console.error('Error fetching CSRF token:', error);
+// });
+//
+// // 请求拦截器，添加 CSRF 令牌到请求头
+// axiosInstance.interceptors.request.use(config => {
+//     const csrfToken = localStorage.getItem('csrfToken'); // 从 localStorage 获取 CSRF 令牌
+//     if (csrfToken) {
+//         config.headers['X-CSRF-Token'] = csrfToken; // 设置 CSRF 令牌到请求头
+//     }
+//     return config;
+// }, error => {
+//     return Promise.reject(error);
+// });
 
 export default axiosInstance;

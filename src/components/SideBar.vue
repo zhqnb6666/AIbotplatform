@@ -1,5 +1,5 @@
 <template>
-  <div class="column is-3 ">
+  <div class="column is-3" style="height: 100%">
     <aside class="menu is-hidden-mobile">
       <p class="menu-label">
         功能

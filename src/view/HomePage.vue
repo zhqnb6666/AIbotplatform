@@ -22,7 +22,7 @@
             @click="handleClickTags(tag)"
         >
         {{ tag }}
-      </span>
+        </span>
       </div>
       <div class="control">
         <div class="media" v-for="robot in robots" :key="robot.name">
