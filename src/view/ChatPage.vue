@@ -9,8 +9,8 @@ export default {
   data() {
     return {
       messages: [
-        { text: 'Hello! How can I help you today?', sender: 'bot' },
-        { text: 'I need some information about your services.', sender: 'user' }
+        { text: '你好，我是AI', sender: 'bot' },
+        { text: '你好,我是用户', sender: 'user' }
       ],
       newMessage: '',
       isSingleTurn: true,
@@ -25,8 +25,8 @@ export default {
         // Simulate bot response
         setTimeout(() => {
           const response = this.isSingleTurn
-              ? 'This is a single-turn response.'
-              : 'This is a multi-turn response based on history.';
+              ? '这是一个单轮回复。'
+              : '这是一个多轮回复。';
           this.messages.push({ text: response, sender: 'bot' });
         }, 1000);
       }
@@ -57,7 +57,7 @@ export default {
     <div class="card">
       <!-- 聊天框头部 -->
       <div class="card-header">
-        <p class="card-header-title">你与GPT的聊天</p>
+        <p class="card-header-title">你与GPT的聊天（{{isSingleTurn?"单轮":"多轮"}}模式）</p>
         <button class="card-header-icon" aria-label="more options">
         <span class="icon">
           <i class="fas fa-angle-down" aria-hidden="true"></i>
@@ -88,7 +88,11 @@ export default {
               text="文件上传"
               :handleClick="triggerFileUpload"
           />
-
+          <DropdownButton
+              iconClass="fas fa-sync-alt fa-2x"
+              text="切换模式"
+              :handleClick="toggleMode"
+          />
           <div class="field has-addons">
             <p class="control is-expanded">
               <input

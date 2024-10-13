@@ -51,9 +51,8 @@ export default {
 </script>
 
 <template>
-  <!-- Main container -->
   <div class="column is-9" v-if="!isEditingProfile">
-    <!-- Profile card -->
+    <!-- 个人资料页面 -->
     <div class="level">
       <div class="level-left">
         <div class="level-item">
@@ -76,12 +75,11 @@ export default {
       </div>
     </div>
 
-
     <div class="tabs">
       <ul>
         <li :class="{'is-active':tab_index === 0}" @click="changeTab(0)"><a>{{robots.length}}个机器人</a></li>
-        <li :class="{'is-active':tab_index === 1}" @click="changeTab(1)"><a>0个帖子</a></li>
-        <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>0个已关注的机器人</a></li>
+        <li :class="{'is-active':tab_index === 1}" @click="changeTab(1)"><a>使用情况</a></li>
+        <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>他人评论</a></li>
       </ul>
     </div>
     <div class="control">
@@ -106,7 +104,9 @@ export default {
       </div>
     </div>
   </div>
+
   <div class="column is-9" v-else>
+    <!-- 资料修改页面 -->
     <div class="level">
       <div class="level-left">
         <div class="level-item label is-medium">
@@ -121,8 +121,8 @@ export default {
           </figure>
         </div>
       </div>
-
     </div>
+
     <div class="file has-name">
       <label class="file-label">
         <input class="file-input" type="file" name="resume" @change="handleImageUpload"/>
@@ -135,6 +135,7 @@ export default {
         <span class="file-name"> {{personalProfile.imageName}} </span>
       </label>
     </div>
+
     <div class="field">
       <label class="label is-medium">用户名:</label>
       <input class="input is-medium" type="text" :placeholder="personalProfile.name" v-model="personalProfile.name"/>

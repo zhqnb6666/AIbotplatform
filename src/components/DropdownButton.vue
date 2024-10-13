@@ -40,6 +40,6 @@ export default {
 
 <style scoped>
 .icon {
-  color: #404040;
+  color: rgb(128, 128, 128);
 }
 </style>
