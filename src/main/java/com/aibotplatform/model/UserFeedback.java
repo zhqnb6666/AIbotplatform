@@ -19,12 +19,25 @@ public class UserFeedback {
     @JoinColumn(name = "commenter_id", nullable = false)
     private User commenter;
 
+    @Column(nullable = false)
+    private Integer rating;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)
     private Timestamp createdAt;
 
+    public UserFeedback(Long feedbackId, User user, User commenter, Integer rating, String content) {
+        this.feedbackId = feedbackId;
+        this.user = user;
+        this.commenter = commenter;
+        this.rating = rating;
+        this.content = content;
+    }
+
+    public UserFeedback() {
+    }
     // Getters and Setters
 
     public Long getFeedbackId() {
@@ -65,5 +78,13 @@ public class UserFeedback {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getRating() {
+        return rating;
+    }
+
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 }

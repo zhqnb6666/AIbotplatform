@@ -3,6 +3,7 @@ package com.aibotplatform.service.impl;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
+import com.aibotplatform.model.MessageFeedback;
 import com.aibotplatform.repository.ConversationRepository;
 import com.aibotplatform.repository.MessageRepository;
 import com.aibotplatform.service.ConversationService;
@@ -66,5 +67,10 @@ public class ConversationServiceImpl implements ConversationService {
 
     public List<Conversation> getConversationsByUserId(Long userId) {
         return conversationRepository.findByUser_UserIdAndActiveTrue(userId);
+    }
+
+    public Message getMessageById(Long messageId) {
+        return messageRepository.findByMessageId(messageId)
+                .orElseThrow(() -> new ApiException("Message Not Found", HttpStatus.NOT_FOUND));
     }
 }
