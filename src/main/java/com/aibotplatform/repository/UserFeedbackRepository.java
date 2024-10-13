@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface FeedbackRepository extends JpaRepository<UserFeedback, Long> {
+public interface UserFeedbackRepository extends JpaRepository<UserFeedback, Long> {
     List<UserFeedback> findByUser_UserId(Long userId);
 }

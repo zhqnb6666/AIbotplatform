@@ -1,14 +1,12 @@
 package com.aibotplatform.controller;
 
 import com.aibotplatform.dto.UserDTO;
-import com.aibotplatform.dto.UserStatsResponse;
-import com.aibotplatform.dto.FeedbackDTO;
 import com.aibotplatform.model.User;
 import com.aibotplatform.model.Bot;
+import com.aibotplatform.model.UserFeedback;
 import com.aibotplatform.service.impl.UserService;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.FeedbackService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,8 +61,8 @@ public class UserController {
 
     // GET /api/users/{user_id}/feedback - Get feedback for a user
     @GetMapping("/{user_id}/feedback")
-    public ResponseEntity<List<FeedbackDTO>> getUserFeedback(@PathVariable Long user_id) {
-        List<FeedbackDTO> feedbacks = feedbackService.getUserFeedback(user_id);
+    public ResponseEntity<List<UserFeedback>> getUserFeedback(@PathVariable Long user_id) {
+        List<UserFeedback> feedbacks = feedbackService.getUserFeedback(user_id);
         return new ResponseEntity<>(feedbacks, HttpStatus.OK);
     }
 
