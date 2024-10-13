@@ -1,9 +1,11 @@
 package com.aibotplatform.service.impl;
 
+import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Bot;
 import com.aibotplatform.repository.BotRepository;
 import com.aibotplatform.service.BotService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -26,7 +28,7 @@ public class BotServiceImpl implements BotService {
     @Override
     public Bot getBotById(Long botId) {
         return botRepository.findById(botId)
-                .orElseThrow(() -> new RuntimeException("Bot not found with id: " + botId));
+                .orElseThrow(() -> new ApiException("Bot Not Found", HttpStatus.NOT_FOUND));
     }
 
     @Override
@@ -44,8 +46,7 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public Bot updateBot(Bot bot) {
-        Bot existingBot = botRepository.findById(bot.getBotId())
-                .orElseThrow(() -> new RuntimeException("Bot not found with id: " + bot.getBotId()));
+        Bot existingBot = getBotById(bot.getBotId());
         existingBot.setName(bot.getName());
         existingBot.setDescription(bot.getDescription());
         existingBot.setModel(bot.getModel());
@@ -57,14 +58,17 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public void deleteBot(Long botId) {
-        Bot bot = botRepository.findById(botId)
-                .orElseThrow(() -> new RuntimeException("Bot not found with id: " + botId));
+        Bot bot = getBotById(botId);
         botRepository.delete(bot);
     }
 
     @Override
     public List<Bot> getUserCustomBots(Long userId) {
-        return botRepository.findBotsByCreator_UserId(userId);
+        try {
+            return botRepository.findBotsByCreator_UserId(userId);
+        } catch (Exception e) {
+            throw new ApiException("User Not Found",HttpStatus.NOT_FOUND);
+        }
     }
 
 
