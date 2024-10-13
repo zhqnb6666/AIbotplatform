@@ -3,7 +3,7 @@ package com.aibotplatform.controller;
 import com.aibotplatform.dto.*;
 import com.aibotplatform.model.User;
 import com.aibotplatform.security.JwtUtil;
-import com.aibotplatform.service.UserService;
+import com.aibotplatform.service.impl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,9 +62,9 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/send-verification")
-    public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequest emailRequest) {
-        userService.sendVerificationCode(emailRequest.getEmail());
+    @PostMapping("/send-verification{email}")
+    public ResponseEntity<?> sendVerificationCode(@PathVariable String email) {
+        userService.sendVerificationCode(email);
         return ResponseEntity.ok().build();
     }
 

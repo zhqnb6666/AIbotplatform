@@ -1,5 +1,6 @@
-package com.aibotplatform.service;
+package com.aibotplatform.service.impl;
 
+import com.aibotplatform.dto.UserStatsResponse;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -86,5 +87,28 @@ public class UserService implements UserDetailsService {
         User savedUser = userRepository.save(user);
         verificationService.clearCode(user.getEmail());
         return savedUser;
+    }
+
+    public User updateUserProfile(Long userId, User user) {
+    User existingUser = userRepository.findByUserId(userId);
+    if (existingUser == null) {
+        throw new IllegalArgumentException("userId not found");
+    }
+    existingUser.setUsername(user.getUsername());
+    existingUser.setEmail(user.getEmail());
+    existingUser.setRole(user.getRole());
+    existingUser.setCredits(user.getCredits());
+    return userRepository.save(existingUser);
+}
+
+//    public UserStatsResponse getUserStats(Long userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+//        return new UserStatsResponse();
+//    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 }
