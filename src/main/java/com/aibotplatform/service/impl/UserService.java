@@ -1,7 +1,9 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.dto.UserStatsResponse;
+import com.aibotplatform.exception.ApiException;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -109,6 +111,6 @@ public class UserService implements UserDetailsService {
 
     public User getUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new ApiException("User NOT Found", HttpStatus.NOT_FOUND));
     }
 }

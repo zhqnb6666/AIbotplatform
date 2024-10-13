@@ -1,11 +1,13 @@
 package com.aibotplatform.service.impl;
 
+import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
 import com.aibotplatform.repository.ConversationRepository;
 import com.aibotplatform.repository.MessageRepository;
 import com.aibotplatform.service.ConversationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +37,7 @@ public class ConversationServiceImpl implements ConversationService {
 
     public Conversation getConversationById(Long conversationId) {
         return conversationRepository.findByConversationIdAndActiveTrue(conversationId)
-                .orElseThrow(() -> new IllegalArgumentException("Conversation not found with ID: " + conversationId));
+                .orElseThrow(() -> new ApiException("Conversation Not Found", HttpStatus.NOT_FOUND));
     }
 
     @Transactional
