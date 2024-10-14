@@ -32,6 +32,6 @@ export default {
     $route(to) {
       this.showSideBar = to.path !== '/login' && to.path !== '/register';
     }
-  }
+  },
 }
 </script>

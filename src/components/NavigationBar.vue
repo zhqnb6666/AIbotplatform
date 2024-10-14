@@ -11,7 +11,7 @@
           <span></span>
         </div>
       </div>
-      <div class="navbar-start" v-if="Object.keys(personalProfile).length === 0">
+      <div class="navbar-start" v-if="!isLoggedIn">
         <router-link class="navbar-item" to="/login">登录</router-link>
         <router-link class="navbar-item" to="/register">注册</router-link>
       </div>
@@ -27,15 +27,13 @@
 
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapGetters } from 'vuex';
+
 export default {
-  computed: {
-    ...mapState(['personalProfile'])
-  },
-  methods: {
-    ...mapActions(['updatePersonalProfile'])
-  },
   name: 'NavigationBar',
+  computed: {
+    ...mapGetters(['isLoggedIn'])
+  }
 }
 </script>
 

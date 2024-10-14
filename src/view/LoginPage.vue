@@ -1,9 +1,38 @@
 <script>
+import {mapActions, mapGetters} from "vuex";
+import axiosInstance from "@/axiosInstance"
 export default {
   name: "LoginPage",
+  computed: {
+    ...mapGetters(['isLoggedIn'])
+  },
+  data() {
+    return {
+      usernameOrEmail: "",
+      password: ""
+    }
+  },
   methods: {
-    login() {
-      this.$router.push('/');
+    ...mapActions(['updateLoginState']),
+    async login() {
+      try {
+        const response = await axiosInstance.post("/login", {
+          usernameOrEmail: this.usernameOrEmail,
+          password: this.password
+        });
+        if(response.data==="Incorrect username or password"){
+          alert("用户名或密码错误");
+          return;
+        }
+        const jwt = response.data.jwt;
+        localStorage.setItem('token', jwt);
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
+        await this.updateLoginState(true);
+        this.$router.push('/');
+      } catch (error) {
+        console.error('Login error:', error);
+        alert('登录失败');
+      }
     }
   }
 }
@@ -14,10 +43,10 @@ export default {
 <section class="hero is-fullheight">
   <div class="hero-body has-text-centered">
     <div class="login">
-      <form>
+      <form @submit.prevent="login">
         <div class="field">
           <div class="control has-icons-left">
-            <input class="input is-medium is-rounded" type="email" placeholder="hello@gmail.com" autocomplete="username" required />
+            <input v-model="usernameOrEmail" class="input is-medium is-rounded" type="email" placeholder="请输入邮箱或用户名" autocomplete="username" required />
             <span class="icon is-medium is-left">
               <i class="fas fa-envelope"></i>
             </span>
@@ -25,7 +54,7 @@ export default {
         </div>
         <div class="field">
           <div class="control has-icons-left">
-            <input class="input is-medium is-rounded" type="password" placeholder="**********" autocomplete="current-password" required />
+            <input v-model="password" class="input is-medium is-rounded" type="password" placeholder="**********" autocomplete="current-password" required />
             <span class="icon is-medium is-left">
               <i class="fas fa-key"></i>
             </span>

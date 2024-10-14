@@ -1,8 +1,11 @@
 <script>
-
+import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'ProfilePage',
+  computed: {
+    ...mapState(['personalProfile'])
+  },
   data() {
     return {
       robots: [
@@ -10,13 +13,6 @@ export default {
         {name: 'Claude', description: 'A robot that can help you with your daily tasks.'},
       ],
       isEditingProfile: false,
-      personalProfile: {
-        image: 'https://bulma.io/assets/images/placeholders/128x128.png',
-        imageName: 'Screen Shot',
-        name:'tom',
-        email:'tom@gmail.com',
-        introduction:'我是'
-      },
       tab_index: 0,
     }
   },
@@ -25,7 +21,7 @@ export default {
       this.isEditingProfile = true;
     },
     submit() {
-      // Save the personal profile
+      this.updatePersonalProfile(this.personalProfile);
       this.isEditingProfile = false;
     },
     cancel() {
@@ -41,11 +37,12 @@ export default {
         this.personalProfile.imageName = file.name;
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.personalProfile.image = e.target.result;
+          this.updatePersonalProfile({...this.personalProfile, image: e.target.result});
         };
         reader.readAsDataURL(file);
       }
-    }
+    },
+    ...mapActions(['updatePersonalProfile'])
   }
 }
 </script>
@@ -65,8 +62,8 @@ export default {
         </div>
         <div class="level-item">
           <div class="control">
-            <p class="title is-4">{{personalProfile.name}}</p>
-            <p class="subtitle is-6">@{{personalProfile.email.split('@')[0]}}</p>
+            <p class="title is-4">{{ personalProfile.name }}</p>
+            <p class="subtitle is-6">@{{ personalProfile.email.split('@')[0] }}</p>
           </div>
         </div>
       </div>
@@ -77,7 +74,7 @@ export default {
 
     <div class="tabs">
       <ul>
-        <li :class="{'is-active':tab_index === 0}" @click="changeTab(0)"><a>{{robots.length}}个机器人</a></li>
+        <li :class="{'is-active':tab_index === 0}" @click="changeTab(0)"><a>{{ robots.length }}个机器人</a></li>
         <li :class="{'is-active':tab_index === 1}" @click="changeTab(1)"><a>使用情况</a></li>
         <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>他人评论</a></li>
       </ul>
@@ -86,15 +83,15 @@ export default {
       <div class="media" v-for="robot in robots" :key="robot.name">
         <figure class="media-left">
           <p class="image is-64x64">
-            <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image" />
+            <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image"/>
           </p>
         </figure>
         <div class="media-content">
           <div class="content">
             <p>
-              <strong>{{robot.name}}</strong>
+              <strong>{{ robot.name }}</strong>
               <br>
-              {{robot.description}}
+              {{ robot.description }}
             </p>
           </div>
         </div>
@@ -132,30 +129,30 @@ export default {
           </span>
           <span class="file-label"> 上传图片 </span>
         </span>
-        <span class="file-name"> {{personalProfile.imageName}} </span>
+        <span class="file-name"> {{ personalProfile.imageName }} </span>
       </label>
     </div>
 
     <div class="field">
       <label class="label is-medium">用户名:</label>
-      <input class="input is-medium" type="text" :placeholder="personalProfile.name" v-model="personalProfile.name"/>
+      <input class="input is-medium" type="text" v-model="personalProfile.name"/>
     </div>
     <div class="field">
       <label class="label is-medium">邮箱:</label>
-      <input class="input is-medium" type="text" :placeholder="personalProfile.email" disabled />
+      <input class="input is-medium" type="text" :placeholder="personalProfile.email" disabled/>
     </div>
     <div class="field">
       <label class="label is-medium">个人简介</label>
       <div class="control">
-        <textarea class="textarea is-medium" :placeholder="personalProfile.introduction" v-model="personalProfile.introduction"></textarea>
+        <textarea class="textarea is-medium" v-model="personalProfile.bio"></textarea>
       </div>
     </div>
     <div class="field is-grouped">
       <div class="control">
-        <button class="button is-link is-medium" @click = 'submit'>提交</button>
+        <button class="button is-link is-medium" @click='submit'>提交</button>
       </div>
       <div class="control">
-        <button class="button is-link is-light is-medium" @click = 'cancel'>取消</button>
+        <button class="button is-link is-light is-medium" @click='cancel'>取消</button>
       </div>
     </div>
   </div>
