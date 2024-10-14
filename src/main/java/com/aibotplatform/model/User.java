@@ -29,6 +29,9 @@ public class User {
     private BigDecimal credits = BigDecimal.ZERO;
 
     @Column(nullable = false)
+    private Long token = 0L;
+
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @Column(nullable = false)
@@ -102,5 +105,13 @@ public class User {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getToken() {
+        return token;
+    }
+
+    public void setToken(Long token) {
+        this.token = token;
     }
 }
