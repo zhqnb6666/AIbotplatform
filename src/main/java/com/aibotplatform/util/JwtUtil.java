@@ -1,4 +1,4 @@
-package com.aibotplatform.security;
+package com.aibotplatform.util;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
