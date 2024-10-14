@@ -64,8 +64,12 @@ public class AuthController {
 
     @PostMapping("/send-verification{email}")
     public ResponseEntity<?> sendVerificationCode(@PathVariable String email) {
-        userService.sendVerificationCode(email);
-        return ResponseEntity.ok().build();
+        try {
+            userService.sendVerificationCode(email);
+            return ResponseEntity.ok().body("Verification code sent successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/reset-password")

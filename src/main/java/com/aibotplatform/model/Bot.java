@@ -35,6 +35,9 @@ public class Bot {
     private Integer tokenCost = 1;
 
     @Column(nullable = false)
+    private Integer daily_limit = 50;
+
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @Column(nullable = false)
@@ -104,6 +107,14 @@ public class Bot {
 
     public void setTokenCost(Integer tokenCost) {
         this.tokenCost = tokenCost;
+    }
+
+    public Integer getDaily_limit() {
+        return daily_limit;
+    }
+
+    public void setDaily_limit(Integer daily_limit) {
+        this.daily_limit = daily_limit;
     }
 
     public Timestamp getCreatedAt() {
