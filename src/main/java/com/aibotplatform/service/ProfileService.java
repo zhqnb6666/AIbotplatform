@@ -13,12 +13,30 @@ public class ProfileService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void changeUsername(String currentUsername, String newUsername) throws UsernameNotFoundException {
+    public void updateUsername(String currentUsername, String newUsername) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(currentUsername);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
         user.setUsername(newUsername);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateAvatarUrl(String username, String avatarUrl) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            user.setAvatarUrl(avatarUrl);
+            userRepository.save(user);
+        }
+    }
+
+    @Transactional
+    public void updateBio(String username, String bio) {
+        User user = userRepository.findByUsername(username);
+        if (user != null) {
+            user.setBio(bio);
+            userRepository.save(user);
+        }
     }
 }
