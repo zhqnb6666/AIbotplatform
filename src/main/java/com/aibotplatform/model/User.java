@@ -31,6 +31,9 @@ public class User {
     private BigDecimal credits = BigDecimal.ZERO;
 
     @Column(nullable = false)
+    private Long token = 0L;
+
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @Column(nullable = false)

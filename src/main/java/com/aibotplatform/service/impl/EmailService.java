@@ -1,4 +1,4 @@
-package com.aibotplatform.service;
+package com.aibotplatform.service.impl;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

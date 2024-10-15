@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -63,10 +62,14 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/send-verification")
-    public ResponseEntity<?> sendVerificationCode(@RequestBody EmailRequest emailRequest) {
-        userService.sendVerificationCode(emailRequest.getEmail());
-        return ResponseEntity.ok().build();
+    @PostMapping("/send-verification{email}")
+    public ResponseEntity<?> sendVerificationCode(@PathVariable String email) {
+        try {
+            userService.sendVerificationCode(email);
+            return ResponseEntity.ok().body("Verification code sent successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/reset-password")

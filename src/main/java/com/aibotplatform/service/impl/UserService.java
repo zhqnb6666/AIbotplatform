@@ -1,6 +1,9 @@
-package com.aibotplatform.service;
+package com.aibotplatform.service.impl;
 
+import com.aibotplatform.dto.UserStatsResponse;
+import com.aibotplatform.exception.ApiException;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.aibotplatform.model.User;
 import com.aibotplatform.repository.UserRepository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 
@@ -52,7 +56,7 @@ public class UserService implements UserDetailsService {
     public void resetPassword(String email, String verificationCode, String newPassword) {
         if (verificationService.verifyCode(email, verificationCode)) {
             User user = userRepository.findByEmail(email);
-            if(user == null) {
+            if (user == null) {
                 throw new IllegalArgumentException("User not found");
             }
             user.setPasswordHash(passwordEncoder.encode(newPassword));
@@ -65,10 +69,10 @@ public class UserService implements UserDetailsService {
     }
 
     public User registerNewUser(User user, String verificationCode) {
-        if(userRepository.findByUsername(user.getUsername()) != null) {
+        if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
-        if(userRepository.findByEmail(user.getEmail()) != null) {
+        if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new IllegalArgumentException("Email already exists");
         }
         if (!verificationService.verifyCode(user.getEmail(), verificationCode)) {
@@ -86,5 +90,38 @@ public class UserService implements UserDetailsService {
         User savedUser = userRepository.save(user);
         verificationService.clearCode(user.getEmail());
         return savedUser;
+    }
+
+    public User updateUserProfile(Long userId, User user) {
+        User existingUser = userRepository.findByUserId(userId);
+        if (existingUser == null) {
+            throw new IllegalArgumentException("userId not found");
+        }
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setRole(user.getRole());
+        existingUser.setCredits(user.getCredits());
+        return userRepository.save(existingUser);
+    }
+
+    public void changeCredits(User user, BigDecimal creditBalance) {
+        user.setCredits(creditBalance);
+        userRepository.save(user);
+    }
+
+    public void changeTokens(User user, Long tokenBalance) {
+        user.setToken(tokenBalance);
+        userRepository.save(user);
+    }
+
+//    public UserStatsResponse getUserStats(Long userId) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+//        return new UserStatsResponse();
+//    }
+
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User NOT Found", HttpStatus.NOT_FOUND));
     }
 }
