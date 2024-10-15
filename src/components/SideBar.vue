@@ -5,88 +5,49 @@
         功能
       </p>
       <ul class="menu-list">
-        <!-- 使用插槽做跳转逻辑 -->
         <router-link to="/market">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">购买积分</a>
-          </template>
+          购买积分
         </router-link>
 
         <router-link to="/createBot">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">创建bot</a>
-          </template>
+          创建bot
         </router-link>
 
         <router-link to="/">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">探索</a>
-          </template>
+          探索
         </router-link>
-
-
-
       </ul>
       <p class="menu-label">
         个人信息
       </p>
       <ul class="menu-list">
-
         <router-link to="/chat">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">所有聊天历史</a>
-          </template>
+          所有聊天历史
         </router-link>
 
         <router-link to="/profile">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">个人资料</a>
-          </template>
+          个人资料
         </router-link>
-
       </ul>
       <p class="menu-label">
         更多
       </p>
       <ul class="menu-list">
-
         <router-link to="/contact">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">联系我们</a>
-          </template>
+          联系我们
         </router-link>
 
         <router-link to="/setting">
-          <template v-slot:default="{ navigate }">
-            <a @click="redirectIfNotLoggedIn(navigate, $event)">设置</a>
-          </template>
+          设置
         </router-link>
-
       </ul>
     </aside>
   </div>
 </template>
 
 <script>
-import {mapGetters} from "vuex";
-
 export default {
-  name: 'SideBar',
-  computed: {
-    ...mapGetters(['isLoggedIn'])
-  },
-  methods: {
-    redirectIfNotLoggedIn(navigate, event) {
-      event.preventDefault(); // 阻止导航默认行为
-      const isLoggedIn = this.isLoggedIn;
-      if (!isLoggedIn) {
-        console.log('Not logged in, redirecting to login page');
-        this.$router.push('/login');
-      } else {
-        navigate();
-      }
-    }
-  }
+  name: 'SideBar'
 }
 </script>
 

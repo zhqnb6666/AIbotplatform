@@ -5,17 +5,36 @@ import LoginPage from '@/view/LoginPage.vue'
 import RegisterPage from "@/view/RegisterPage.vue";
 import ProfilePage from "@/view/ProfilePage.vue";
 import ChatPage from "@/view/ChatPage.vue";
+import createBot from "@/view/CreateBot.vue";
+import store from '@/store';
+
 const routes = [
     { path: '/', component: HomePage },
     { path: '/login', component: LoginPage },
     { path: '/register', component: RegisterPage },
-    { path: '/profile', component: ProfilePage },
-    { path: '/chat', component: ChatPage}
+    { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
+    { path: '/chat', component: ChatPage, meta: { requiresAuth: true } },
+    { path: '/createBot', component: createBot, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes
 })
+
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        if (!store.getters.isLoggedIn) {
+            next({
+                path: '/login',
+                query: { redirect: to.fullPath }
+            });
+        } else {
+            next();
+        }
+    } else {
+        next();
+    }
+});
 
 export default router

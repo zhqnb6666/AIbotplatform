@@ -4,7 +4,7 @@
 
       <div class="content">
         <div class="control has-icons-left has-icons-right">
-          <input class="input is-medium" type="text" placeholder="搜索机器人或者用户">
+          <input class="input is-medium is-rounded" type="text" placeholder="搜索机器人或者用户">
           <span class="icon is-medium is-left">
             <i class="fa fa-search"></i>
           </span>
