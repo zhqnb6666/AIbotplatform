@@ -92,7 +92,23 @@
             <version>2.3.1</version>
         </dependency>
 
-
+        <!--使用百度千帆平台的api需要使用-->
+        <dependency>
+            <groupId>com.baidubce</groupId>
+            <artifactId>qianfan</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <!--langchain框架（仅对openai的模型有效）-->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-open-ai</artifactId>
+            <version>0.35.0</version>
+        </dependency>
 
 
     </dependencies>

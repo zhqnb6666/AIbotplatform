@@ -40,10 +40,10 @@ public class Bot {
     @Column(nullable = false)
     private Timestamp updatedAt;
 
+    @Column(nullable = false)
+    private String icon;
     // Getters, Setters, equals, hashCode, etc.
-
     public enum BotType {
         OFFICIAL, CUSTOM
     }
-
 }
