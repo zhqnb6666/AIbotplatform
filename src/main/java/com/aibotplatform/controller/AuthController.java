@@ -2,8 +2,8 @@ package com.aibotplatform.controller;
 
 import com.aibotplatform.dto.*;
 import com.aibotplatform.model.User;
-import com.aibotplatform.security.JwtUtil;
 import com.aibotplatform.service.impl.UserService;
+import com.aibotplatform.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
