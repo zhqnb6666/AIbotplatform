@@ -39,8 +39,8 @@ public class User {
     @Column(nullable = false)
     private Timestamp updatedAt;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(255) DEFAULT 'default_avatar.png'")
-    private String avatarUrl;
+    @Column(nullable = false)
+    private String avatarUrl = "default_avatar.png";
 
     @Column(columnDefinition = "TEXT")
     private String bio;
