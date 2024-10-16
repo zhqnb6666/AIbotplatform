@@ -25,6 +25,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/profile")
 public class ProfileController {
+    // test
     private final UserRepository userRepository;
     private final ProfileService profileService;
 
