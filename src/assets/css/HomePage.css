@@ -120,7 +120,7 @@ nav.navbar {
     margin-bottom: 0;
 }
 
-.events-card .card-table {
-    max-height: 400px;
-    overflow-y: scroll;
-}
+/*.events-card .card-table {*/
+/*    max-height: 400px;*/
+/*    overflow-y: scroll;*/
+/*}*/

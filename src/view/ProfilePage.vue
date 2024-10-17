@@ -48,7 +48,7 @@ export default {
 </script>
 
 <template>
-  <div class="column is-9" v-if="!isEditingProfile">
+  <div class="container" v-if="!isEditingProfile" style="width: 70%">
     <!-- 个人资料页面 -->
     <div class="level">
       <div class="level-left">
@@ -102,7 +102,7 @@ export default {
     </div>
   </div>
 
-  <div class="column is-9" v-else>
+  <div class="container" v-else style="width: 70%">
     <!-- 资料修改页面 -->
     <div class="level">
       <div class="level-left">

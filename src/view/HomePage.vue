@@ -1,7 +1,6 @@
 
 <template>
-    <div class="column is-9">
-
+    <div class="container" style="width: 60%">
       <div class="content">
         <div class="control has-icons-left has-icons-right">
           <input class="input is-medium is-rounded" type="text" placeholder="搜索机器人或者用户">
@@ -41,10 +40,11 @@
             </div>
           </div>
           <div class="media-right">
-            <button class="button is-white">查看</button>
+            <button class="button is-text">查看</button>
           </div>
         </div>
       </div>
+
     </div>
 
 </template>
@@ -89,6 +89,6 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 @import "@/assets/css/HomePage.css";
 </style>

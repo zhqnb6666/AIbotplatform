@@ -48,7 +48,7 @@ export default {
           <div class="control has-icons-left">
             <input v-model="usernameOrEmail" class="input is-medium is-rounded" type="email" placeholder="请输入邮箱或用户名" autocomplete="username" required />
             <span class="icon is-medium is-left">
-              <i class="fas fa-envelope"></i>
+              <i class="fas fa-user"></i>
             </span>
           </div>
         </div>
@@ -60,12 +60,12 @@ export default {
             </span>
           </div>
         </div>
-        <br />
         <button class="button is-block is-fullwidth is-link is-medium is-rounded" type="submit" @click="login">
           登录
         </button>
+
       </form>
-      <br>
+      <br />
       <nav class="level">
         <div class="level-item has-text-centered">
           <div>

@@ -1,7 +1,7 @@
 
 <template>
-  <div class="column is-9">
-    <div class="container" style="width: 88%;">
+
+    <div class="container" style="width: 70%;">
       <div class="field">
         <label class="label">机器人类型</label>
         <div class="control">
@@ -52,12 +52,12 @@
           <button class="button is-link" @click="onSubmit">创建机器人</button>
         </div>
         <div class="control">
-          <button class="button is-link is-light" @click="cancel">Cancel</button>
+          <button class="button is-link is-light" @click="cancel">取消</button>
         </div>
       </div>
 
     </div>
-  </div>
+
 </template>
 <script>
 export default {

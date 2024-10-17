@@ -34,7 +34,7 @@
         <div class="control has-icons-left">
           <input v-model="userInfo.verificationCode" class="input is-medium" type="text" placeholder="请输入验证码" required/>
           <span class="icon is-small is-left">
-            <i class="fas fa-key"> </i>
+            <i class="fas fa-lock"> </i>
           </span>
         </div>
       </div>

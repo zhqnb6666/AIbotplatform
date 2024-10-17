@@ -1,9 +1,9 @@
-<!-- DropdownButton.vue -->
+<!-- DropUpButton.vue -->
 <template>
-  <div class="dropdown is-hoverable">
+  <div class="dropdown is-hoverable is-up">
     <div class="dropdown-trigger">
       <button class="button is-white" @click="handleClick">
-        <span class="icon is-large">
+        <span class="icon">
           <i :class="iconClass" aria-hidden="true"></i>
         </span>
       </button>
@@ -40,6 +40,6 @@ export default {
 
 <style scoped>
 .icon {
-  color: rgb(128, 128, 128);
+  color:#4A4A4A;
 }
 </style>
