@@ -15,8 +15,8 @@ import java.util.List;
 public class QianFanLLM {
     private final String ak = "uMF5PVIQDQYY58QZJ0J04XrF";
     private final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
-    private String model_name = "ERNIE-Speed-8K";
-    private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
+    private String model_name = "Yi-34B-Chat";
+    private ChatMemory chatMemory = MessageWindowChatMemory.builder()
             .maxMessages(10)
             .build();
     private QianfanChatModel model = QianfanChatModel.builder()
@@ -38,7 +38,9 @@ public class QianFanLLM {
                 .secretKey(sk)
                 .modelName(model_name)
                 .build();
-        chatMemory.clear();
+        this.chatMemory = MessageWindowChatMemory.builder()
+                .maxMessages(10)
+                .build();
         this.assistant = AiServices.builder(IAiService.class)
                 .chatLanguageModel(model) // the model
                 .chatMemory(chatMemory)  // memory

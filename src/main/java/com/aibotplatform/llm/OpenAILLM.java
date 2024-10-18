@@ -2,14 +2,11 @@ package com.aibotplatform.llm;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
-import dev.langchain4j.data.message.ChatMessageSerializer;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.chat.request.ChatRequest;
-import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.output.Response;
+import dev.langchain4j.service.AiServices;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -26,13 +23,13 @@ public class OpenAILLM {
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
             .maxMessages(10)
             .build();
-
+    private final IAiService assistant = AiServices.builder(IAiService.class)
+            .chatLanguageModel(model) // the model
+            .chatMemory(chatMemory)  // memory
+            .build();
 
     public String chat(String message) {
-        chatMemory.add(new UserMessage(message));
-        ChatResponse resp = model.chat(ChatRequest.builder().messages(chatMemory.messages()).build());
-        chatMemory.add(resp.aiMessage());
-        return resp.aiMessage().text();
+        return assistant.chat(message);
     }
 
     public void initialize_messages(List<AbstractMap.SimpleEntry<String, String>> chat_history) {
@@ -60,5 +57,4 @@ public class OpenAILLM {
         }
         return chatHistory;
     }
-
 }
