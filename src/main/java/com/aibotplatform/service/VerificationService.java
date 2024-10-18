@@ -1,4 +1,4 @@
-package com.aibotplatform.service.impl;
+package com.aibotplatform.service;
 
 public interface VerificationService {
     String generateVerificationCode(String email);
