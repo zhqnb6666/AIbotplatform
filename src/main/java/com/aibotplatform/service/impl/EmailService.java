@@ -1,4 +1,4 @@
-package com.aibotplatform.service;
+package com.aibotplatform.service.impl;
 
 public interface EmailService {
     void sendEmail(String to, String subject, String content);
