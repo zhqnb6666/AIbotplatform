@@ -1,11 +1,14 @@
 package com.aibotplatform.controller;
 
-import com.aibotplatform.dto.ChangeBioRequest;
-import com.aibotplatform.dto.ChangeUserNameRequest;
-import com.aibotplatform.dto.ProfileResponse;
-import com.aibotplatform.model.User;
-import com.aibotplatform.repository.UserRepository;
-import com.aibotplatform.service.ProfileService;
+import com.aibotplatform.dto.profileDTO.ChangeBioRequest;
+import com.aibotplatform.dto.profileDTO.ChangeUserNameRequest;
+import com.aibotplatform.dto.profileDTO.ProfileResponse;
+import com.aibotplatform.exception.ApiException;
+import com.aibotplatform.service.BotService;
+import com.aibotplatform.service.FeedbackService;
+import com.aibotplatform.service.impl.ProfileServiceImpl;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,30 +27,34 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/profile")
+@Tag(name = "Profile API", description = "APIS for getting and changing user profile")
 public class ProfileController {
-    // test
-    private final UserRepository userRepository;
-    private final ProfileService profileService;
+
+    private final ProfileServiceImpl profileService;
+    private final BotService botService;
+    private final FeedbackService feedbackService;
 
     private final String uploadDir = "avatars/";
 
     @GetMapping
+    @Operation(summary = "Get user profile", description = "Get user own profile")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
         }
-        User user = userRepository.findByUsername(userDetails.getUsername());
-        ProfileResponse profileResponse = new ProfileResponse();
-        profileResponse.setUsername(user.getUsername());
-        profileResponse.setCredits(user.getCredits());
-        profileResponse.setRole(user.getRole().toString());
-        profileResponse.setAvatarUrl(user.getAvatarUrl());
-        profileResponse.setEmail(user.getEmail());
-        profileResponse.setBio(user.getBio());
-        return ResponseEntity.ok(profileResponse);
+        ProfileResponse userProfile = profileService.getUserProfile(userDetails.getUsername());
+        return ResponseEntity.ok(userProfile);
     }
 
-    @PostMapping("/change-username")
+    @GetMapping("/{id}")
+    @Operation(summary = "Get user profile", description = "Get user own profile")
+    public ResponseEntity<?> getProfileById(@PathVariable Long id) {
+        ProfileResponse userProfile = profileService.getUserProfileById(id);
+        return ResponseEntity.ok(userProfile);
+    }
+
+    @PutMapping("/change-username")
+    @Operation(summary = "Change user's username")
     public ResponseEntity<?> changeUsername(@AuthenticationPrincipal UserDetails userDetails,
                                             @RequestBody ChangeUserNameRequest changeUserNameRequest) {
         if (userDetails == null) {
@@ -55,23 +62,11 @@ public class ProfileController {
                     .body("User not authenticated");
         }
         String newUsername = changeUserNameRequest.getNewUsername();
-        if (newUsername == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("New username is null");
-        }
-        if (userDetails.getUsername().equals(newUsername)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("New username cannot be the same as the current username");
-        }
-        if (userRepository.findByUsername(newUsername) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Username already exists");
-        }
         try {
             profileService.updateUsername(userDetails.getUsername(), newUsername);
-        } catch (UsernameNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Username not found");
+        } catch (ApiException e) {
+            return ResponseEntity.status(e.getStatus())
+                    .body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Internal server error: " + e.getMessage());
@@ -80,7 +75,8 @@ public class ProfileController {
                         ", please log in again.");
     }
 
-    @PostMapping("/change-avatar")
+    @PutMapping("/change-avatar")
+    @Operation(summary = "Change user's avatar")
     public ResponseEntity<?> changeAvatar(@AuthenticationPrincipal UserDetails userDetails,
                                           @RequestParam("file") MultipartFile file){
         if (userDetails == null) {
@@ -114,7 +110,8 @@ public class ProfileController {
         return filename.substring(filename.lastIndexOf('.'));
     }
 
-    @PostMapping("/change-bio")
+    @PutMapping("/change-bio")
+    @Operation(summary = "Change user's bio")
     public ResponseEntity<?> changeBio(@AuthenticationPrincipal UserDetails userDetails,
                                        @RequestBody ChangeBioRequest changeBioRequest) {
         if (userDetails == null) {
@@ -132,5 +129,4 @@ public class ProfileController {
         }
         return ResponseEntity.ok("Bio changed successfully.");
     }
-
 }

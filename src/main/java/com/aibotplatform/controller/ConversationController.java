@@ -6,7 +6,7 @@ import com.aibotplatform.model.Message;
 import com.aibotplatform.dto.MessageDTO;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.ConversationService;
-import com.aibotplatform.service.impl.UserService;
+import com.aibotplatform.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -22,10 +22,10 @@ import java.util.stream.Collectors;
 public class ConversationController {
 
     private final ConversationService conversationService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final BotService botService;
 
-    public ConversationController(ConversationService conversationService, UserService userService, BotService botService) {
+    public ConversationController(ConversationService conversationService, UserServiceImpl userService, BotService botService) {
         this.conversationService = conversationService;
         this.botService = botService;
         this.userService = userService;

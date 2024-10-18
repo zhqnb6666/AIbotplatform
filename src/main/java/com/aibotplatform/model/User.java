@@ -42,8 +42,8 @@ public class User {
     @Column(nullable = false)
     private String avatarUrl = "default_avatar.png";
 
-    @Column(columnDefinition = "TEXT")
-    private String bio;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String bio = "";
 
     public enum Role {
         ADMIN, USER

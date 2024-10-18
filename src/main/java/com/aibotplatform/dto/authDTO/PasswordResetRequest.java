@@ -1,4 +1,4 @@
-package com.aibotplatform.dto;
+package com.aibotplatform.dto.authDTO;
 
 import lombok.Getter;
 

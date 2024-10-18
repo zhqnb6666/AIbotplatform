@@ -29,11 +29,12 @@ public class Transaction {
     public Transaction() {
     }
 
-    public Transaction(Long transactionId, User user, BigDecimal amount, String paymentMethod) {
+    public Transaction(Long transactionId, User user, BigDecimal amount, String paymentMethod, Timestamp createdAt) {
         this.transactionId = transactionId;
         this.user = user;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
+        this.createdAt = createdAt;
     }
 
     public Long getTransactionId() {

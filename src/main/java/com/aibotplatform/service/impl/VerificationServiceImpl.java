@@ -1,5 +1,6 @@
 package com.aibotplatform.service.impl;
 
+import com.aibotplatform.service.VerificationService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -28,11 +29,12 @@ import java.util.Random;
 //    }
 //}
 @Service
-public class VerificationService {
+public class VerificationServiceImpl implements VerificationService {
     private final Map<String, VerificationCodeInfo> verificationCodes = new HashMap<>();
     private static final long CODE_EXPIRATION_TIME = 1800000; // 30 minutes
     private static final long RESEND_COOLDOWN = 60000; // 1 minute
 
+    @Override
     public String generateVerificationCode(String email) {
         String code = String.format("%06d", new Random().nextInt(999999));
         long currentTime = System.currentTimeMillis();
@@ -40,11 +42,13 @@ public class VerificationService {
         return code;
     }
 
+    @Override
     public boolean canResendCode(String email) {
         VerificationCodeInfo info = verificationCodes.get(email);
         return info == null || System.currentTimeMillis() - info.timestamp > RESEND_COOLDOWN;
     }
 
+    @Override
     public boolean verifyCode(String email, String code) {
         VerificationCodeInfo info = verificationCodes.get(email);
         if (info == null) return false;
@@ -52,6 +56,7 @@ public class VerificationService {
         return info.code.equals(code) && (currentTime - info.timestamp <= CODE_EXPIRATION_TIME);
     }
 
+    @Override
     public void clearCode(String email) {
         verificationCodes.remove(email);
     }

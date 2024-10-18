@@ -6,6 +6,5 @@ public record MessageDTO(
     Long messageId,
     Message.SenderType senderType,
     String content
-
 ) {
 }

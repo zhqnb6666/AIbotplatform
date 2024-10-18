@@ -1,10 +1,13 @@
 package com.aibotplatform.service.impl;
 
+import com.aibotplatform.dto.botDTO.CreateBotRequest;
+import com.aibotplatform.dto.botDTO.UpdateBotRequest;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Bot;
+import com.aibotplatform.model.User;
 import com.aibotplatform.repository.BotRepository;
 import com.aibotplatform.service.BotService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -12,13 +15,11 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class BotServiceImpl implements BotService {
 
     private final BotRepository botRepository;
-
-    public BotServiceImpl(BotRepository botRepository) {
-        this.botRepository = botRepository;
-    }
+    private final UserServiceImpl userService;
 
     @Override
     public List<Bot> getAllBots() {
@@ -32,8 +33,14 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot createBot(Bot bot,Bot.BotType type) {
-        bot.setBotId(null);
+    public Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type) {
+        Bot bot = new Bot();
+        bot.setName(createBotRequest.name());
+        bot.setCreator(creator);
+        bot.setDescription(createBotRequest.description());
+        bot.setModel(createBotRequest.model());
+        bot.setTokenCost(createBotRequest.tokenCost());
+        bot.setIsActive(true);
         bot.setCreatedAt(Timestamp.from(java.time.Instant.now()));
         bot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
         bot.setType(type);
@@ -45,20 +52,35 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
-    public Bot updateBot(Bot bot) {
-        Bot existingBot = getBotById(bot.getBotId());
-        existingBot.setName(bot.getName());
-        existingBot.setDescription(bot.getDescription());
-        existingBot.setModel(bot.getModel());
-        existingBot.setActive(bot.getActive());
-        existingBot.setTokenCost(bot.getTokenCost());
+    public Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser) throws ApiException {
+        Bot existingBot = getBotById(updateBotRequest.botId());
+        if (existingBot == null) {
+            throw new ApiException("Bot Not Found",HttpStatus.NOT_FOUND);
+        }
+        if (updateUser.getRole().equals(User.Role.USER) && !existingBot.getCreator().getUserId().equals(updateUser.getUserId())) {
+            throw new ApiException("You are not authorized to update this bot", HttpStatus.UNAUTHORIZED);
+        }
+        if (updateBotRequest.description() != null)
+            existingBot.setDescription(updateBotRequest.description());
+        if (updateBotRequest.tokenCost() != null)
+            existingBot.setTokenCost(updateBotRequest.tokenCost());
+        if (updateBotRequest.model() != null)
+            existingBot.setModel(updateBotRequest.model());
+        if (updateBotRequest.name() != null)
+            existingBot.setName(updateBotRequest.name());
         existingBot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
         return botRepository.save(existingBot);
     }
 
     @Override
-    public void deleteBot(Long botId) {
+    public void deleteBot(Long botId, User deleteUser) throws ApiException{
         Bot bot = getBotById(botId);
+        if (bot == null) {
+            throw new ApiException("Bot Not Found",HttpStatus.NOT_FOUND);
+        }
+        if (deleteUser.getRole().equals(User.Role.USER) && !bot.getCreator().getUserId().equals(deleteUser.getUserId())) {
+            throw new ApiException("You are not authorized to delete this bot", HttpStatus.UNAUTHORIZED);
+        }
         botRepository.delete(bot);
     }
 
