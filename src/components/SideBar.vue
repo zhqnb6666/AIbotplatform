@@ -63,4 +63,8 @@ export default {
   border-right: 1px solid var(--el-border-color);
 }
 
+.el-sub-menu {
+  font-size: 18px; /* Adjust the size as needed */
+  font-weight: bold;
+}
 </style>

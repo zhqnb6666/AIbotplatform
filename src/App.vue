@@ -1,19 +1,20 @@
 <template>
 
-    <div v-if="showSideBar" class="common-layout">
-      <el-container direction="horizontal">
+  <div v-if="showSideBar" class="common-layout">
+    <el-container direction="horizontal">
 
-        <SideBar />
+      <SideBar />
 
-        <el-container direction="vertical">
-          <el-header class="title is-4">{{action}}</el-header>
-          <el-main>
-            <router-view @update-action="updateAction"/>
-          </el-main>
-        </el-container>
+      <el-container direction="vertical">
+        <el-header class="title is-4">{{action}}</el-header>
+        <el-main>
+          <router-view v-if="$route.path === '/chat'" @update-action="updateAction"/>
+          <router-view v-else />
+        </el-main>
       </el-container>
-    </div>
-    <router-view v-else />
+    </el-container>
+  </div>
+  <router-view v-else />
 
 </template>
 
@@ -47,7 +48,8 @@ export default {
         '/chat': '聊天',
         '/profile': '个人资料',
         '/contact': '联系我们',
-        '/setting': '设置'
+        '/setting': '设置',
+        '/review': '评分'
       };
       this.action = actions[to.path] || '探索';
     }
@@ -63,9 +65,9 @@ export default {
   line-height: 60px;
   text-align: center;
   border-bottom: 1px solid var(--el-border-color);
+  margin-bottom: 0;
 }
 .el-container {
-  margin: 0;
   padding: 0;
   height: 100%;
 }

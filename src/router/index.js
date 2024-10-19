@@ -7,14 +7,15 @@ import ProfilePage from "@/view/ProfilePage.vue";
 import ChatPage from "@/view/ChatPage.vue";
 import createBot from "@/view/CreateBot.vue";
 import store from '@/store';
-
+import reviewPage from "@/view/reviewPage.vue";
 const routes = [
     { path: '/', component: HomePage },
     { path: '/login', component: LoginPage },
     { path: '/register', component: RegisterPage },
     { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
     { path: '/chat', component: ChatPage, meta: { requiresAuth: true } },
-    { path: '/createBot', component: createBot, meta: { requiresAuth: true } }
+    { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
+    { path: '/review', component: reviewPage, meta: { requiresAuth: true }}
 ]
 
 const router = createRouter({

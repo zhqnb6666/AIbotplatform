@@ -16,12 +16,15 @@ export default {
     ...mapActions(['updateLoginState']),
     async login() {
       try {
-        const response = await axiosInstance.post("/login", {
+        const response = await axiosInstance.post("/auth/login", {
           usernameOrEmail: this.usernameOrEmail,
           password: this.password
         });
         if(response.data==="Incorrect username or password"){
-          alert("用户名或密码错误");
+          this.$message({
+            message: '用户名或密码错误',
+            type: 'error'
+          });
           return;
         }
         const jwt = response.data.jwt;

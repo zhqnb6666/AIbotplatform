@@ -48,7 +48,7 @@ export default {
 </script>
 
 <template>
-  <div class="container" v-if="!isEditingProfile" style="width: 70%">
+  <div class="container" v-if="!isEditingProfile">
     <!-- 个人资料页面 -->
     <div class="level">
       <div class="level-left">
@@ -102,7 +102,7 @@ export default {
     </div>
   </div>
 
-  <div class="container" v-else style="width: 70%">
+  <div class="container" v-else>
     <!-- 资料修改页面 -->
     <div class="level">
       <div class="level-left">
@@ -160,5 +160,8 @@ export default {
 </template>
 
 <style scoped>
-
+.container {
+  width: 70%;
+  margin-top: 24px;
+}
 </style>

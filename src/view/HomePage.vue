@@ -1,7 +1,7 @@
 
 <template>
     <div class="container" style="width: 60%">
-      <div class="content">
+      <div class="content" style="margin-top: 20px">
         <div class="control has-icons-left has-icons-right">
           <input class="input is-medium is-rounded" type="text" placeholder="搜索机器人或者用户">
           <span class="icon is-medium is-left">
@@ -40,7 +40,7 @@
             </div>
           </div>
           <div class="media-right">
-            <button class="button is-text">查看</button>
+            <button class="button is-white" @click="review">评分</button>
           </div>
         </div>
       </div>
@@ -84,6 +84,10 @@ export default {
         this.activeTag.push(tag)
         console.log('click tags')
       }
+    },
+    //跳转到评分界面
+    review() {
+      this.$router.push('/review')
     }
   }
 }
@@ -91,4 +95,5 @@ export default {
 
 <style scoped>
 @import "@/assets/css/HomePage.css";
+
 </style>

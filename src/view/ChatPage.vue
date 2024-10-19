@@ -172,10 +172,7 @@ greet();
 </script>
 
 <template>
-
     <el-container>
-
-
       <el-main>
       <!-- 聊天框内容 -->
         <div class="scrollable-content">
@@ -251,7 +248,6 @@ greet();
 </template>
 
 <style scoped>
-
 
 .el-footer {
   border-top: none;

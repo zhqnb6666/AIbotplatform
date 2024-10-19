@@ -147,24 +147,33 @@ export default {
       if (Object.values(this.userInfoCheck).every(value => value)) {
         this.isSubmitting = true;
         try {
-          const response = await axiosInstance.post('/register', {
+          const response = await axiosInstance.post('/auth/register', {
             username: this.userInfo.username,
             email: this.userInfo.email,
             password: this.userInfo.password,
             verificationCode: this.userInfo.verificationCode
           });
           if (response.data !== "User registered successfully") {
-            alert('注册失败，请确保验证码正确，稍后再试');
+            this.$message({
+              message: '注册失败，请稍后再试',
+              type: 'error'
+            });
             return;
           }
           this.$router.push('/login');
         } catch (error) {
           this.isSubmitting = false;
           console.error('Error during registration:', error);
-          alert("注册时出现错误，请稍后再试");
+          this.$message({
+            message: '注册失败，请稍后再试',
+            type: 'error'
+          });
         }
       } else {
-        alert('请检查输入');
+        this.$message({
+          message: '请检查输入是否正确',
+          type: 'error'
+        });
       }
     },
     cancel() {
@@ -178,12 +187,24 @@ export default {
         return;
       }
       try {
-        await axiosInstance.post("/send-verification", {
-              email: this.userInfo.email
-            }
-        );
+        const response = await axiosInstance.post(`/auth/send-verification/${this.userInfo.email}`);
+        if (response.data === "Verification code sent successfully") {
+          this.$message({
+            message: '验证码发送成功',
+            type: 'success'
+          });
+        } else {
+          this.$message({
+            message: '验证码发送失败，请稍后再试',
+            type: 'error'
+          });
+          return;
+        }
       } catch (error) {
-        alert('发送验证码时发生错误，请稍后再试');
+        this.$message({
+          message: '验证码发送失败，请稍后再试',
+          type: 'error'
+        });
         return;
       }
       this.isSendingCode = true;
