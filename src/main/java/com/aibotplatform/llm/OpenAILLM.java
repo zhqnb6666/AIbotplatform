@@ -23,7 +23,7 @@ public class OpenAILLM {
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
             .maxMessages(10)
             .build();
-    private final IAiService assistant = AiServices.builder(IAiService.class)
+    private final ChatBot assistant = AiServices.builder(ChatBot.class)
             .chatLanguageModel(model) // the model
             .chatMemory(chatMemory)  // memory
             .build();

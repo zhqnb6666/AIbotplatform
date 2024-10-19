@@ -116,15 +116,14 @@
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j</artifactId>
+            <artifactId>langchain4j-qianfan</artifactId>
             <version>0.35.0</version>
         </dependency>
         <dependency>
             <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-qianfan</artifactId>
+            <artifactId>langchain4j-easy-rag</artifactId>
             <version>0.35.0</version>
         </dependency>
-
 
     </dependencies>
 
