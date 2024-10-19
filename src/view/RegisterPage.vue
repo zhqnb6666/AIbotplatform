@@ -183,9 +183,23 @@ export default {
     async sendVerificationCode() {
       if (this.isSendingCode) return;
       if (!this.userInfoCheck.email) {
-        alert('请输入正确的邮箱');
+        this.$message({
+          message: '请输入正确的邮箱',
+          type: 'error'
+        });
         return;
       }
+      this.isSendingCode = true;
+      this.verificationCodeValidTime = 30;
+      this.timer = setInterval(() => {
+        if (this.verificationCodeValidTime > 0) {
+          this.verificationCodeValidTime--;
+        } else {
+          clearInterval(this.timer);
+          this.isSendingCode = false;
+          this.verificationText = '重新发送';
+        }
+      }, 1000);
       try {
         const response = await axiosInstance.post(`/auth/send-verification/${this.userInfo.email}`);
         if (response.data === "Verification code sent successfully") {
@@ -198,26 +212,15 @@ export default {
             message: '验证码发送失败，请稍后再试',
             type: 'error'
           });
-          return;
+
         }
       } catch (error) {
         this.$message({
           message: '验证码发送失败，请稍后再试',
           type: 'error'
         });
-        return;
+
       }
-      this.isSendingCode = true;
-      this.verificationCodeValidTime = 10;
-      this.timer = setInterval(() => {
-        if (this.verificationCodeValidTime > 0) {
-          this.verificationCodeValidTime--;
-        } else {
-          clearInterval(this.timer);
-          this.isSendingCode = false;
-          this.verificationText = '重新发送';
-        }
-      }, 1000);
     },
     beforeDestroy() {
       if (this.timer) {
