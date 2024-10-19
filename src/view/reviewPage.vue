@@ -71,8 +71,8 @@
 </template>
 
 <script>
-import localImage from '@/assets/图标/main-thumb-pb-3015-200-ivodfqemfvztmvgafhdouijhknthkvmp.jpeg';
-import avatorImage from '@/assets/图标/main-thumb-pb-5038493-200-kaqjjvliljatttdmmgeqyflyvlevubcb.jpeg'
+import localImage from '@/assets/jpegs/main-thumb-pb-3015-200-ivodfqemfvztmvgafhdouijhknthkvmp.jpeg';
+import avatorImage from '@/assets/jpegs/main-thumb-pb-5038493-200-kaqjjvliljatttdmmgeqyflyvlevubcb.jpeg'
 import { Edit } from '@element-plus/icons-vue';
 
 export default {
@@ -140,6 +140,10 @@ export default {
       ];
     }
   },
+  created() {
+    this.fetchRobotInfo(this.$route.params.botId);
+  },
+
   methods: {
     submitReview() {
       this.robotReviews.push({
@@ -150,6 +154,10 @@ export default {
       this.showForm = false;
       this.form.rating = 0;
       this.form.review = '';
+    },
+    // eslint-disable-next-line no-unused-vars
+    fetchRobotInfo(botId) {
+      // todo:获取后端数据
     }
   }
 };

@@ -115,15 +115,15 @@ export default {
           });
           return;
         }
+        const botId = response.data.botId;
+        this.$router.push(`/chat/${botId}`);
       }catch (error) {
         this.$message({
           message: '创建失败',
           type: 'error'
         });
         console.error('Create bot error:', error);
-        return;
       }
-      this.$router.push('/chat');
     },
     cancel() {
       this.$router.push('/');

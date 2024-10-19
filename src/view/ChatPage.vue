@@ -30,7 +30,7 @@ export default {
   },
   created() {
     this.$emit('update-action', '您和' + this.robotName + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
-    this.fetchMessages();
+    this.fetchMessages(this.$route.params.botId);
   },
   methods: {
     // 高亮代码块
@@ -42,8 +42,10 @@ export default {
       });
     },
     // 获取消息
-    fetchMessages() {
-      // todo: 从后端获取消息
+    // eslint-disable-next-line no-unused-vars
+    fetchMessages(botId) {
+      // todo: 从后端获取消息（应由江澈完成）
+      // 如果后端没有返回历史记录，则新建一个对话，否则获取历史记录
     },
     // 点赞
     thumbUp(index) {

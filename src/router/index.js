@@ -13,9 +13,9 @@ const routes = [
     { path: '/login', component: LoginPage },
     { path: '/register', component: RegisterPage },
     { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
-    { path: '/chat', component: ChatPage, meta: { requiresAuth: true } },
+    { path: '/chat/:botId', component: ChatPage, meta: { requiresAuth: true } },
     { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
-    { path: '/review', component: reviewPage, meta: { requiresAuth: true }}
+    { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }}
 ]
 
 const router = createRouter({

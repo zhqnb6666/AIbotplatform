@@ -40,7 +40,7 @@
             </div>
           </div>
           <div class="media-right">
-            <button class="button is-white" @click="review">评分</button>
+            <button class="button is-white" @click="review(robot.id)">评分</button>
           </div>
         </div>
       </div>
@@ -57,16 +57,19 @@ export default {
     return {
       robots: [
         {
+          id: 1,
           name: 'Robot1',
           description: 'This is a robot',
           tags: ['Official', 'GPT']
         },
         {
+          id: 2,
           name: 'Robot2',
           description: 'This is a robot',
           tags: ['tag1', 'tag2']
         },
         {
+          id: 3,
           name: 'Robot3',
           description: 'This is a robot',
           tags: ['tag1', 'tag2']
@@ -86,8 +89,8 @@ export default {
       }
     },
     //跳转到评分界面
-    review() {
-      this.$router.push('/review')
+    review(botId) {
+      this.$router.push(`/review/${botId}`);
     }
   }
 }
