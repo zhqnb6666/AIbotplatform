@@ -8,7 +8,7 @@
       <el-container direction="vertical">
         <el-header class="title is-4">{{action}}</el-header>
         <el-main>
-          <router-view v-if="$route.path === '/chat'" @update-action="updateAction"/>
+          <router-view v-if="isChatRoute" @update-action="updateAction"/>
           <router-view v-else />
         </el-main>
       </el-container>
@@ -38,6 +38,11 @@ export default {
       action: '探索'
     }
   },
+  computed: {
+    isChatRoute() {
+      return this.$route.matched.some(record => record.path === '/chat/:botId');
+    }
+  },
   watch: {
     $route(to) {
       this.showSideBar = to.path !== '/login' && to.path !== '/register';
@@ -45,7 +50,7 @@ export default {
         '/market': '购买积分',
         '/createBot': '创建bot',
         '/': '探索',
-        '/chat': '聊天',
+        '/chat': '聊天历史',
         '/profile': '个人资料',
         '/contact': '联系我们',
         '/setting': '设置',

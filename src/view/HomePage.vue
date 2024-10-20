@@ -23,61 +23,54 @@
         {{ tag }}
         </span>
       </div>
-      <div class="control">
-        <div class="media" v-for="robot in robots" :key="robot.name">
-          <figure class="media-left">
-            <p class="image is-64x64">
-              <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image" />
+
+      <div class="media" v-for="robot in robots" :key="robot.name">
+        <figure class="media-left">
+          <p class="image is-64x64">
+            <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image" />
+          </p>
+        </figure>
+        <div class="media-content">
+          <div class="content">
+            <p>
+              <strong class="title is-6">{{robot.name}}</strong>
+              <br>{{robot.description}}
+              <span style="display: flex; align-items: center; font-size: 15px; font-weight: 500">
+                每token价格: {{robot.tokenCost}}
+                <el-icon size="15px"><Coin /></el-icon>
+              </span>
             </p>
-          </figure>
-          <div class="media-content">
-            <div class="content">
-              <p>
-                <strong>{{robot.name}}</strong>
-                <br>{{robot.description}}
-                <br class="tags"><span v-for="tag in robot.tags" :key="tag" class="tag is-hoverable">{{tag}}</span>
-              </p>
-            </div>
-          </div>
-          <div class="media-right">
-            <button class="button is-white" @click="review(robot.id)">评分</button>
           </div>
         </div>
+        <div class="media-right">
+          <el-button text size="large" round @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
+        </div>
       </div>
-
     </div>
+
+
 
 </template>
 
 <script>
-
+import axiosInstance from "@/axiosInstance";
+import {Coin, EditPen} from "@element-plus/icons-vue";
 export default {
   name: 'HomePage',
+  components: {EditPen, Coin},
   data() {
     return {
       robots: [
-        {
-          id: 1,
-          name: 'Robot1',
-          description: 'This is a robot',
-          tags: ['Official', 'GPT']
-        },
-        {
-          id: 2,
-          name: 'Robot2',
-          description: 'This is a robot',
-          tags: ['tag1', 'tag2']
-        },
-        {
-          id: 3,
-          name: 'Robot3',
-          description: 'This is a robot',
-          tags: ['tag1', 'tag2']
-        }
+
       ],
-      allTags: ['Official', 'GPT', 'tag1', 'tag2', 'tag3'],
+      allTags: ['官方', '简体中文', '热门', '用户', '机器人'],
       activeTag: []
     }
+  },
+  created() {
+    axiosInstance.get('/bots').then(res => {
+      this.robots = res.data.slice(0, 10);
+    });
   },
   methods: {
     handleClickTags(tag) {

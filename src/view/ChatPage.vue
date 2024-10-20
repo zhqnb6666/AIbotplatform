@@ -1,6 +1,7 @@
 <script>
 import DropUpButton from '@/components/DropUpButton.vue';
 import DropDownButton from '@/components/DropDownButton.vue';
+import axiosInstance from "@/axiosInstance";
 import hljs from 'highlight.js';
 import MarkdownIt from 'markdown-it';
 import 'highlight.js/styles/github.css';
@@ -17,20 +18,38 @@ export default {
   },
   data() {
     return {
+      robotInfo: {
+        botId: this.$route.params.botId,
+        name: '江澈',
+      },
       messages: [],
+      files: [],
       newMessage: '',
       isSingleTurn: true,
-      files: [],
-      robotName: 'GPT-3-turbo',
-      isStreamingComplete: true
+      isStreamingComplete: true,
+      isFeedbackDialogVisible: false,
+      isRateDialogVisible: false,
+      feedbackDialogInfo: {
+        messageId: 0,
+        content: '',
+        type: ''
+      },
+      rateDialogInfo: {
+        botId: this.$route.params.botId,
+        rating: 0,
+        content: ''
+      }
     };
   },
   mounted() {
     this.highlightCode();
   },
   created() {
-    this.$emit('update-action', '您和' + this.robotName + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
-    this.fetchMessages(this.$route.params.botId);
+    axiosInstance.get(`/bots/${this.robotInfo.botId}`).then(res => {
+      this.robotInfo = res.data;
+      this.$emit('update-action', '您和' + this.robotInfo.name + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      this.fetchMessages(this.robotInfo.botId);
+    });
   },
   methods: {
     // 高亮代码块
@@ -49,26 +68,17 @@ export default {
     },
     // 点赞
     thumbUp(index) {
-      // todo: 后端调用API记录点赞
-      if(this.messages[index].isThumbUp){
-        this.messages[index].isThumbUp = false;
-        console.log('取消点赞');
-        return;
-      }
+      this.isFeedbackDialogVisible = true;
+      this.feedbackDialogInfo.messageId = index;
+      this.feedbackDialogInfo.type = 'LIKE';
       this.messages[index].isThumbUp = true;
-
-      console.log('点赞');
     },
     // 点踩
     thumbDown(index) {
-      if(this.messages[index].isThumbDown){
-        this.messages[index].isThumbDown = false;
-        console.log('取消点踩');
-        return;
-      }
-      // todo: 后端调用API记录点踩
+      this.isFeedbackDialogVisible = true;
+      this.feedbackDialogInfo.messageId = index;
+      this.feedbackDialogInfo.type = 'DISLIKE';
       this.messages[index].isThumbDown = true;
-      console.log('点踩');
     },
     // 发送消息
     sendMessage() {
@@ -152,7 +162,7 @@ greet();
       if (!this.isStreamingComplete) return;
       this.clearMessages();
       this.isSingleTurn = !this.isSingleTurn;
-      this.$emit('update-action', '您和' + this.robotName + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      this.$emit('update-action', '您和' + this.robotInfo.name + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
     },
     // 触发文件上传
     triggerFileUpload() {
@@ -168,85 +178,145 @@ greet();
         this.files.push(file);
         console.log('Image uploaded:', file);
       }
+    },
+    // 提交对某条消息的评价
+    async submitReview() {
+      const response = await axiosInstance.post(`/conversations/feedback`, this.feedbackDialogInfo);
+      if (response.status === 201) {
+        this.$message.success('提交成功');
+      } else {
+        this.$message.error('提交失败');
+        return;
+      }
+      this.isFeedbackDialogVisible = false;
+      this.feedbackDialogInfo.content = '';
+      this.feedbackDialogInfo.messageId = 0;
+      this.feedbackDialogInfo.type = '';
+    },
+    // 提交对机器人的评分
+    async submitRating() {
+      const response = await axiosInstance.post(`/bots/ratings`, {
+        botId: this.rateDialogInfo.botId,
+        rating: this.rateDialogInfo.rating,
+      });
+      if (response.status === 201) {
+        this.$message.success('提交成功');
+      } else {
+        this.$message.error('提交失败');
+      }
+      this.isRateDialogVisible = false;
+      this.rateDialogInfo.rating = 0;
+      this.rateDialogInfo.content = '';
     }
   }
 };
 </script>
 
 <template>
-    <el-container>
-      <el-main>
-      <!-- 聊天框内容 -->
-        <div class="scrollable-content">
-          <div v-for="(message, index) in messages" :key="index" >
-            <div v-if="message.sender==='bot'" class="title is-6">{{ robotName }}</div>
-            <div :class="['message', message.sender]">
-              <article class="message-content markdown-body" v-html="message.text"></article>
-            </div>
-            <div class="field is-grouped" v-if="message.sender==='bot'">
-              <DropDownButton
-                  iconClass="fa fa-thumbs-up"
-                  text="点赞"
-                  :handleClick="() => thumbUp(index)"
-                  :isThumbUp="message.isThumbUp"
-                  :isThumbDown="message.isThumbDown"
-                  :ThumbType="true"
-              />
-              <DropDownButton
-                  iconClass="fa fa-thumbs-down"
-                  text="点踩"
-                  :handleClick="() => thumbDown(index)"
-                  :isThumbUp="message.isThumbUp"
-                  :isThumbDown="message.isThumbDown"
-                  :ThumbType="false"
-              />
-            </div>
+  <el-container>
+    <el-main>
+    <!-- 聊天框内容 -->
+      <div class="scrollable-content">
+        <div v-for="(message, index) in messages" :key="index" >
+          <div v-if="message.sender==='bot'" class="title is-6">{{ robotInfo.name }}</div>
+          <div :class="['message', message.sender]">
+            <article class="message-content markdown-body" v-html="message.text"></article>
+          </div>
+          <div class="field is-grouped" v-if="message.sender==='bot'">
+            <DropDownButton
+                iconClass="fa fa-thumbs-up"
+                text="点赞"
+                :handleClick="() => thumbUp(index)"
+                :isThumbUp="message.isThumbUp"
+                :isThumbDown="message.isThumbDown"
+                :ThumbType="true"
+            />
+            <DropDownButton
+                iconClass="fa fa-thumbs-down"
+                text="点踩"
+                :handleClick="() => thumbDown(index)"
+                :isThumbUp="message.isThumbUp"
+                :isThumbDown="message.isThumbDown"
+                :ThumbType="false"
+            />
           </div>
         </div>
-      </el-main>
-      <!-- 聊天框底部 -->
-      <el-footer>
+      </div>
+    </el-main>
+    <!-- 聊天框底部 -->
+    <el-footer>
 
-        <div class="field is-grouped is-grouped-centered">
-          <DropUpButton
-              iconClass="fa fa-trash-alt fa-2x"
-              text="清空聊天记录"
-              :handleClick="clearMessages"
-          />
+      <div class="field is-grouped is-grouped-centered">
 
-          <DropUpButton
-              iconClass="fa fa-sync-alt fa-2x"
-              text="切换模式"
-              :handleClick="toggleMode"
-          />
-          <div class="field has-addons">
-            <p class="control">
-              <input
-                  v-model="newMessage"
-                  class="input"
-                  style="width: 500px;"
-                  type="text"
-                  placeholder="输入信息"
-                  @keyup.enter="sendMessage"
-              />
-            </p>
-            <div class="control">
-              <button class="button is-link is-light" @click="sendMessage">发送</button>
-            </div>
+        <DropUpButton
+            iconClass="fa fa-edit fa-2x"
+            text="Rate the Bot"
+            :handleClick="() => { isRateDialogVisible = true; }"
+        />
+
+        <DropUpButton
+            iconClass="fa fa-trash-alt fa-2x"
+            text="清空聊天记录"
+            :handleClick="clearMessages"
+        />
+
+        <DropUpButton
+            iconClass="fa fa-sync-alt fa-2x"
+            text="切换模式"
+            :handleClick="toggleMode"
+        />
+        <div class="field has-addons">
+          <p class="control">
+            <input
+                v-model="newMessage"
+                class="input"
+                style="width: 500px;"
+                type="text"
+                placeholder="输入信息"
+                @keyup.enter="sendMessage"
+            />
+          </p>
+          <div class="control">
+            <button class="button is-link is-light" @click="sendMessage">发送</button>
           </div>
-          <DropUpButton
-              iconClass="fa fa-plus fa-2x"
-              text="文件上传"
-              :handleClick="triggerFileUpload"
-          />
         </div>
-        <!-- 将文件输入设置为隐藏 -->
-        <input type="file" ref="imageInput" style="display: none;" @change="handleFileUpload"/>
-      </el-footer>
+        <DropUpButton
+            iconClass="fa fa-plus fa-2x"
+            text="文件上传"
+            :handleClick="triggerFileUpload"
+        />
+      </div>
+      <!-- 将文件输入设置为隐藏 -->
+      <input type="file" ref="imageInput" style="display: none;" @change="handleFileUpload"/>
+    </el-footer>
 
-    </el-container>
+    <el-dialog draggable center v-model="isFeedbackDialogVisible">
+      <template #header>
+        <span class="title is-6">请填写您对此条信息{{feedbackDialogInfo.type==='LIKE'?'满意':'不满意'}}的原因</span>
+      </template>
+      <el-input type="textarea" v-model="feedbackDialogInfo.content" placeholder="关注taffy谢谢喵" rows = 6></el-input>
+      <template #footer>
+        <el-button @click="isFeedbackDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitReview">提交</el-button>
+      </template>
+    </el-dialog>
 
+    <el-dialog v-model="isRateDialogVisible" title="对bot撰写评价">
+      <el-form :model="rateDialogInfo">
+        <el-form-item label="评分">
+          <el-rate v-model="rateDialogInfo.rating"></el-rate>
+        </el-form-item>
+        <el-form-item label="评价">
+          <el-input type="textarea" v-model="rateDialogInfo.content" placeholder="关注taffy谢谢喵"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="isRateDialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="submitRating">Submit</el-button>
+      </template>
+    </el-dialog>
 
+  </el-container>
 </template>
 
 <style scoped>
