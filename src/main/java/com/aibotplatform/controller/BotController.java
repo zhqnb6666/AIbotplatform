@@ -110,6 +110,7 @@ public class BotController {
                 bot.getName(),
                 bot.getDescription(),
                 bot.getModel(),
+                bot.getType(),
                 bot.getIsActive(),
                 bot.getTokenCost()
         );

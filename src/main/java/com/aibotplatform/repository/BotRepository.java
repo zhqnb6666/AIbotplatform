@@ -10,6 +10,8 @@ import java.util.List;
 public interface BotRepository extends JpaRepository<Bot, Long> {
     Bot findByName(String name);
     Bot findByModel(String model);
-
+    List<Bot> findByIsActiveTrue();
     List<Bot> findBotsByCreator_UserId(Long creatorId);
+    long count();
+    long countByType(Bot.BotType type);
 }

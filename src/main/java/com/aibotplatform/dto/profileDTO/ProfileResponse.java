@@ -9,7 +9,6 @@ import java.util.List;
 
 @Data
 public class ProfileResponse {
-
     private String username;
     private String email;
     private String role;
@@ -17,5 +16,6 @@ public class ProfileResponse {
     private String avatarUrl;
     private String bio;
     private List<Bot> userBotList;
+    private Integer avgRating; // multiply rating by 100 to avoid decimal
     private List<UserFeedback> userFeedbackList;
 }

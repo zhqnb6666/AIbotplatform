@@ -3,6 +3,7 @@ package com.aibotplatform.service.impl;
 import com.aibotplatform.dto.profileDTO.ProfileResponse;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.User;
+import com.aibotplatform.model.UserFeedback;
 import com.aibotplatform.repository.UserRepository;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.FeedbackService;
@@ -26,8 +27,11 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     @Override
-    public ProfileResponse getUserProfileById(Long id) {
+    public ProfileResponse getUserProfileById(Long id) throws ApiException {
         User user = userRepository.findByUserId(id);
+        if (user == null) {
+            throw new ApiException("User not found", HttpStatus.NOT_FOUND);
+        }
         return getProfileResponse(user);
     }
 
@@ -40,7 +44,20 @@ public class ProfileServiceImpl implements ProfileService {
         profileResponse.setEmail(user.getEmail());
         profileResponse.setBio(user.getBio());
         profileResponse.setUserBotList(botService.getUserCustomBots(user.getUserId()));
+
         profileResponse.setUserFeedbackList(feedbackService.getUserFeedback(user.getUserId()));
+        long totalRatingCnt = profileResponse.getUserFeedbackList().size();
+        if (totalRatingCnt == 0) {
+            profileResponse.setAvgRating(0);
+        } else {
+            long totalRating = 0;
+            for (UserFeedback userFeedback : profileResponse.getUserFeedbackList()) {
+                totalRating += userFeedback.getRating() * 1000;
+            }
+            int avgRating = (int) (totalRating / totalRatingCnt);
+            avgRating = avgRating / 10 + (avgRating % 10 >= 5 ? 1 : 0);
+            profileResponse.setAvgRating(avgRating);
+        }
         return profileResponse;
     }
 

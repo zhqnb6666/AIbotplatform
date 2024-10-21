@@ -10,6 +10,7 @@ import com.aibotplatform.service.impl.ProfileServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,10 +35,12 @@ public class ProfileController {
     private final BotService botService;
     private final FeedbackService feedbackService;
 
-    private final String uploadDir = "avatars/";
+    @Value("${path.avatars}")
+    private String uploadDir;
 
     @GetMapping
-    @Operation(summary = "Get user profile", description = "Get user own profile")
+    @Operation(summary = "Get user profile",
+            description = "Get user own profile, multiplying rating by 100 to avoid decimal")
     public ResponseEntity<?> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
@@ -47,9 +50,15 @@ public class ProfileController {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Get user profile", description = "Get user own profile")
+    @Operation(summary = "Get user profile",
+            description = "Get user's profile, multiplying rating by 100 to avoid decimal")
     public ResponseEntity<?> getProfileById(@PathVariable Long id) {
-        ProfileResponse userProfile = profileService.getUserProfileById(id);
+        ProfileResponse userProfile = null;
+        try {
+            userProfile = profileService.getUserProfileById(id);
+        } catch (ApiException e) {
+            return ResponseEntity.status(e.getStatus()).body(e.getMessage());
+        }
         return ResponseEntity.ok(userProfile);
     }
 

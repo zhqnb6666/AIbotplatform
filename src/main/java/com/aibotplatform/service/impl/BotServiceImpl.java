@@ -23,7 +23,7 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public List<Bot> getAllBots() {
-        return botRepository.findAll();
+        return botRepository.findByIsActiveTrue();
     }
 
     @Override
@@ -60,6 +60,9 @@ public class BotServiceImpl implements BotService {
         if (updateUser.getRole().equals(User.Role.USER) && !existingBot.getCreator().getUserId().equals(updateUser.getUserId())) {
             throw new ApiException("You are not authorized to update this bot", HttpStatus.UNAUTHORIZED);
         }
+        if (!existingBot.getIsActive()) {
+            throw new ApiException("Bot is deleted", HttpStatus.BAD_REQUEST);
+        }
         if (updateBotRequest.description() != null)
             existingBot.setDescription(updateBotRequest.description());
         if (updateBotRequest.tokenCost() != null)
@@ -81,13 +84,25 @@ public class BotServiceImpl implements BotService {
         if (deleteUser.getRole().equals(User.Role.USER) && !bot.getCreator().getUserId().equals(deleteUser.getUserId())) {
             throw new ApiException("You are not authorized to delete this bot", HttpStatus.UNAUTHORIZED);
         }
-        botRepository.delete(bot);
+        if (!bot.getIsActive()) {
+            throw new ApiException("Bot is deleted", HttpStatus.BAD_REQUEST);
+        }
+        bot.setIsActive(false);
+        botRepository.save(bot);
     }
 
     @Override
     public List<Bot> getUserCustomBots(Long userId) {
         try {
-            return botRepository.findBotsByCreator_UserId(userId);
+            List<Bot> userBotsList = botRepository.findBotsByCreator_UserId(userId);
+            for (Bot bot : userBotsList) {
+                if (!bot.getIsActive()) {
+                    userBotsList.remove(bot);
+                } else if (!bot.getType().equals(Bot.BotType.CUSTOM)) {
+                    userBotsList.remove(bot);
+                }
+            }
+            return userBotsList;
         } catch (Exception e) {
             throw new ApiException("User Not Found",HttpStatus.NOT_FOUND);
         }
