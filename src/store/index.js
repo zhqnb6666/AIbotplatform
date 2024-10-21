@@ -4,10 +4,11 @@ const store = createStore({
     state() {
         return {
             personalProfile: {
-                image: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
-                imageName: 'default profile.png',
-                name: 'tome',
-                email: 'hello@gmail.com',
+                username: '',
+                email: '',
+                role: 'User',
+                credits: 0,
+                avatarUrl: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
                 bio: 'Hello, I am a new user',
             },
             isLoggedIn: false

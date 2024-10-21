@@ -1,8 +1,11 @@
 <script>
 import { mapState, mapActions } from 'vuex';
+import axiosInstance from "@/axiosInstance";
+import {Coin} from "@element-plus/icons-vue";
 
 export default {
   name: 'ProfilePage',
+  components: {Coin},
   computed: {
     ...mapState(['personalProfile'])
   },
@@ -13,14 +16,66 @@ export default {
         {name: 'Claude', description: 'A robot that can help you with your daily tasks.'},
       ],
       isEditingProfile: false,
+      selectedFile: null,
       tab_index: 0,
     }
   },
+  created() {
+    axiosInstance.get('/profile').then((response) => {
+      let { username, email, role, credits, avatarUrl, bio } = response.data;
+      avatarUrl = `http://localhost:8080/avatars/${avatarUrl}`;
+      this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
+      this.robots = response.data.userBotList;
+    }).catch((error) => {
+      this.$message.error('获取个人资料失败');
+      console.error(error);
+    });
+  },
   methods: {
+    ...mapActions(['updatePersonalProfile']),
     editProfile() {
       this.isEditingProfile = true;
     },
-    submit() {
+    async submit() {
+      // Update avatar
+      if (this.selectedFile) {
+        const formData = new FormData();
+        formData.append('file', this.selectedFile);
+        try {
+          const response = await axiosInstance.put('/profile/change-avatar', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          if (!response || response.status !== 200) {
+            this.$message.error('修改失败');
+            return;
+          }
+        } catch (error) {
+          console.error(error);
+          this.$message.error('修改失败');
+          return;
+        }
+      }
+      // Update bio
+      try {
+        const response = await axiosInstance.put('/profile/change-bio', {
+          newBio: this.personalProfile.bio
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        if(!response || response.status !== 200) {
+          this.$message.error('修改失败');
+          return;
+        }
+      } catch (error) {
+        console.error(error);
+        this.$message.error('修改失败');
+        return;
+      }
+      this.$message.success('修改成功');
       this.updatePersonalProfile(this.personalProfile);
       this.isEditingProfile = false;
     },
@@ -31,18 +86,15 @@ export default {
       this.tab_index = index;
       console.log('change tab');
     },
-    handleImageUpload(event) {
+
+    async handleImageUpload(event) {
       const file = event.target.files[0];
       if (file) {
+        this.selectedFile = file;
+        this.personalProfile.avatarUrl = URL.createObjectURL(file);
         this.personalProfile.imageName = file.name;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.updatePersonalProfile({...this.personalProfile, image: e.target.result});
-        };
-        reader.readAsDataURL(file);
       }
-    },
-    ...mapActions(['updatePersonalProfile'])
+    }
   }
 }
 </script>
@@ -53,16 +105,11 @@ export default {
     <div class="level">
       <div class="level-left">
         <div class="level-item">
-          <figure class="image is-128x128">
-            <img class="is-rounded"
-                 :src="personalProfile.image"
-                 alt="Placeholder image"
-            />
-          </figure>
+          <el-avatar :size="128" :src="personalProfile.avatarUrl" />
         </div>
         <div class="level-item">
           <div class="control">
-            <p class="title is-4">{{ personalProfile.name }}</p>
+            <p class="title is-4">{{ personalProfile.username }}</p>
             <p class="subtitle is-6">@{{ personalProfile.email.split('@')[0] }}</p>
           </div>
         </div>
@@ -71,7 +118,10 @@ export default {
         <button class="button is-medium is-white" @click="editProfile">编辑个人资料</button>
       </div>
     </div>
-
+    <el-row class="subtitle is-5" align="middle">
+      您是<strong>{{ personalProfile.role === 'USER'?'普通用户':'管理员'}}</strong>，目前拥有<strong>{{ personalProfile.credits }}</strong>
+      <el-icon><Coin/></el-icon>
+    </el-row>
     <div class="tabs">
       <ul>
         <li :class="{'is-active':tab_index === 0}" @click="changeTab(0)"><a>{{ robots.length }}个机器人</a></li>
@@ -82,9 +132,7 @@ export default {
     <div class="control">
       <div class="media" v-for="robot in robots" :key="robot.name">
         <figure class="media-left">
-          <p class="image is-64x64">
-            <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image"/>
-          </p>
+          <el-avatar :size="64" :src="robot.avatarUrl" />
         </figure>
         <div class="media-content">
           <div class="content">
@@ -96,7 +144,7 @@ export default {
           </div>
         </div>
         <div class="media-right">
-          <button class="button is-white">查看</button>
+          <el-button size="large" text>查看</el-button>
         </div>
       </div>
     </div>
@@ -110,12 +158,7 @@ export default {
           头像:
         </div>
         <div class="level-item">
-          <figure class="image is-128x128">
-            <img class="is-rounded"
-                 :src="personalProfile.image"
-                 alt="Placeholder image"
-            />
-          </figure>
+          <el-avatar :size="128" :src="personalProfile.avatarUrl" />
         </div>
       </div>
     </div>
@@ -129,13 +172,13 @@ export default {
           </span>
           <span class="file-label"> 上传图片 </span>
         </span>
-        <span class="file-name"> {{ personalProfile.imageName }} </span>
+        <span class="file-name"> {{personalProfile.imageName || '原来的头像.jpeg'}} </span>
       </label>
     </div>
 
     <div class="field">
       <label class="label is-medium">用户名:</label>
-      <input class="input is-medium" type="text" v-model="personalProfile.name"/>
+      <input class="input is-medium" type="text" :placeholder="personalProfile.username" disabled/>
     </div>
     <div class="field">
       <label class="label is-medium">邮箱:</label>

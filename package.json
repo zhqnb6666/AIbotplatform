@@ -12,6 +12,7 @@
     "axios": "^1.7.7",
     "bulma": "^1.0.2",
     "core-js": "^3.8.3",
+    "cropperjs": "^1.6.2",
     "element-plus": "^2.8.5",
     "github-markdown-css": "^5.7.0",
     "highlight.js": "^11.10.0",
