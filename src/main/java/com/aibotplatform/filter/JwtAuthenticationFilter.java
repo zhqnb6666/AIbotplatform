@@ -1,5 +1,6 @@
-package com.aibotplatform.security;
+package com.aibotplatform.filter;
 
+import com.aibotplatform.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

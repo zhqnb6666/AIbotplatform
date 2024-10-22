@@ -1,8 +1,10 @@
 package com.aibotplatform.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import java.sql.Timestamp;
 
+@Data
 @Entity
 @Table(name = "bots")
 public class Bot {
@@ -18,7 +20,7 @@ public class Bot {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "creator_id", nullable = true)
+    @JoinColumn(name = "creator_id", nullable = false)
     private User creator; // Foreign key
 
     @Enumerated(EnumType.STRING)
@@ -35,14 +37,14 @@ public class Bot {
     private Integer tokenCost = 1;
 
     @Column(nullable = false)
+    private Integer daily_limit = 50;
+
+    @Column(nullable = false)
     private Timestamp createdAt;
 
     @Column(nullable = false)
     private Timestamp updatedAt;
 
-    @Column(nullable = false)
-    private String icon;
-    // Getters, Setters, equals, hashCode, etc.
     public enum BotType {
         OFFICIAL, CUSTOM
     }

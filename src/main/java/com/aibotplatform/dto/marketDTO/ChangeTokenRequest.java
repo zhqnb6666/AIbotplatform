@@ -1,13 +1,10 @@
-package com.aibotplatform.dto;
+package com.aibotplatform.dto.marketDTO;
 
 import java.math.BigDecimal;
 
-public record ChangeTokenDTO(
-        Long changeTokenId,
-        Long userId,
+public record ChangeTokenRequest(
         BigDecimal creditAmount,
         Long tokenAmount,
-
         String description
 ) {
 }

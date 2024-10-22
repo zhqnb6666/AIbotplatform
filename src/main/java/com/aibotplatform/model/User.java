@@ -1,10 +1,12 @@
 package com.aibotplatform.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Entity
+@Data
 @Table(name = "users")
 public class User {
 
@@ -37,81 +39,13 @@ public class User {
     @Column(nullable = false)
     private Timestamp updatedAt;
 
-    // Getters, Setters, equals, hashCode, etc.
+    @Column(nullable = false)
+    private String avatarUrl = "default_avatar.png";
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String bio = "";
 
     public enum Role {
         ADMIN, USER
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
-    public BigDecimal getCredits() {
-        return credits;
-    }
-
-    public void setCredits(BigDecimal credits) {
-        this.credits = credits;
-    }
-
-    public Timestamp getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public Long getToken() {
-        return token;
-    }
-
-    public void setToken(Long token) {
-        this.token = token;
     }
 }

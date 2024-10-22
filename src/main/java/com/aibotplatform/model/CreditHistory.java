@@ -31,12 +31,13 @@ public class CreditHistory {
     public CreditHistory() {
     }
 
-    public CreditHistory(Long creditHistoryId, User user, BigDecimal creditChange, BigDecimal creditBalance, String description) {
+    public CreditHistory(Long creditHistoryId, User user, BigDecimal creditChange, BigDecimal creditBalance, String description, Timestamp createdAt) {
         this.creditHistoryId = creditHistoryId;
         this.user = user;
         this.creditChange = creditChange;
         this.creditBalance = creditBalance;
         this.description = description;
+        this.createdAt = createdAt;
     }
 
     public Long getCreditHistoryId() {

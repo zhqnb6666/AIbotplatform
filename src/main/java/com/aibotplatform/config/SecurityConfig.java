@@ -1,6 +1,6 @@
 package com.aibotplatform.config;
 
-import com.aibotplatform.security.JwtAuthenticationFilter;
+import com.aibotplatform.filter.JwtAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

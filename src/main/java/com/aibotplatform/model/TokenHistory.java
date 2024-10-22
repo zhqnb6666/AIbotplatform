@@ -30,12 +30,13 @@ public class TokenHistory {
     public TokenHistory() {
     }
 
-    public TokenHistory(Long tokenHistoryId, User user, Long tokenChange, Long tokenBalance, String description) {
+    public TokenHistory(Long tokenHistoryId, User user, Long tokenChange, Long tokenBalance, String description, Timestamp createdAt) {
         this.tokenHistoryId = tokenHistoryId;
         this.user = user;
         this.tokenChange = tokenChange;
         this.tokenBalance = tokenBalance;
         this.description = description;
+        this.createdAt = createdAt;
     }
 
     public Long getTokenHistoryId() {
