@@ -22,9 +22,6 @@ export default {
   },
   created() {
     axiosInstance.get('/profile').then((response) => {
-      let { username, email, role, credits, avatarUrl, bio } = response.data;
-      avatarUrl = `http://localhost:8080/avatars/${avatarUrl}`;
-      this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
       this.robots = response.data.userBotList;
     }).catch((error) => {
       this.$message.error('获取个人资料失败');
@@ -76,7 +73,7 @@ export default {
         return;
       }
       this.$message.success('修改成功');
-      this.updatePersonalProfile(this.personalProfile);
+      await this.updatePersonalProfile(this.personalProfile);
       this.isEditingProfile = false;
     },
     cancel() {

@@ -6,6 +6,7 @@ import RegisterPage from "@/view/RegisterPage.vue";
 import ProfilePage from "@/view/ProfilePage.vue";
 import ChatPage from "@/view/ChatPage.vue";
 import createBot from "@/view/CreateBot.vue";
+import marketPage from "@/view/MarketPage.vue";
 import store from '@/store';
 import reviewPage from "@/view/reviewPage.vue";
 const routes = [
@@ -15,7 +16,8 @@ const routes = [
     { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
     { path: '/chat/:botId', component: ChatPage, meta: { requiresAuth: true } },
     { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
-    { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }}
+    { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }},
+    { path: '/market', component: marketPage, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({

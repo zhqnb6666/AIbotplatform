@@ -36,8 +36,7 @@
               <strong class="title is-6">{{robot.name}}</strong>
               <br>{{robot.description}}
               <span style="display: flex; align-items: center; font-size: 15px; font-weight: 500">
-                每token价格: {{robot.tokenCost}}
-                <el-icon size="15px"><Coin /></el-icon>
+                每条消息花费token: <strong>{{robot.tokenCost}}</strong>
               </span>
             </p>
           </div>
@@ -54,10 +53,10 @@
 
 <script>
 import axiosInstance from "@/axiosInstance";
-import {Coin, EditPen} from "@element-plus/icons-vue";
+import {EditPen} from "@element-plus/icons-vue";
 export default {
   name: 'HomePage',
-  components: {EditPen, Coin},
+  components: {EditPen},
   data() {
     return {
       robots: [

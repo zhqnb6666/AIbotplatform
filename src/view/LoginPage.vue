@@ -4,7 +4,8 @@ import axiosInstance from "@/axiosInstance"
 export default {
   name: "LoginPage",
   computed: {
-    ...mapGetters(['isLoggedIn'])
+    ...mapGetters(['isLoggedIn']),
+    ...mapGetters(['personalProfile'])
   },
   data() {
     return {
@@ -14,6 +15,7 @@ export default {
   },
   methods: {
     ...mapActions(['updateLoginState']),
+    ...mapActions(['updatePersonalProfile']),
     async login() {
       try {
         const response = await axiosInstance.post("/auth/login", {
@@ -31,6 +33,11 @@ export default {
         localStorage.setItem('token', jwt);
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
         await this.updateLoginState(true);
+        axiosInstance.get('/profile').then((response) => {
+          let { username, email, role, credits, avatarUrl, bio } = response.data;
+          avatarUrl = `http://localhost:8080/avatars/${avatarUrl}`;
+          this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
+        })
         this.$router.push('/');
       } catch (error) {
         console.error('Login error:', error);
