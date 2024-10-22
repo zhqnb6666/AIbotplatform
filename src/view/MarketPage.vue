@@ -45,8 +45,9 @@ export default {
     },
     submitPayment() {
       const now = new Date();
+      const amount = this.selectedProduct.credits + this.selectedProduct.bonusCredits
       const description =
-      `${this.personalProfile.username}在${now.toLocaleString()}通过${this.paymentMethod}充值${this.selectedProduct.price}元，获得${this.selectedProduct.credits}积分`;
+      `${this.personalProfile.username}在${now.toLocaleString()}通过${this.paymentMethod}充值${this.selectedProduct.price}元，获得${amount}积分`;
       const payload = {
         amount: this.selectedProduct.credits,
         paymentMethod: this.paymentMethod,
@@ -56,6 +57,7 @@ export default {
           .then((response) => {
             if (response.status === 201) {
               this.$message.success('支付成功');
+              this.personalProfile.credits += amount;
               this.updatePersonalProfile(this.personalProfile);
               this.dialogVisible = false;
             } else {
@@ -72,10 +74,12 @@ export default {
       const now = new Date();
       const description =
       `${this.personalProfile.username}在${now.toLocaleString()}将${this.convertedCredits}积分兑换为${this.convertedCredits * 100}个token`;
-      axiosInstance.post('/market/convert-to-token', {credits: 100, tokenAmount: this.convertedCredits * 100, description: description})
+      axiosInstance.post('/market/convert-to-token',
+          {creditAmount: this.convertedCredits, tokenAmount: this.convertedCredits * 100, description: description})
           .then((response) => {
             if (response.status === 201) {
               this.$message.success('兑换成功');
+              this.personalProfile.credits -= this.convertedCredits;
               this.updatePersonalProfile(this.personalProfile);
               this.convertToTokenVisible = false;
             } else {
@@ -97,15 +101,16 @@ export default {
     <div id="head_account" class="title is-4 header-style">
       账号详情
     </div>
-    <el-descriptions>
-      <el-descriptions-item label="用户名">{{personalProfile.username}}</el-descriptions-item>
-      <el-descriptions-item label="邮箱">{{personalProfile.email}}</el-descriptions-item>
-      <br><el-descriptions-item label="用户等级">
+    <el-descriptions :column="2">
+      <el-descriptions-item label="用户名：">{{personalProfile.username}}</el-descriptions-item>
+      <el-descriptions-item label="邮箱：">{{personalProfile.email}}</el-descriptions-item>
+      <el-descriptions-item label="用户等级：">
         <el-tag size="small">{{personalProfile.role === 'USER' ? '普通用户' : '管理员'}}</el-tag>
       </el-descriptions-item>
-      <el-descriptions-item label="剩余积分">
+      <el-descriptions-item label="剩余积分：">
         {{personalProfile.credits}}
       </el-descriptions-item>
+
     </el-descriptions>
 
     <div id="head_purchase" class="title is-4 header-style">
