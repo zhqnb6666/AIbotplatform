@@ -17,9 +17,12 @@ public class ImageModel {
     private static final String imageFolder = "src/main/resources/static/BotImage";
     private final Qianfan qianfan = new Qianfan(TYPE_OAUTH,ak, sk);
 
-    //输入生成图像的prompt，返回图像的名称
+    /**
+     * 输入提示词，输出本地图片名称（地址）
+     * @param prompt
+     * @return String
+     */
     public String generateImage(String prompt) {
-        // 调用文生图模型
         Text2ImageResponse response = qianfan.text2Image().model("Stable-Diffusion-XL")
                 .prompt(prompt)
                 .execute();

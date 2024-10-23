@@ -42,13 +42,22 @@ public class LLMFactory {
     public static LLM createLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
         ModelType type = ModelType.fromModelName(modelName);
 
-        switch (type) {
-            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI:
-                return new OpenAILLM(modelName, chatHistory);
-            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila:
-                return new QianFanLLM(modelName, chatHistory);
-            default:
-                throw new IllegalArgumentException("Unsupported model type: " + modelName);
-        }
+        return switch (type) {
+            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
+                    new OpenAILLM(modelName, chatHistory);
+            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
+                    new QianFanLLM(modelName, chatHistory);
+        };
+    }
+
+    public static LLM createRagLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
+        ModelType type = ModelType.fromModelName(modelName);
+
+        return switch (type) {
+            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
+                    new OpenAILLM(modelName, chatHistory, doc_path);
+            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
+                    new QianFanLLM(modelName, chatHistory, doc_path);
+        };
     }
 }
