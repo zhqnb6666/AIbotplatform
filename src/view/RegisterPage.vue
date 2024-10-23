@@ -135,6 +135,11 @@ export default {
       this.userInfoCheck.verificationCode = newVal.length === 6;
     }
   },
+  beforeUnmount() {
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+  },
   methods: {
     validatePassword(password) {
       const hasUpperCase = /[A-Z]/.test(password);
@@ -210,11 +215,7 @@ export default {
         this.$message.error('验证码发送失败，请稍后再试');
       }
     },
-    beforeDestroy() {
-      if (this.timer) {
-        clearInterval(this.timer);
-      }
-    }
+
   }
 }
 </script>
