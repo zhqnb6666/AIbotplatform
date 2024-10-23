@@ -8,6 +8,6 @@ public interface ChatBot {
      * @param userMessage
      * @return String
      */
-    @SystemMessage
+//    @SystemMessage
     String chat(String userMessage);
 }

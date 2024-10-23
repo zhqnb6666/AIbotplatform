@@ -35,6 +35,7 @@ public class ConversationServiceImpl implements ConversationService {
     @Transactional
     public void startConversation(Conversation conversation) {
         conversation.setConversationId(null);
+        conversation.setActive(true);
         conversation.setCreatedAt(Timestamp.from(Instant.now()));
         conversation.setUpdatedAt(Timestamp.from(Instant.now()));
         conversationRepository.save(conversation);
