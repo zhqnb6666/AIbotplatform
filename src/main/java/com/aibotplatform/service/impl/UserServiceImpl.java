@@ -1,6 +1,8 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.exception.ApiException;
+import com.aibotplatform.model.TokenHistory;
+import com.aibotplatform.repository.TokenHistoryRepository;
 import com.aibotplatform.service.UserService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
@@ -26,11 +28,14 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     private final VerificationServiceImpl verificationService;
     private final EmailServiceImpl emailService;
 
-    public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, VerificationServiceImpl verificationService, EmailServiceImpl emailService) {
+    private final TokenHistoryRepository tokenHistoryRepository;
+
+    public UserServiceImpl(UserRepository userRepository, @Lazy PasswordEncoder passwordEncoder, VerificationServiceImpl verificationService, EmailServiceImpl emailService, TokenHistoryRepository tokenHistoryRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.verificationService = verificationService;
         this.emailService = emailService;
+        this.tokenHistoryRepository = tokenHistoryRepository;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class UserServiceImpl implements UserDetailsService, UserService {
     }
 
     @Override
-    public User registerNewUser(User user, String verificationCode) {
+    public void registerNewUser(User user, String verificationCode) {
         if (userRepository.findByUsername(user.getUsername()) != null) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -95,7 +100,6 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
         User savedUser = userRepository.save(user);
         verificationService.clearCode(user.getEmail());
-        return savedUser;
     }
 
     @Override
@@ -130,4 +134,27 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }
         return user;
     }
+
+    @Override
+    public void deductTokens(User user, Long amount, String description) {
+        TokenHistory tokenHistory = new TokenHistory(
+                null,
+                user,
+                amount,
+                calculateNewTokenBalance(user, amount),
+                description,
+                Timestamp.from(Instant.now())
+        );
+        try {
+            tokenHistoryRepository.save(tokenHistory);
+            changeTokens(user,tokenHistory.getTokenBalance());
+        }catch (Exception e){
+            throw new ApiException("Deduct tokens failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Long calculateNewTokenBalance(User user, Long changeAmount) {
+        return user.getToken() - changeAmount;
+    }
+
 }

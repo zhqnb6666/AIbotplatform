@@ -1,9 +1,12 @@
 package com.aibotplatform.controller;
 
 import com.aibotplatform.dto.ConversationDTO;
+import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
 import com.aibotplatform.dto.MessageDTO;
+import com.aibotplatform.dto.ErrorResponse;
+import com.aibotplatform.model.User;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.ConversationService;
 import com.aibotplatform.service.impl.UserServiceImpl;
@@ -48,11 +51,34 @@ public class ConversationController {
 
     @PostMapping("/{conversation_id}/messages")
     @Operation(summary = "Send a message in a conversation", description = "Send a new message in a specific conversation")
-    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long conversation_id, @RequestBody MessageDTO messageDTO) {
-        Message message = convertToEntity(messageDTO);
-        Message response = conversationService.addMessageToConversation(conversation_id, message);
-        MessageDTO responseDTO = convertToDTO(response);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+    public ResponseEntity<?> sendMessage(@PathVariable Long conversation_id, @RequestBody MessageDTO messageDTO) {
+        try {
+            // 1. 获取conversation对应的bot和token cost
+            Conversation conversation = conversationService.getConversationById(conversation_id);
+            Bot bot = conversation.getBot();
+            User currentUser = conversation.getUser();
+            int requiredTokens = bot.getTokenCost();
+
+            if (currentUser.getToken() < requiredTokens) {
+                return ResponseEntity
+                        .status(HttpStatus.PAYMENT_REQUIRED)
+                        .body(new ErrorResponse(
+                                "INSUFFICIENT_TOKENS",
+                                "Insufficient tokens to send message. Required: " + requiredTokens +
+                                        ", Available: " + currentUser.getToken()
+                        ));
+            }
+
+            Message message = convertToEntity(messageDTO);
+            Message response = conversationService.addMessageToConversation(conversation_id, message);
+            userService.deductTokens(currentUser, (long) requiredTokens,String.format("%s sent a message to %s and consumed %d tokens.",currentUser.getUsername(), bot.getName(),bot.getTokenCost()));
+            MessageDTO responseDTO = convertToDTO(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("INTERNAL_ERROR", "Error" + e));
+        }
     }
 
     @DeleteMapping("/{conversation_id}")

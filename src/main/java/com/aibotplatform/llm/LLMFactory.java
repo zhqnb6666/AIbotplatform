@@ -11,12 +11,14 @@ public class LLMFactory {
         GPT_4_O_MINI("GPT_4_O_MINI"),
         ERNIE_BOT("ERNIE-Bot"),
         BLOOMZ_7B("BLOOMZ-7B"),
-        Llama_2_7B("Llama-2-7b-Chat"),
-        Llama_2_13B("Llama-2-13b-Chat"),
-        Llama_2_70B("Llama-2-70b-Chat"),
+        Llama_2_7B("Llama-2-7b-chat"),
+        Llama_2_13B("Llama-2-13b-chat"),
+        Llama_2_70B("Llama-2-70b-chat"),
         Chinese_Llama_2_7B("Qianfan-Chinese-Llama-2-7B"),
         ChatGLM("ChatGLM2-6B-32K"),
-        Aquila("AquilaChat-7B");
+        Aquila("AquilaChat-7B"),
+
+        Stable_Diffusion_XL("Stable-Diffusion-XL");
 
 
         private String modelName;
@@ -47,6 +49,8 @@ public class LLMFactory {
                     new OpenAILLM(modelName, chatHistory);
             case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
                     new QianFanLLM(modelName, chatHistory);
+            case Stable_Diffusion_XL ->
+                    new ImageModel();
         };
     }
 
@@ -58,6 +62,8 @@ public class LLMFactory {
                     new OpenAILLM(modelName, chatHistory, doc_path);
             case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
                     new QianFanLLM(modelName, chatHistory, doc_path);
+            case Stable_Diffusion_XL ->
+                    new ImageModel();
         };
     }
 }

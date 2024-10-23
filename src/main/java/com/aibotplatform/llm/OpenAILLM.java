@@ -68,6 +68,7 @@ public class OpenAILLM implements LLM {
                 break;
             case "GPT_4_O_MINI":
                 model = getChatModel(GPT_4_O_MINI);
+                break;
             default:
                 throw new IllegalArgumentException("Unknown model name: " + modelName);
         }

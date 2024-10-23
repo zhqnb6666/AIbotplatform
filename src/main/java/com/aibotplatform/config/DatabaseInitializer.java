@@ -80,14 +80,14 @@ public class DatabaseInitializer {
         createAndSaveBot("GPT-4-32K", "An official chatbot powered by GPT-4 with 32K tokens.", "GPT_4_32K");
         createAndSaveBot("GPT-4-O", "An official chatbot powered by GPT-4-O.", "GPT_4_O");
         createAndSaveBot("GPT-4-O-MINI", "An official chatbot powered by GPT-4-O-MINI.", "GPT_4_O_MINI");
-        createAndSaveBot("ERNIE-Bot", "An official chatbot powered by ERNIE-Bot.", "ERNIE_BOT");
-        createAndSaveBot("BLOOMZ-7B", "An official chatbot powered by BLOOMZ-7B.", "BLOOMZ_7B");
-        createAndSaveBot("Llama-2-7b-Chat", "An official chatbot powered by Llama-2-7B.", "Llama_2_7B");
-        createAndSaveBot("Llama-2-13b-Chat", "An official chatbot powered by Llama-2-13B.", "Llama_2_13B");
-        createAndSaveBot("Llama-2-70b-Chat", "An official chatbot powered by Llama-2-70B.", "Llama_2_70B");
-        createAndSaveBot("Chinese-Llama-2-7B", "An official chatbot powered by Chinese Llama-2-7B.", "Chinese_Llama_2_7B");
-        createAndSaveBot("ChatGLM2-6B-32K", "An official chatbot powered by ChatGLM2-6B-32K.", "ChatGLM");
-        createAndSaveBot("AquilaChat-7B", "An official chatbot powered by AquilaChat-7B.", "Aquila");
+        createAndSaveBot("ERNIE-Bot", "An official chatbot powered by ERNIE-Bot.", "ERNIE-Bot");
+        createAndSaveBot("BLOOMZ-7B", "An official chatbot powered by BLOOMZ-7B.", "BLOOMZ-7B");
+        createAndSaveBot("Llama-2-7b-chat", "An official chatbot powered by Llama-2-7B.", "Llama-2-7b-chat");
+        createAndSaveBot("Llama-2-13b-chat", "An official chatbot powered by Llama-2-13B.", "Llama-2-13b-chat");
+        createAndSaveBot("Llama-2-70b-chat", "An official chatbot powered by Llama-2-70B.", "Llama-2-70b-chat");
+        createAndSaveBot("Chinese-Llama-2-7B", "An official chatbot powered by Chinese Llama-2-7B.", "Qianfan-Chinese-Llama-2-7B");
+        createAndSaveBot("ChatGLM2-6B-32K", "An official chatbot powered by ChatGLM2-6B-32K.", "ChatGLM2-6B-32K");
+        createAndSaveBot("AquilaChat-7B", "An official chatbot powered by AquilaChat-7B.", "AquilaChat-7B");
         System.out.println("All official bots created.");
     }
 

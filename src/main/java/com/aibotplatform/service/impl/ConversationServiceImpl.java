@@ -53,8 +53,10 @@ public class ConversationServiceImpl implements ConversationService {
         message.setMessageId(null);
         message.setCreatedAt(Timestamp.from(Instant.now()));
         messageRepository.save(message);
-        String responseContent = llmSessionManager.chat(conversationId,conversation.getBot().getModel(),message.getContent(),getChatHistory(conversationId));
-        return new Message(null,conversation,Message.SenderType.BOT,responseContent,Timestamp.from(Instant.now()));
+        String responseContent = llmSessionManager.chat(conversationId, conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId));
+        Message response = new Message(null, conversation, Message.SenderType.BOT, responseContent, Timestamp.from(Instant.now()));
+        response = messageRepository.save(response);
+        return response;
     }
 
     @Transactional
