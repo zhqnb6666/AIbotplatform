@@ -6,9 +6,18 @@ public class LLMFactory {
     // 使用枚举定义支持的模型类型
     public enum ModelType {
         GPT_3_5("GPT_3_5_TURBO"),
-        GPT_4("GPT_4"),
+        GPT_4_32K("GPT_4_32K"),
+        GPT_4_O("GPT_4_O"),
+        GPT_4_O_MINI("GPT_4_O_MINI"),
         ERNIE_BOT("ERNIE-Bot"),
-        ERNIE_BOT_4("ERNIE-Bot-4");
+        BLOOMZ_7B("BLOOMZ-7B"),
+        Llama_2_7B("Llama-2-7b-Chat"),
+        Llama_2_13B("Llama-2-13b-Chat"),
+        Llama_2_70B("Llama-2-70b-Chat"),
+        Chinese_Llama_2_7B("Qianfan-Chinese-Llama-2-7B"),
+        ChatGLM("ChatGLM2-6B-32K"),
+        Aquila("AquilaChat-7B");
+
 
         private String modelName;
 
@@ -34,11 +43,9 @@ public class LLMFactory {
         ModelType type = ModelType.fromModelName(modelName);
 
         switch (type) {
-            case GPT_3_5:
+            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI:
                 return new OpenAILLM(modelName, chatHistory);
-            case GPT_4:
-            case ERNIE_BOT:
-            case ERNIE_BOT_4:
+            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila:
                 return new QianFanLLM(modelName, chatHistory);
             default:
                 throw new IllegalArgumentException("Unsupported model type: " + modelName);
