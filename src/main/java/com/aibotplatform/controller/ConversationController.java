@@ -48,10 +48,11 @@ public class ConversationController {
 
     @PostMapping("/{conversation_id}/messages")
     @Operation(summary = "Send a message in a conversation", description = "Send a new message in a specific conversation")
-    public ResponseEntity<Void> sendMessage(@PathVariable Long conversation_id, @RequestBody MessageDTO messageDTO) {
+    public ResponseEntity<MessageDTO> sendMessage(@PathVariable Long conversation_id, @RequestBody MessageDTO messageDTO) {
         Message message = convertToEntity(messageDTO);
-        conversationService.addMessageToConversation(conversation_id, message);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Message response = conversationService.addMessageToConversation(conversation_id, message);
+        MessageDTO responseDTO = convertToDTO(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
     }
 
     @DeleteMapping("/{conversation_id}")

@@ -3,6 +3,7 @@ package com.aibotplatform.service;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
 
+import java.util.AbstractMap;
 import java.util.List;
 
 public interface ConversationService {
@@ -10,7 +11,9 @@ public interface ConversationService {
     Conversation getConversationById(Long conversationId);
     List<Conversation> getConversationsByUserId(Long userId);
 
-    void addMessageToConversation(Long conversationId, Message message);
+    Message addMessageToConversation(Long conversationId, Message message);
+
+    List<AbstractMap.SimpleEntry<String, String>> getChatHistory(Long conversationId);
 
     void deleteConversation(Long conversationId);
 

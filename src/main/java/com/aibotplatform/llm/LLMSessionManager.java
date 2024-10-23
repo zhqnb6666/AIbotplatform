@@ -1,5 +1,6 @@
 package com.aibotplatform.llm;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 // 会话管理器，负责处理LLM实例的生命周期
+@Service
 public class LLMSessionManager {
     private static final long SESSION_TIMEOUT = 30 * 60 * 1000; // 30分钟超时
     private final Map<Long, SessionInfo> activeSessions = new ConcurrentHashMap<>();
