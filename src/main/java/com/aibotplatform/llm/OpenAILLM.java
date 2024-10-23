@@ -14,22 +14,47 @@ import java.util.List;
 
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
 
-public class OpenAILLM {
-    private final OpenAiChatModel model = OpenAiChatModel.builder()
-            .apiKey("sk-S4h2bK7x8XYrFJCUFf6dCe3eE81142Dd840a037aA261E035")
-            .baseUrl("https://xiaoai.plus/v1")
-            .modelName(GPT_3_5_TURBO)
-            .build();
+public class OpenAILLM implements LLM {
+    private OpenAiChatModel model;
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
             .maxMessages(10)
             .build();
-    private final ChatBot assistant = AiServices.builder(ChatBot.class)
-            .chatLanguageModel(model) // the model
-            .chatMemory(chatMemory)  // memory
-            .build();
+    private ChatBot assistant;
 
+    public OpenAILLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chat_history) {
+        initializeModel(modelName);
+        initialize_messages(chat_history);
+    }
+
+    @Override
     public String chat(String message) {
         return assistant.chat(message);
+    }
+
+    private void initializeModel(String modelName) {
+        switch (modelName.toUpperCase()) {
+//            case "GPT_4":
+//                model = OpenAiChatModel.builder()
+//                        .apiKey("sk-S4h2bK7x8XYrFJCUFf6dCe3eE81142Dd840a037aA261E035")
+//                        .baseUrl("https://xiaoai.plus/v1")
+//                        .modelName("gpt-4")
+//                        .build();
+//                break;
+            case "GPT_3_5_TURBO":
+                model = OpenAiChatModel.builder()
+                        .apiKey("sk-S4h2bK7x8XYrFJCUFf6dCe3eE81142Dd840a037aA261E035")
+                        .baseUrl("https://xiaoai.plus/v1")
+                        .modelName("gpt-3.5-turbo")
+                        .build();
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown model name: " + modelName);
+        }
+
+        assistant = AiServices.builder(ChatBot.class)
+                .chatLanguageModel(model)
+                .chatMemory(chatMemory)
+                .build();
     }
 
     public void initialize_messages(List<AbstractMap.SimpleEntry<String, String>> chat_history) {

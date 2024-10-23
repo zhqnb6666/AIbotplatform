@@ -11,4 +11,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email);
 
     User findByUsernameOrEmail(String username, String email);
+
+    User findByUserId(long userId);
+
+    long count();
+
+    long countByRole(User.Role role);
 }

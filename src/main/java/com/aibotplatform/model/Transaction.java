@@ -22,19 +22,59 @@ public class Transaction {
     @Column(nullable = false, length = 50)
     private String paymentMethod;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionStatus status;
-
     @Column(nullable = false)
     private Timestamp createdAt;
 
-    @Column(nullable = false)
-    private Timestamp updatedAt;
 
-    // Getters and Setters
-
-    public enum TransactionStatus {
-        PENDING, COMPLETED, FAILED
+    public Transaction() {
     }
+
+    public Transaction(Long transactionId, User user, BigDecimal amount, String paymentMethod, Timestamp createdAt) {
+        this.transactionId = transactionId;
+        this.user = user;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+        this.createdAt = createdAt;
+    }
+
+    public Long getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(Long transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
 }

@@ -91,7 +91,23 @@
             <artifactId>jaxb-api</artifactId>
             <version>2.3.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
 
+        <!--apache poi库，用于操作excel-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>4.1.2</version>
+        </dependency>
         <!--使用百度千帆平台的api需要使用-->
         <dependency>
             <groupId>com.baidubce</groupId>
@@ -124,8 +140,8 @@
             <artifactId>langchain4j-easy-rag</artifactId>
             <version>0.35.0</version>
         </dependency>
-
     </dependencies>
+
 
     <build>
         <plugins>

@@ -12,47 +12,25 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QianFanLLM {
-    private final String ak = "uMF5PVIQDQYY58QZJ0J04XrF";
-    private final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
-    private String model_name = "ERNIE-Bot";
-    private ChatMemory chatMemory = MessageWindowChatMemory.builder()
-            .maxMessages(10)
-            .build();
-    private QianfanChatModel model = QianfanChatModel.builder()
-            .apiKey(ak)
-            .secretKey(sk)
-            .modelName(model_name)
-            .build();
-    private ChatBot assistant = AiServices.builder(ChatBot.class)
-            .chatLanguageModel(model) // the model
-            .chatMemory(chatMemory)  // memory
-            .build();
+public class QianFanLLM implements LLM {
+    private static final String AK = "uMF5PVIQDQYY58QZJ0J04XrF";
+    private static final String SK = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
+    private final ChatMemory chatMemory;
+    private final ChatBot assistant;
 
-    public QianFanLLM(){}
-
-    public QianFanLLM(String model_name){
-        this.model_name = model_name;
-        this.model = QianfanChatModel.builder()
-                .apiKey(ak)
-                .secretKey(sk)
-                .modelName(model_name)
-                .build();
-        this.chatMemory = MessageWindowChatMemory.builder()
-                .maxMessages(10)
-                .build();
-
-        this.assistant = AiServices.builder(ChatBot.class)
-                .chatLanguageModel(model) // the model
-                .chatMemory(chatMemory)// memory
-                .build();
+    public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
+        this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
+        QianfanChatModel model = QianfanChatModel.builder().apiKey(AK).secretKey(SK).modelName(modelName).build();
+        initializeMessages(chatHistory);
+        this.assistant = AiServices.builder(ChatBot.class).chatLanguageModel(model).chatMemory(chatMemory).build();
     }
 
+    @Override
     public String chat(String userMessage) {
         return assistant.chat(userMessage);
     }
 
-    public void initialize_messages(List<AbstractMap.SimpleEntry<String, String>> chat_history) {
+    public void initializeMessages(List<AbstractMap.SimpleEntry<String, String>> chat_history) {
         if (chat_history == null) {
             return;
         }
