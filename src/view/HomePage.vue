@@ -69,7 +69,10 @@ export default {
   created() {
     axiosInstance.get('/bots').then(res => {
       this.robots = res.data.slice(0, 10);
-    });
+    }).catch(err => {
+      console.log(err);
+      this.$message.error('获取机器人列表失败');
+    })
   },
   methods: {
     handleClickTags(tag) {

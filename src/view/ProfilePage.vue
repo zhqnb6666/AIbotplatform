@@ -7,7 +7,8 @@ export default {
   name: 'ProfilePage',
   components: {Coin},
   computed: {
-    ...mapState(['personalProfile'])
+    ...mapState(['personalProfile']),
+
   },
   data() {
     return {
@@ -83,13 +84,26 @@ export default {
       this.tab_index = index;
       console.log('change tab');
     },
-
+    isImageFile(file) {
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'];
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      return imageExtensions.includes(fileExtension);
+    },
     async handleImageUpload(event) {
       const file = event.target.files[0];
-      if (file) {
+      const maxSize = 10 * 1024 * 1024;  // 10MB, adjust as needed
+      if (this.isImageFile(file)) {
+        this.$message.success('头像符合要求');
+      } else {
+        this.$message.error('请选择图片文件');
+        return;
+      }
+      if (file && file.size <= maxSize) {
         this.selectedFile = file;
         this.personalProfile.avatarUrl = URL.createObjectURL(file);
         this.personalProfile.imageName = file.name;
+      } else {
+        this.$message.error('文件大小超过限制，请选择较小的文件');
       }
     }
   }

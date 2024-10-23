@@ -75,7 +75,7 @@
 
     <div class="field is-grouped is-grouped-centered">
       <div class="control">
-        <button class="button is-link is-medium" @click = 'submit'>提交</button>
+        <button class="button is-link is-medium">提交</button>
       </div>
       <div class="control">
         <button class="button is-link is-light is-medium" @click = 'cancel'>取消</button>
@@ -154,26 +154,24 @@ export default {
             verificationCode: this.userInfo.verificationCode
           });
           if (response.data !== "User registered successfully") {
-            this.$message({
-              message: '注册失败，请稍后再试',
-              type: 'error'
-            });
+            this.$message.error('注册失败，请稍后再试');
             return;
           }
           this.$router.push('/login');
+          this.$message.success('注册成功');
         } catch (error) {
           this.isSubmitting = false;
           console.error('Error during registration:', error);
-          this.$message({
-            message: '注册失败，请稍后再试',
-            type: 'error'
-          });
+          if (error.response && error.response.data === "Email already exists") {
+            this.$message.error('邮箱已被注册');
+          } else if (error.response && error.response.data === "Username already exists") {
+            this.$message.error('用户名已被注册');
+          } else {
+            this.$message.error('注册失败，请检查验证码后再试');
+          }
         }
       } else {
-        this.$message({
-          message: '请检查输入是否正确',
-          type: 'error'
-        });
+        this.$message.error('请检查输入是否正确');
       }
     },
     cancel() {
@@ -203,23 +201,13 @@ export default {
       try {
         const response = await axiosInstance.post(`/auth/send-verification/${this.userInfo.email}`);
         if (response.data === "Verification code sent successfully") {
-          this.$message({
-            message: '验证码发送成功',
-            type: 'success'
-          });
+           this.$message.success('验证码发送成功');
         } else {
-          this.$message({
-            message: '验证码发送失败，请稍后再试',
-            type: 'error'
-          });
-
+          this.$message.error('验证码发送失败，请稍后再试');
         }
       } catch (error) {
-        this.$message({
-          message: '验证码发送失败，请稍后再试',
-          type: 'error'
-        });
-
+        console.error('Error during sending verification code:', error);
+        this.$message.error('验证码发送失败，请稍后再试');
       }
     },
     beforeDestroy() {

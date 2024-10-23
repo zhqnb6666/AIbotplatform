@@ -49,6 +49,9 @@ export default {
       this.robotInfo = res.data;
       this.$emit('update-action', '您和' + this.robotInfo.name + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
       this.fetchMessages(this.robotInfo.botId);
+    }).catch(err => {
+      console.log(err);
+      this.$message.error('获取该机器人信息失败');
     });
   },
   methods: {

@@ -44,6 +44,10 @@ export default {
       this.dialogVisible = true;
     },
     submitPayment() {
+      if (this.paymentMethod === '') {
+        this.$message.error('请选择支付方式');
+        return;
+      }
       const now = new Date();
       const amount = this.selectedProduct.credits + this.selectedProduct.bonusCredits
       const description =
@@ -71,6 +75,10 @@ export default {
           });
     },
     submitConvertToToken() {
+      if(this.convertedCredits === 0) {
+        this.$message.error('请输入兑换的积分数量');
+        return;
+      }
       const now = new Date();
       const description =
       `${this.personalProfile.username}在${now.toLocaleString()}将${this.convertedCredits}积分兑换为${this.convertedCredits * 100}个token`;
@@ -158,12 +166,12 @@ export default {
 
 
     <!-- Payment Dialog -->
-    <el-dialog draggable center v-model="dialogVisible" title="支付页面"  width="30%">
-      <p style="font-size: 20px; margin-bottom: 10px">
+    <el-dialog draggable center v-model="dialogVisible"  width="30%">
+      <p style="font-size: 20px; margin-bottom: 10px;text-align: center">
         购买积分:<strong>{{ selectedProduct?.credits }}</strong>
       </p>
       <div style="text-align: center">
-        <el-select v-model="paymentMethod" placeholder="选择支付方式">
+        <el-select v-model="paymentMethod" placeholder="选择支付方式" style="width: 400px">
           <el-option label="支付宝" value="alipay"></el-option>
           <el-option label="微信支付" value="wechat"></el-option>
           <el-option label="银行卡" value="bankcard"></el-option>
@@ -177,7 +185,7 @@ export default {
     </el-dialog>
 
     <!-- Convert Credit to Token Dialog -->
-    <el-dialog v-model="convertToTokenVisible" title="积分兑换Token" center draggable>
+    <el-dialog v-model="convertToTokenVisible" title="积分兑换Token" center draggable width="30%">
       <el-form-item style="font-size: 20px;" label="被兑换的积分数量:">
         <el-input-number v-model="convertedCredits" :min="0" :max="personalProfile.credits" label="被兑换的积分数量"></el-input-number>
       </el-form-item>

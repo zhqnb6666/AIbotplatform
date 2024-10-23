@@ -22,13 +22,6 @@ export default {
           usernameOrEmail: this.usernameOrEmail,
           password: this.password
         });
-        if(response.data==="Incorrect username or password"){
-          this.$message({
-            message: '用户名或密码错误',
-            type: 'error'
-          });
-          return;
-        }
         const jwt = response.data.jwt;
         localStorage.setItem('token', jwt);
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
@@ -39,9 +32,17 @@ export default {
           this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
         })
         this.$router.push('/');
+        this.$message.success('登录成功');
       } catch (error) {
         console.error('Login error:', error);
-        alert('登录失败');
+        if(error.data==="Incorrect username or password"){
+          this.$message({
+            message: '用户名或密码错误',
+            type: 'error'
+          });
+          return;
+        }
+        this.$message.error('登录失败');
       }
     }
   }
@@ -70,7 +71,7 @@ export default {
             </span>
           </div>
         </div>
-        <button class="button is-block is-fullwidth is-link is-medium is-rounded" type="submit" @click="login">
+        <button class="button is-block is-fullwidth is-link is-medium is-rounded" type="submit">
           登录
         </button>
 
