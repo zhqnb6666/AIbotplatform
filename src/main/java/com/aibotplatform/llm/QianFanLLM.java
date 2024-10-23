@@ -1,12 +1,18 @@
 package com.aibotplatform.llm;
 
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.qianfan.QianfanChatModel;
+import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -20,9 +26,42 @@ public class QianFanLLM implements LLM {
 
     public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
         this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
-        QianfanChatModel model = QianfanChatModel.builder().apiKey(AK).secretKey(SK).modelName(modelName).build();
+        QianfanChatModel model = QianfanChatModel.builder()
+                .apiKey(AK)
+                .secretKey(SK)
+                .modelName(modelName)
+                .build();
         initializeMessages(chatHistory);
-        this.assistant = AiServices.builder(ChatBot.class).chatLanguageModel(model).chatMemory(chatMemory).build();
+        this.assistant = AiServices.builder(ChatBot.class)
+                .chatLanguageModel(model)
+                .chatMemory(chatMemory)
+                .build();
+    }
+
+    /**
+     * 简化了检索增强生成模型的构建，直接集成在创建模型时根据是否输入文件路径来决定
+     * @param modelName 模型名称
+     * @param chatHistory 历史聊天记录
+     * @param doc_path 文件地址
+     */
+    public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
+        this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
+        QianfanChatModel model = QianfanChatModel.builder()
+                .apiKey(AK)
+                .secretKey(SK)
+                .modelName(modelName)
+                .build();
+        initializeMessages(chatHistory);
+        Document doc = FileSystemDocumentLoader.loadDocument(doc_path);
+        //构建向量数据库
+        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
+        //嵌入文档
+        EmbeddingStoreIngestor.ingest(doc, embeddingStore);
+        this.assistant = AiServices.builder(ChatBot.class)
+                .chatLanguageModel(model)
+                .chatMemory(chatMemory)
+                .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))
+                .build();
     }
 
     @Override

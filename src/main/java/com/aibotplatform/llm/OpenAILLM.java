@@ -1,18 +1,28 @@
 package com.aibotplatform.llm;
 
+import dev.langchain4j.data.document.Document;
+import dev.langchain4j.data.document.loader.FileSystemDocumentLoader;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ChatMessage;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.openai.OpenAiChatModel;
+import dev.langchain4j.model.openai.OpenAiChatModelName;
+import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
+import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_3_5_TURBO;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_32K;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 
 public class OpenAILLM implements LLM {
     private OpenAiChatModel model;
@@ -26,34 +36,69 @@ public class OpenAILLM implements LLM {
         initialize_messages(chat_history);
     }
 
+    public OpenAILLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chat_history, String doc_path) {
+        initializeRagModel(modelName, doc_path);
+        initialize_messages(chat_history);
+    }
+
     @Override
     public String chat(String message) {
         return assistant.chat(message);
     }
 
-    private void initializeModel(String modelName) {
+    private OpenAiChatModel getChatModel(OpenAiChatModelName modelName) {
+        String api_key = "sk-6hMxxGzo2ZT6WzKXBa9cB82d964e4cAe9eE0F95d70C1Ba0e";
+        return OpenAiChatModel.builder()
+                .apiKey(api_key)
+                .baseUrl("https://xiaoai.plus/v1")
+                .modelName(modelName)
+                .build();
+    }
+
+    private void chooseModel(String modelName) {
         switch (modelName.toUpperCase()) {
-//            case "GPT_4":
-//                model = OpenAiChatModel.builder()
-//                        .apiKey("sk-S4h2bK7x8XYrFJCUFf6dCe3eE81142Dd840a037aA261E035")
-//                        .baseUrl("https://xiaoai.plus/v1")
-//                        .modelName("gpt-4")
-//                        .build();
-//                break;
             case "GPT_3_5_TURBO":
-                model = OpenAiChatModel.builder()
-                        .apiKey("sk-S4h2bK7x8XYrFJCUFf6dCe3eE81142Dd840a037aA261E035")
-                        .baseUrl("https://xiaoai.plus/v1")
-                        .modelName("gpt-3.5-turbo")
-                        .build();
+                model = getChatModel(GPT_3_5_TURBO);
                 break;
+            case "GPT_4_32K":
+                model = getChatModel(GPT_4_32K);
+                break;
+            case "GPT_4_O":
+                model = getChatModel(GPT_4_O);
+                break;
+            case "GPT_4_O_MINI":
+                model = getChatModel(GPT_4_O_MINI);
             default:
                 throw new IllegalArgumentException("Unknown model name: " + modelName);
         }
+    }
+
+    private void initializeModel(String modelName) {
+        chooseModel(modelName);
+        assistant = AiServices.builder(ChatBot.class)
+                .chatLanguageModel(model)
+                .chatMemory(chatMemory)
+                .build();
+    }
+
+    /**
+     * 简化创建RAG模型的构建，在创建模型时根据是否输入文件路径来决定
+     * @param modelName 模型名称
+     * @param doc_path 文件路径
+     */
+    private void initializeRagModel(String modelName, String doc_path) {
+        chooseModel(modelName);
+        //外部知识库（文档）
+        Document doc = FileSystemDocumentLoader.loadDocument(doc_path);
+        //构建向量数据库
+        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
+        //嵌入文档
+        EmbeddingStoreIngestor.ingest(doc, embeddingStore);
 
         assistant = AiServices.builder(ChatBot.class)
                 .chatLanguageModel(model)
                 .chatMemory(chatMemory)
+                .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))
                 .build();
     }
 
