@@ -1,7 +1,7 @@
 <script>
 import DropUpButton from '@/components/DropUpButton.vue';
 import DropDownButton from '@/components/DropDownButton.vue';
-import axiosInstance from "@/axiosInstance";
+import axiosInstance from "@/service/axiosInstance";
 import hljs from 'highlight.js';
 import MarkdownIt from 'markdown-it';
 import 'highlight.js/styles/github.css';

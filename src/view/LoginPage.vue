@@ -1,6 +1,6 @@
 <script>
 import {mapActions, mapGetters} from "vuex";
-import axiosInstance from "@/axiosInstance"
+import axiosInstance from "@/service/axiosInstance"
 export default {
   name: "LoginPage",
   computed: {

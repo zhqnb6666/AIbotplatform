@@ -24,39 +24,22 @@
         </span>
       </div>
 
-      <div class="media" v-for="robot in robots" :key="robot.name">
-        <figure class="media-left">
-          <p class="image is-64x64">
-            <img :src="`https://bulma.io/assets/images/placeholders/64x64.png`" alt="Placeholder image" />
-          </p>
-        </figure>
-        <div class="media-content">
-          <div class="content">
-            <p>
-              <strong class="title is-6">{{robot.name}}</strong>
-              <br>{{robot.description}}
-              <span style="display: flex; align-items: center; font-size: 15px; font-weight: 500">
-                每条消息花费token: <strong>{{robot.tokenCost}}</strong>
-              </span>
-            </p>
-          </div>
-        </div>
-        <div class="media-right">
-          <el-button text size="large" round @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
-        </div>
-      </div>
+      <RobotDisplay
+          v-for="robot in robots"
+          :key="robot.id"
+          :robot="robot"
+          @review="review"
+      />
     </div>
-
-
-
 </template>
 
 <script>
-import axiosInstance from "@/axiosInstance";
-import {EditPen} from "@element-plus/icons-vue";
+import RobotDisplay from "@/components/RobotDisplay.vue";
+import axiosInstance from "@/service/axiosInstance";
+
 export default {
   name: 'HomePage',
-  components: {EditPen},
+  components: {RobotDisplay},
   data() {
     return {
       robots: [
@@ -93,5 +76,4 @@ export default {
 
 <style scoped>
 @import "@/assets/css/HomePage.css";
-
 </style>

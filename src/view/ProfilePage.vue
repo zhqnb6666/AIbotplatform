@@ -28,26 +28,16 @@
         <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>他人评论</a></li>
       </ul>
     </div>
-    <div class="control">
-      <div class="media" v-for="robot in robots" :key="robot.name">
-        <figure class="media-left">
-          <el-avatar :size="64" :src="robot.avatarUrl" />
-        </figure>
-        <div class="media-content">
-          <div class="content">
-            <p>
-              <strong>{{ robot.name }}</strong>
-              <br>
-              {{ robot.description }}
-            </p>
-          </div>
-        </div>
-        <div class="media-right">
-          <el-button size="large" text>查看</el-button>
-        </div>
-      </div>
+
+      <RobotDisplay
+          v-for="robot in robots"
+          :key="robot.id"
+          :robot="robot"
+          :show-button="false"
+      />
+
     </div>
-  </div>
+
 
   <div class="container" v-else>
     <!-- 资料修改页面 -->
@@ -114,14 +104,15 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import axiosInstance from "@/axiosInstance";
+import axiosInstance from "@/service/axiosInstance";
 import { Coin } from "@element-plus/icons-vue";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
+import RobotDisplay from "@/components/RobotDisplay.vue";
 
 export default {
   name: 'ProfilePage',
-  components: { Coin },
+  components: {RobotDisplay, Coin },
   computed: {
     ...mapState(['personalProfile']),
   },

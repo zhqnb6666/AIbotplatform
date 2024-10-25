@@ -66,7 +66,7 @@
 
 </template>
 <script>
-import axiosInstance from "@/axiosInstance";
+import axiosInstance from "@/service/axiosInstance";
 export default {
   data() {
     return {
