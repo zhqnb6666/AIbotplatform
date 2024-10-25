@@ -1,5 +1,6 @@
 package com.aibotplatform.service;
 
+import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
 
@@ -12,6 +13,8 @@ public interface ConversationService {
     List<Conversation> getConversationsByUserId(Long userId);
 
     Message addMessageToConversation(Long conversationId, Message message);
+
+    Message chatWithOtherBot(Long conversationId, Message message, Bot bot);
 
     List<AbstractMap.SimpleEntry<String, String>> getChatHistory(Long conversationId);
 
