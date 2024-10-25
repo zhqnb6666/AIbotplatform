@@ -14,6 +14,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,12 +38,31 @@ public class ConversationController {
 
     @PostMapping
     @Operation(summary = "Start a new conversation", description = "Create a new conversation for a user")
-    public ResponseEntity<ConversationDTO> startConversation(@RequestBody ConversationDTO conversation) {
+    public ResponseEntity<ConversationDTO> startConversation(@AuthenticationPrincipal UserDetails userDetails,
+                                                             @RequestBody ConversationDTO conversation) {
         Conversation startedConversation = convertToEntity(conversation);
+        User user = userService.getUserByName(userDetails.getUsername());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        startedConversation.setUser(user);
         conversationService.startConversation(startedConversation);
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(startedConversation));
     }
 
+    @GetMapping()
+    @Operation(summary = "Get conversations of user",description = "Retrieve all active conversation created by user")
+    public ResponseEntity<List<ConversationDTO>> getConversations(@AuthenticationPrincipal UserDetails userDetails){
+        User user = userService.getUserByName(userDetails.getUsername());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        List<Conversation> conversations = conversationService.getConversationsByUserId(user.getUserId());
+        List<ConversationDTO> conversationDTOS = conversations.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(conversationDTOS);
+    }
     @GetMapping("/{conversation_id}")
     @Operation(summary = "Retrieve a conversation", description = "Get details of a specific conversation")
     public ResponseEntity<Conversation> getConversation(@PathVariable Long conversation_id) {
@@ -113,7 +134,6 @@ public class ConversationController {
 private  ConversationDTO convertToDTO(Conversation conversation) {
         return new ConversationDTO(
                 conversation.getConversationId(),
-                conversation.getUser().getUserId(),
                 conversation.getBot().getBotId(),
                 conversation.getTitle()
         );
@@ -121,7 +141,6 @@ private  ConversationDTO convertToDTO(Conversation conversation) {
     private Conversation convertToEntity(ConversationDTO conversationDTO) {
         Conversation conversation = new Conversation();
         conversation.setConversationId(conversationDTO.conversationId());
-        conversation.setUser(userService.getUserById(conversationDTO.userId()));
         conversation.setBot(botService.getBotById(conversationDTO.botId()));
         conversation.setTitle(conversationDTO.title());
         return conversation;
