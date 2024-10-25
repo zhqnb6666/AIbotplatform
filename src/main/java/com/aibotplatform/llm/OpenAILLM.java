@@ -10,10 +10,12 @@ import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import reactor.core.publisher.Flux;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -25,11 +27,11 @@ import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O;
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 
 public class OpenAILLM implements LLM {
-    private OpenAiChatModel model;
+    private OpenAiStreamingChatModel model;
     private final ChatMemory chatMemory = MessageWindowChatMemory.builder()
             .maxMessages(10)
             .build();
-    private ChatBot assistant;
+    private LLM assistant;
 
     public OpenAILLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chat_history) {
         initializeModel(modelName);
@@ -42,13 +44,13 @@ public class OpenAILLM implements LLM {
     }
 
     @Override
-    public String chat(String message) {
+    public Flux<String> chat(String message) {
         return assistant.chat(message);
     }
 
-    private OpenAiChatModel getChatModel(OpenAiChatModelName modelName) {
+    private OpenAiStreamingChatModel getChatModel(OpenAiChatModelName modelName) {
         String api_key = "sk-6hMxxGzo2ZT6WzKXBa9cB82d964e4cAe9eE0F95d70C1Ba0e";
-        return OpenAiChatModel.builder()
+        return OpenAiStreamingChatModel.builder()
                 .apiKey(api_key)
                 .baseUrl("https://xiaoai.plus/v1")
                 .modelName(modelName)
@@ -76,8 +78,8 @@ public class OpenAILLM implements LLM {
 
     private void initializeModel(String modelName) {
         chooseModel(modelName);
-        assistant = AiServices.builder(ChatBot.class)
-                .chatLanguageModel(model)
+        assistant = AiServices.builder(LLM.class)
+                .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
                 .build();
     }
@@ -96,8 +98,8 @@ public class OpenAILLM implements LLM {
         //嵌入文档
         EmbeddingStoreIngestor.ingest(doc, embeddingStore);
 
-        assistant = AiServices.builder(ChatBot.class)
-                .chatLanguageModel(model)
+        assistant = AiServices.builder(LLM.class)
+                .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
                 .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))
                 .build();

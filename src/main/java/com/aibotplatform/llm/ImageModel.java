@@ -2,6 +2,7 @@ package com.aibotplatform.llm;
 
 import com.baidubce.qianfan.Qianfan;
 import com.baidubce.qianfan.model.image.Text2ImageResponse;
+import reactor.core.publisher.Flux;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -23,12 +24,12 @@ public class ImageModel implements LLM{
      * @return String
      */
     @Override
-    public String chat(String prompt) {
+    public Flux<String> chat(String prompt) {
         Text2ImageResponse response = qianfan.text2Image().model("Stable-Diffusion-XL")
                 .prompt(prompt)
                 .execute();
         byte[] image_data = response.getData().get(0).getImage();
-        return saveImage(image_data, imageFolder);
+        return Flux.just(saveImage(image_data, imageFolder));
     }
 
     public static String saveImage(byte[] imageData, String folderPath) {

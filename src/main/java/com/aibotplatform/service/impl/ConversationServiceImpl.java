@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
 
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -48,29 +49,24 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Transactional
-    public Message addMessageToConversation(Long conversationId, Message message) {
+    public Flux<String> addMessageToConversation(Long conversationId, Message message) {
         Conversation conversation = getConversationById(conversationId);
         message.setConversation(conversation);
         message.setMessageId(null);
         message.setCreatedAt(Timestamp.from(Instant.now()));
         messageRepository.save(message);
-        String responseContent = llmSessionManager.chat(conversationId, conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId));
-        Message response = new Message(null, conversation, Message.SenderType.BOT, responseContent, Timestamp.from(Instant.now()));
-        response = messageRepository.save(response);
-        return response;
+        return(llmSessionManager.chat(conversationId, conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId)));
+
     }
 
     @Transactional
-    public Message chatWithOtherBot(Long conversationId, Message message, Bot bot){
+    public Flux<String> chatWithOtherBot(Long conversationId, Message message, Bot bot){
         Conversation conversation = getConversationById(conversationId);
         message.setConversation(conversation);
         message.setMessageId(null);
         message.setCreatedAt(Timestamp.from(Instant.now()));
         messageRepository.save(message);
-        String responseContent = llmSessionManager.chat(conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId));
-        Message response = new Message(null, conversation, Message.SenderType.BOT, responseContent, Timestamp.from(Instant.now()));
-        response = messageRepository.save(response);
-        return response;
+        return(llmSessionManager.chat(bot.getModel(), message.getContent(), getChatHistory(conversationId)));
     }
 
     @Transactional
@@ -99,8 +95,6 @@ public class ConversationServiceImpl implements ConversationService {
         return chatHistory;
     }
 
-
-
     public List<Conversation> getConversationsByUserId(Long userId) {
         return conversationRepository.findByUser_UserIdAndActiveTrue(userId);
     }
@@ -109,4 +103,6 @@ public class ConversationServiceImpl implements ConversationService {
         return messageRepository.findByMessageId(messageId)
                 .orElseThrow(() -> new ApiException("Message Not Found", HttpStatus.NOT_FOUND));
     }
+
+
 }

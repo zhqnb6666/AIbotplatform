@@ -76,8 +76,8 @@ public class DatabaseInitializer {
     }
 
     public void createOfficialBots() {
-        createAndSaveBot("GPT-3-5-TURBO", "An official chatbot powered by GPT-3 with 5 tokens.", "GPT_3_5_TURBO");
-        createAndSaveBot("GPT-4-32K", "An official chatbot powered by GPT-4 with 32K tokens.", "GPT_4_32K");
+        createAndSaveBot("GPT-3-5-TURBO", "An official chatbot powered by GPT-3.5.", "GPT_3_5_TURBO");
+        createAndSaveBot("GPT-4-32K", "An official chatbot powered by GPT-4.", "GPT_4_32K");
         createAndSaveBot("GPT-4-O", "An official chatbot powered by GPT-4-O.", "GPT_4_O");
         createAndSaveBot("GPT-4-O-MINI", "An official chatbot powered by GPT-4-O-MINI.", "GPT_4_O_MINI");
         createAndSaveBot("ERNIE-Bot", "An official chatbot powered by ERNIE-Bot.", "ERNIE-Bot");
@@ -88,6 +88,8 @@ public class DatabaseInitializer {
         createAndSaveBot("Chinese-Llama-2-7B", "An official chatbot powered by Chinese Llama-2-7B.", "Qianfan-Chinese-Llama-2-7B");
         createAndSaveBot("ChatGLM2-6B-32K", "An official chatbot powered by ChatGLM2-6B-32K.", "ChatGLM2-6B-32K");
         createAndSaveBot("AquilaChat-7B", "An official chatbot powered by AquilaChat-7B.", "AquilaChat-7B");
+        createAndSaveBot("Stable-Diffusion-XL","An official chat bot that generate images by Stable-Diffusion-XL","Stable-Diffusion-XL");
+        createAndSaveBot("Calculator-Bot","An official chatbot that calculates precisely.","Calculator-Bot");
         System.out.println("All official bots created.");
     }
 
