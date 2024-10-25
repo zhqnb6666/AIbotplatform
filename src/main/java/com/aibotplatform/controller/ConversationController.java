@@ -102,6 +102,35 @@ public class ConversationController {
         }
     }
 
+    @PostMapping("/{conversation_id}{bot_id}/messages")
+    @Operation(summary = "Send a message in a conversation", description = "Send a new message in a specific conversation")
+    public ResponseEntity<?> sendMessageWithOtherBot(@PathVariable Long conversation_id,@PathVariable Long bot_id, @RequestBody MessageDTO messageDTO) {
+        try {
+            Conversation conversation = conversationService.getConversationById(conversation_id);
+            Bot bot = botService.getBotById(bot_id);
+            User currentUser = conversation.getUser();
+            int requiredTokens = bot.getTokenCost();
+            if (currentUser.getToken() < requiredTokens) {
+                return ResponseEntity
+                        .status(HttpStatus.PAYMENT_REQUIRED)
+                        .body(new ErrorResponse(
+                                "INSUFFICIENT_TOKENS",
+                                "Insufficient tokens to send message. Required: " + requiredTokens +
+                                        ", Available: " + currentUser.getToken()
+                        ));
+            }
+            Message message = convertToEntity(messageDTO);
+            Message response = conversationService.chatWithOtherBot(conversation_id,message,bot);
+            userService.deductTokens(currentUser, (long) requiredTokens,String.format("%s sent a message to %s and consumed %d tokens.",currentUser.getUsername(), bot.getName(),bot.getTokenCost()));
+            MessageDTO responseDTO = convertToDTO(response);
+            return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("INTERNAL_ERROR", "Error" + e));
+        }
+    }
+
     @DeleteMapping("/{conversation_id}")
     @Operation(summary = "Clear conversation context", description = "Delete all messages in a conversation")
     public ResponseEntity<Void> deleteConversation(@PathVariable Long conversation_id) {

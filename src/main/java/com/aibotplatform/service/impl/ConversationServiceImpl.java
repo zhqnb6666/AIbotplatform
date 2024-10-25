@@ -2,6 +2,7 @@ package com.aibotplatform.service.impl;
 
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.llm.LLMSessionManager;
+import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
 import com.aibotplatform.repository.ConversationRepository;
@@ -54,6 +55,19 @@ public class ConversationServiceImpl implements ConversationService {
         message.setCreatedAt(Timestamp.from(Instant.now()));
         messageRepository.save(message);
         String responseContent = llmSessionManager.chat(conversationId, conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId));
+        Message response = new Message(null, conversation, Message.SenderType.BOT, responseContent, Timestamp.from(Instant.now()));
+        response = messageRepository.save(response);
+        return response;
+    }
+
+    @Transactional
+    public Message chatWithOtherBot(Long conversationId, Message message, Bot bot){
+        Conversation conversation = getConversationById(conversationId);
+        message.setConversation(conversation);
+        message.setMessageId(null);
+        message.setCreatedAt(Timestamp.from(Instant.now()));
+        messageRepository.save(message);
+        String responseContent = llmSessionManager.chat(conversation.getBot().getModel(), message.getContent(), getChatHistory(conversationId));
         Message response = new Message(null, conversation, Message.SenderType.BOT, responseContent, Timestamp.from(Instant.now()));
         response = messageRepository.save(response);
         return response;
