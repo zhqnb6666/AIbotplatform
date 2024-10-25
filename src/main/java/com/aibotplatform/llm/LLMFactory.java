@@ -17,9 +17,8 @@ public class LLMFactory {
         Chinese_Llama_2_7B("Qianfan-Chinese-Llama-2-7B"),
         ChatGLM("ChatGLM2-6B-32K"),
         Aquila("AquilaChat-7B"),
-
-        Stable_Diffusion_XL("Stable-Diffusion-XL");
-
+        Stable_Diffusion_XL("Stable-Diffusion-XL"),
+        Calculator_Bot("Calculator-Bot");
 
         private String modelName;
 
@@ -51,6 +50,7 @@ public class LLMFactory {
                     new QianFanLLM(modelName, chatHistory);
             case Stable_Diffusion_XL ->
                     new ImageModel();
+            case Calculator_Bot -> new CalculatorBot();
         };
     }
 
@@ -64,6 +64,8 @@ public class LLMFactory {
                     new QianFanLLM(modelName, chatHistory, doc_path);
             case Stable_Diffusion_XL ->
                     new ImageModel();
+            case Calculator_Bot -> new CalculatorBot();
+
         };
     }
 }
