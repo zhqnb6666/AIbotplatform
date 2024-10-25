@@ -40,7 +40,7 @@ export default {
   },
   computed: {
     isChatRoute() {
-      return this.$route.matched.some(record => record.path === '/chat/:botId');
+      return this.$route.matched.some(record => record.path === '/chat');
     }
   },
   watch: {
@@ -50,11 +50,11 @@ export default {
         '/market': '购买积分',
         '/createBot': '创建bot',
         '/': '探索',
-        '/chat': '聊天历史',
         '/profile': '个人资料',
         '/contact': '联系我们',
         '/setting': '设置',
-        '/review': '评分'
+        '/review': '评分',
+        '/chatHistory': '聊天历史',
       };
       this.action = actions[to.path] || '探索';
     }

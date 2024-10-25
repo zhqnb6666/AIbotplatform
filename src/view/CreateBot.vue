@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <div class="field">
+      <div class="field" v-if="this.personalProfile.role === 'ADMIN'">
         <label class="label">每token花费</label>
         <div class="control">
           <el-input-number v-model="formInfo.cost" :min="1" :max="1000" class="input"/>
@@ -67,6 +67,7 @@
 </template>
 <script>
 import axiosInstance from "@/service/axiosInstance";
+import {mapState} from "vuex";
 export default {
   data() {
     return {
@@ -86,13 +87,25 @@ export default {
         '服务器机器人'
       ],
       basicRobot: [
-        'GPT',
-        'DALL-E',
-        'CLIP',
-        'VQ-VAE',
-        'StyleGAN'
+        "GPT_3_5_TURBO",
+        "GPT_4_32K",
+        "GPT_4_O",
+        "GPT_4_O_MINI",
+        "ERNIE-Bot",
+        "BLOOMZ-7B",
+        "Llama-2-7b-chat",
+        "Llama-2-13b-chat",
+        "Llama-2-70b-chat",
+        "Qianfan-Chinese-Llama-2-7B",
+        "ChatGLM2-6B-32K",
+        "AquilaChat-7B",
+        "Stable-Diffusion-XL",
+        "Calculator-Bot"
       ]
     }
+  },
+  computed: {
+    ...mapState(['personalProfile']),
   },
   methods: {
     async onSubmit() {
@@ -116,7 +129,7 @@ export default {
           return;
         }
         const botId = response.data.botId;
-        this.$router.push(`/chat/${botId}`);
+        this.$router.push(`/chat?botId=${botId}`);
       }catch (error) {
         this.$message({
           message: '创建失败',

@@ -18,14 +18,19 @@ export default {
   },
   data() {
     return {
+      conversationBasicInfo: {
+        conversationId: this.$route.query.conversationId,
+        botId: this.$route.query.botId,
+        title: ''
+      },
       robotInfo: {
-        botId: this.$route.params.botId,
+        botId: this.$route.query.botId,
         name: '江澈',
       },
       messages: [],
       files: [],
       newMessage: '',
-      isSingleTurn: true,
+      isSingleTurn: false,
       isStreamingComplete: true,
       isFeedbackDialogVisible: false,
       isRateDialogVisible: false,
@@ -35,26 +40,53 @@ export default {
         type: ''
       },
       rateDialogInfo: {
-        botId: this.$route.params.botId,
+        botId: this.$route.query.botId,
         rating: 0,
         content: ''
-      }
+      },
+      followUpSuggestions:[],
     };
   },
   mounted() {
     this.highlightCode();
   },
   created() {
-    axiosInstance.get(`/bots/${this.robotInfo.botId}`).then(res => {
+    const isNewConversation = !this.conversationBasicInfo.conversationId;
+    axiosInstance.get(`/bots/${this.conversationBasicInfo.botId}`).then(res => {
       this.robotInfo = res.data;
-      this.$emit('update-action', '您和' + this.robotInfo.name + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
-      this.fetchMessages(this.robotInfo.botId);
+      //是新聊天的情况
+      if (isNewConversation) {
+        this.createNewConversation();
+      //用历史记录的情况
+      } else {
+        this.loadConversationHistory();
+      }
     }).catch(err => {
       console.log(err);
       this.$message.error('获取该机器人信息失败');
     });
   },
   methods: {
+    createNewConversation() {
+      this.conversationBasicInfo.title = '您和' + this.robotInfo.name + '的聊天';
+      this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      axiosInstance.post(`/conversations`, this.conversationBasicInfo).then(res => {
+        this.conversationBasicInfo.conversationId = res.data.conversationId;
+      }).catch(err => {
+        console.error(err);
+        this.$message.error('创建对话失败');
+      });
+    },
+    loadConversationHistory() {
+      axiosInstance.get(`/conversations/${this.conversationBasicInfo.conversationId}`).then(res => {
+        this.conversationBasicInfo.title = res.data.title;
+        this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+        this.messages = res.data.messages;
+      }).catch(err => {
+        console.error(err);
+        this.$message.error('获取对话失败');
+      });
+    },
     // 高亮代码块
     highlightCode() {
       this.$nextTick(() => {
@@ -62,12 +94,6 @@ export default {
           hljs.highlightElement(block);
         });
       });
-    },
-    // 获取消息
-    // eslint-disable-next-line no-unused-vars
-    fetchMessages(botId) {
-      // todo: 从后端获取消息（应由江澈完成）
-      // 如果后端没有返回历史记录，则新建一个对话，否则获取历史记录
     },
     // 点赞
     thumbUp(index) {
@@ -84,75 +110,56 @@ export default {
       this.messages[index].isThumbDown = true;
     },
     // 发送消息
-    sendMessage() {
+    async sendMessage() {
       if (!this.isStreamingComplete) return;
-      if (this.newMessage.trim() !== '') {
-        this.messages.push({ text: this.newMessage, sender: 'user'});
-        this.newMessage = '';
-        if (this.isSingleTurn) {
-          // 清空之前的所有消息
-          this.clearMessages();
-        }
-        // todo: 后端调用API生成回复，并将回复存储到数据库，前端获取回复
-        setTimeout(() => {
-          const response = this.isSingleTurn
-              ? `
-# 单轮对话
-这是一个段落，其中包含**加粗**和*斜体*文本。
-- 这是一个列表项
-- 这是另一个列表项
-- 这是第三个列表项
-
-[这是一个链接](https://www.example.com)
-
-\`\`\`javascript
-// 这是一个 JavaScript 代码块
-function greet() {
-   console.log("single");
-}
-greet();
-\`\`\`
-              `
-              :
-              `
-# 多轮对话
-这是一个段落，其中包含**加粗**和*斜体*文本。
-- 这是一个列表项
-- 这是另一个列表项
-- 这是第三个列表项
-[这是一个链接](https://www.example.com)
-\`\`\`javascript
-// 这是一个 JavaScript 代码块
-function greet() {
-    console.log("multi");
-}
-greet();
-\`\`\`
-              `;
-          this.streamMessage(response, 'bot');
-        }, 1000);
+      this.isStreamingComplete = false;
+      if (this.newMessage.trim() === '') return;
+      const messageUser = {
+        messageId: this.messages.length,
+        senderType: 'USER',
+        content: this.newMessage
+      };
+      let rec_data = null;
+      try {
+        rec_data = await axiosInstance.post(`/conversations/${this.conversationBasicInfo.conversationId}/messages`, messageUser);
+        this.$message.success('发送成功');
+        this.messages.push(messageUser);
+        // rec_data = await axiosInstance.get(`/conversations/${this.conversationBasicInfo.conversationId}/stream`);
+        // this.$message.success('接收消息成功');
+      } catch (err) {
+        console.error(err);
+        this.$message.error('发送失败');
+        this.isStreamingComplete = true;
+        return;
       }
+      this.newMessage = '';
+      if (this.isSingleTurn) {
+        this.clearMessages();
+      }
+      // todo: 后端调用API生成回复，并将回复存储到数据库，前端获取回复
+      setTimeout(() => {
+        this.streamMessage(rec_data.data.content);
+      }, 1000);
 
     },
 
     // 流式消息, 逐字显示
-    streamMessage(text, sender) {
+    streamMessage(text) {
       let index = 0;
-      this.isStreamingComplete = false;
+      this.messages.push({ content: '', senderType: "BOT", isThumbUp: false, isThumbDown: false});
       const interval = setInterval(() => {
         if (index < text.length) {
-          this.messages[this.messages.length - 1].text = text.substring(0, index + 1);
+          this.messages[this.messages.length - 1].content += text.charAt(index);
           index++;
         } else {
           clearInterval(interval);
-          this.messages[this.messages.length - 1].text = md.render(text);
+          this.messages[this.messages.length - 1].content = md.render(this.messages[this.messages.length - 1].content);
           this.$nextTick(() => {
             this.highlightCode();
           });
           this.isStreamingComplete = true;
         }
       }, 10);
-      this.messages.push({ text: '', sender, isThumbUp: false, isThumbDown: false});
     },
 
     // 清空消息
@@ -165,7 +172,7 @@ greet();
       if (!this.isStreamingComplete) return;
       this.clearMessages();
       this.isSingleTurn = !this.isSingleTurn;
-      this.$emit('update-action', '您和' + this.robotInfo.name + '的聊天' + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
     },
     // 触发文件上传
     triggerFileUpload() {
@@ -213,6 +220,7 @@ greet();
     }
   }
 };
+
 </script>
 
 <template>
@@ -221,11 +229,11 @@ greet();
     <!-- 聊天框内容 -->
       <div class="scrollable-content">
         <div v-for="(message, index) in messages" :key="index" >
-          <div v-if="message.sender==='bot'" class="title is-6">{{ robotInfo.name }}</div>
-          <div :class="['message', message.sender]">
-            <article class="message-content markdown-body" v-html="message.text"></article>
+          <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
+          <div :class="['message', message.senderType]">
+            <article class="message-content markdown-body" v-html="message.content"></article>
           </div>
-          <div class="field is-grouped" v-if="message.sender==='bot'">
+          <div class="field is-grouped" v-if="message.senderType==='BOT'">
             <DropDownButton
                 iconClass="fa fa-thumbs-up"
                 text="点赞"
@@ -244,6 +252,12 @@ greet();
             />
           </div>
         </div>
+        <div v-if="followUpSuggestions.length > 0" class="follow-up-suggestions">
+          <h3>Follow-up Suggestions:</h3>
+          <ul>
+            <li v-for="(suggestion, index) in followUpSuggestions" :key="index">{{ suggestion }}</li>
+          </ul>
+        </div>
       </div>
     </el-main>
     <!-- 聊天框底部 -->
@@ -253,7 +267,7 @@ greet();
 
         <DropUpButton
             iconClass="fa fa-edit fa-2x"
-            text="Rate the Bot"
+            text="给机器人评分"
             :handleClick="() => { isRateDialogVisible = true; }"
         />
 
@@ -344,7 +358,7 @@ greet();
   width: 100%;
 }
 
-.message.user .message-content {
+.message.USER .message-content {
   background: var(--bulma-link-bold-invert);
   color: white;
   padding: 10px;
@@ -354,7 +368,7 @@ greet();
   max-width: 70%;
 }
 
-.message.bot .message-content {
+.message.BOT .message-content {
   background: #f7f7f7;
   padding: 20px;
   border-radius: 10px;
@@ -362,5 +376,24 @@ greet();
   margin-right: auto;
   max-width: 70%;
 }
+.follow-up-suggestions {
+  margin-top: 20px;
+}
 
+.follow-up-suggestions h3 {
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.follow-up-suggestions ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.follow-up-suggestions li {
+  background: #f7f7f7;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
 </style>

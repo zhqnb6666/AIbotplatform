@@ -7,17 +7,20 @@ import ProfilePage from "@/view/ProfilePage.vue";
 import ChatPage from "@/view/ChatPage.vue";
 import createBot from "@/view/CreateBot.vue";
 import marketPage from "@/view/MarketPage.vue";
-import store from '@/store';
 import reviewPage from "@/view/reviewPage.vue";
+import ChatHistory from "@/view/ChatHistory.vue";
+import store from '@/store';
+
 const routes = [
     { path: '/', component: HomePage },
     { path: '/login', component: LoginPage },
     { path: '/register', component: RegisterPage },
     { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
-    { path: '/chat/:botId', component: ChatPage, meta: { requiresAuth: true } },
+    { path: '/chat', component: ChatPage, meta: { requiresAuth: true } },
     { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
     { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }},
-    { path: '/market', component: marketPage, meta: { requiresAuth: true } }
+    { path: '/market', component: marketPage, meta: { requiresAuth: true } },
+    { path: '/chatHistory', component: ChatHistory, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({

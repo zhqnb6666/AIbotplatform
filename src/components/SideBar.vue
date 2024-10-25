@@ -25,7 +25,7 @@
           <el-icon><User /></el-icon>
           <span>个人信息</span>
         </template>
-        <el-menu-item index="/chat">
+        <el-menu-item index="/chatHistory">
           聊天历史
         </el-menu-item>
         <el-menu-item index="/profile">
