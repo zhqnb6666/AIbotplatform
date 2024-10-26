@@ -5,6 +5,7 @@ import com.aibotplatform.model.Message;
 public record MessageDTO(
     Long messageId,
     Message.SenderType senderType,
+    Long botId,
     String content
 ) {
 }

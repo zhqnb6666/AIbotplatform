@@ -1,6 +1,7 @@
 package com.aibotplatform.controller;
 
 import com.aibotplatform.dto.ConversationDTO;
+import com.aibotplatform.dto.ConversationResponse;
 import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.Message;
@@ -74,149 +75,78 @@ public class ConversationController {
         return ResponseEntity.ok(conversation);
     }
 
-    @PostMapping(value = "/{conversation_id}/messages", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "Send a message in a conversation", description = "Send a new message in a specific conversation with streaming response")
-    public Flux<ServerSentEvent<Object>> sendMessage(
-            @PathVariable Long conversation_id,
-            @RequestBody MessageDTO messageDTO) {
+    @PostMapping("/{conversationId}/messages")
+    @Operation(summary = "Send a message", description = "Send a message to a conversation")
+    public ResponseEntity<?> sendMessage(
+            @PathVariable Long conversationId,
+            @RequestBody String content) {
 
-        return Flux.create(emitter -> {
-            try {
-                Conversation conversation = conversationService.getConversationById(conversation_id);
-                Bot bot = conversation.getBot();
-                User currentUser = conversation.getUser();
-                int requiredTokens = bot.getTokenCost();
-                if (currentUser.getToken() < requiredTokens) {
-                    emitter.next(ServerSentEvent.builder()
-                            .event("error")
-                            .data(new ErrorResponse(
-                                    "INSUFFICIENT_TOKENS",
-                                    "Insufficient tokens to send message. Required: " + requiredTokens +
-                                            ", Available: " + currentUser.getToken()
-                            ))
-                            .build());
-                    emitter.complete();
-                    return;
-                }
+        // 1. 验证token
+        Conversation conversation = conversationService.getConversationById(conversationId);
+        int spaceIndex = content.indexOf(' ');
+        String botName = content;
+        if (spaceIndex != -1) {
+            botName = content.substring(0, spaceIndex);
+        }
+        Bot bot = botName.startsWith("@") ? botService.getBotByName(botName.substring(1)).orElse(conversation.getBot()) : conversation.getBot();
+        User currentUser = conversation.getUser();
+        int requiredTokens = bot.getTokenCost();
+        if (currentUser.getToken() < requiredTokens) {
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse("INSUFFICIENT_TOKENS",
+                            "Insufficient tokens. Required: " + requiredTokens +
+                                    ", Available: " + currentUser.getToken())
+            );
+        }
 
-                Message message = convertToEntity(messageDTO);
-                Flux<String> responseFlux = conversationService.addMessageToConversation(conversation_id, message);
+        // 2. 扣减token
+        userService.deductTokens(
+                currentUser,
+                (long) requiredTokens,
+                String.format("%s sent a message to %s and consumed %d tokens.",
+                        currentUser.getUsername(),
+                        bot.getName(),
+                        bot.getTokenCost())
+        );
 
-                userService.deductTokens(
-                        currentUser,
-                        (long) requiredTokens,
-                        String.format("%s sent a message to %s and consumed %d tokens.",
-                                currentUser.getUsername(),
-                                bot.getName(),
-                                bot.getTokenCost())
-                );
-
-                responseFlux.subscribe(
-                        content -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("message")
-                                    .data(content)
-                                    .build());
-                        },
-                        error -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("error")
-                                    .data(new ErrorResponse("INTERNAL_ERROR", error.getMessage()))
-                                    .build());
-                            emitter.complete();
-                        },
-                        () -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("complete")
-                                    .data("Message completed")
-                                    .build());
-                            emitter.complete();
-                        }
-                );
-
-            } catch (Exception e) {
-                emitter.next(ServerSentEvent.builder()
-                        .event("error")
-                        .data(new ErrorResponse("INTERNAL_ERROR", "Error: " + e.getMessage()))
-                        .build());
-                emitter.complete();
-            }
-        });
+        // 3. 保存消息，返回消息ID
+        Message message = new Message(conversation,null, Message.SenderType.USER, content);
+        Long savedMessageId= conversationService.saveMessage(conversationId, message);
+        return ResponseEntity.ok(new ConversationResponse(bot.getBotId(),savedMessageId));
     }
 
-    @PostMapping(value = "/{conversation_id}/{bot_id}/messages",produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "Send a message in a conversation", description = "Send a new message in a specific conversation")
-    public Flux<ServerSentEvent<Object>> sendMessageWithOtherBot(
-            @PathVariable Long conversation_id,
-            @PathVariable Long bot_id,
+    @GetMapping(value = "/{botId}/messages/{messageId}/stream",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @Operation(summary = "Stream bot responses", description = "Stream real-time responses from the bot in a conversation")
+    public Flux<ServerSentEvent<Object>> streamResponse(
+            @PathVariable Long botId,
+            @PathVariable Long messageId) {
+
+        return conversationService.getMessageStream(botId, messageId)
+                .map(content -> ServerSentEvent.builder()
+                        .event("message")
+                        .data(content)
+                        .build())
+                .onErrorResume(error -> Flux.just(
+                        ServerSentEvent.builder()
+                                .event("error")
+                                .data(new ErrorResponse("INTERNAL_ERROR", error.getMessage()))
+                                .build()))
+                .concatWith(Flux.just(
+                        ServerSentEvent.builder()
+                                .event("complete")
+                                .data("Message completed")
+                                .build()));
+    }
+
+    @PostMapping("/{conversation_id}/saveResponse")
+    @Operation(summary = "Save response", description = "message_id和sendType为非必填项")
+    public ResponseEntity<?> saveResponse(@PathVariable Long conversation_id,
             @RequestBody MessageDTO messageDTO) {
-        return Flux.create(emitter -> {
-            try {
-                // 1. 验证会话和用户token（保持同步操作）
-                Conversation conversation = conversationService.getConversationById(conversation_id);
-                Bot bot = botService.getBotById(bot_id);
-                User currentUser = conversation.getUser();
-                int requiredTokens = bot.getTokenCost();
-
-                if (currentUser.getToken() < requiredTokens) {
-                    emitter.next(ServerSentEvent.builder()
-                            .event("error")
-                            .data(new ErrorResponse(
-                                    "INSUFFICIENT_TOKENS",
-                                    "Insufficient tokens to send message. Required: " + requiredTokens +
-                                            ", Available: " + currentUser.getToken()
-                            ))
-                            .build());
-                    emitter.complete();
-                    return;
-                }
-
-                // 2. 转换消息并获取响应流
-                Message message = convertToEntity(messageDTO);
-                Flux<String> responseFlux = conversationService.chatWithOtherBot(conversation_id,message,bot);
-
-                // 3. 扣除token（异步执行）
-                userService.deductTokens(
-                        currentUser,
-                        (long) requiredTokens,
-                        String.format("%s sent a message to %s and consumed %d tokens.",
-                                currentUser.getUsername(),
-                                bot.getName(),
-                                bot.getTokenCost())
-                );
-
-                // 4. 订阅响应流并发送事件
-                responseFlux.subscribe(
-                        content -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("message")
-                                    .data(content)
-                                    .build());
-                        },
-                        error -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("error")
-                                    .data(new ErrorResponse("INTERNAL_ERROR", error.getMessage()))
-                                    .build());
-                            emitter.complete();
-                        },
-                        () -> {
-                            emitter.next(ServerSentEvent.builder()
-                                    .event("complete")
-                                    .data("Message completed")
-                                    .build());
-                            emitter.complete();
-                        }
-                );
-
-            } catch (Exception e) {
-                emitter.next(ServerSentEvent.builder()
-                        .event("error")
-                        .data(new ErrorResponse("INTERNAL_ERROR", "Error: " + e.getMessage()))
-                        .build());
-                emitter.complete();
-            }
-        });
+        Message message = convertToEntity(messageDTO);
+        message.setSenderType(Message.SenderType.BOT);
+        conversationService.saveMessage(conversation_id, message);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{conversation_id}")
@@ -226,8 +156,8 @@ public class ConversationController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{conversation_id}/stream")
-    @Operation(summary = "Stream bot responses", description = "Stream real-time responses from the bot in a conversation")
+    @GetMapping("/{conversation_id}/chatHistory")
+    @Operation(summary = "Get chat history", description = "Retrieve all messages in a conversation")
     public ResponseEntity<List<MessageDTO>> streamMessages(@PathVariable Long conversation_id) {
         List<Message> messages = conversationService.streamMessages(conversation_id);
         List<MessageDTO> messageDTOs = messages.stream()
@@ -237,13 +167,16 @@ public class ConversationController {
     }
 
     private MessageDTO convertToDTO(Message message) {
-        return new MessageDTO(message.getMessageId(), message.getSenderType(), message.getContent());
+        return new MessageDTO(message.getMessageId(), message.getSenderType(), message.getBot() != null ? message.getBot().getBotId() : 0, message.getContent());
     }
 
     private Message convertToEntity(MessageDTO messageDTO) {
         Message message = new Message();
         message.setMessageId(messageDTO.messageId());
         message.setSenderType(messageDTO.senderType());
+        if (messageDTO.botId()!=0) {
+            message.setBot(botService.getBotById(messageDTO.botId()));
+        }
         message.setContent(messageDTO.content());
         return message;
     }

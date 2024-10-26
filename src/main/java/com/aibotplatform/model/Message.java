@@ -1,12 +1,12 @@
 package com.aibotplatform.model;
 
 import jakarta.persistence.*;
+
 import java.sql.Timestamp;
 
 @Entity
 @Table(name = "messages")
 public class Message {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageId;
@@ -19,6 +19,10 @@ public class Message {
     @Column(nullable = false)
     private SenderType senderType;
 
+    @ManyToOne
+    @JoinColumn(name = "bot_id",nullable = true)
+    private Bot bot;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
@@ -30,12 +34,20 @@ public class Message {
     public Message() {
     }
 
-    public Message(Long messageId, Conversation conversation, SenderType senderType, String content, Timestamp createdAt) {
+    public Message(Long messageId, Conversation conversation,Bot bot, SenderType senderType, String content, Timestamp createdAt) {
         this.messageId = messageId;
         this.conversation = conversation;
+        this.bot = bot;
         this.senderType = senderType;
         this.content = content;
         this.createdAt = createdAt;
+    }
+
+    public Message(Conversation conversation,Bot bot, SenderType senderType, String content) {
+        this.conversation = conversation;
+        this.bot = bot;
+        this.senderType = senderType;
+        this.content = content;
     }
 
     public Long getMessageId() {
@@ -52,6 +64,14 @@ public class Message {
 
     public void setConversation(Conversation conversation) {
         this.conversation = conversation;
+    }
+
+    public Bot getBot() {
+        return bot;
+    }
+
+    public void setBot(Bot bot) {
+        this.bot = bot;
     }
 
     public SenderType getSenderType() {

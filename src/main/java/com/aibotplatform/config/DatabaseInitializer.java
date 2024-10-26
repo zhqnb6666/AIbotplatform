@@ -1,9 +1,11 @@
 package com.aibotplatform.config;
+
 import com.aibotplatform.model.Bot;
+import com.aibotplatform.model.Conversation;
 import com.aibotplatform.model.User;
 import com.aibotplatform.repository.BotRepository;
+import com.aibotplatform.repository.ConversationRepository;
 import com.aibotplatform.repository.UserRepository;
-import com.aibotplatform.service.UserService;
 import com.aibotplatform.service.impl.UserServiceImpl;
 import com.aibotplatform.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +14,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -27,6 +28,7 @@ public class DatabaseInitializer {
     private final UserRepository userRepository;
 
     private final BotRepository botRepository;
+    private final ConversationRepository conversationRepository;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -34,9 +36,10 @@ public class DatabaseInitializer {
 
     private final JwtUtil jwtUtil;
 
-    public DatabaseInitializer(UserRepository userRepository, BotRepository botRepository, PasswordEncoder passwordEncoder, UserServiceImpl userService, JwtUtil jwtUtil) {
+    public DatabaseInitializer(UserRepository userRepository, BotRepository botRepository, ConversationRepository conversationRepository, PasswordEncoder passwordEncoder, UserServiceImpl userService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.botRepository = botRepository;
+        this.conversationRepository = conversationRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.jwtUtil = jwtUtil;
@@ -56,13 +59,16 @@ public class DatabaseInitializer {
         };
     }
 
-    @Transactional
-    public void initDatabase() {
-            createAdmin();
-            createOfficialBots();
-        }
 
-    public void createAdmin(){
+    public void initDatabase() {
+        createAdmin();
+        createOfficialBots();
+        for (long i = 1; i < 15; i++) {
+            createConversation(i);
+        }
+    }
+
+    public void createAdmin() {
         User adminUser = new User();
         adminUser.setUsername("admin");
         adminUser.setEmail("admin@example.com");
@@ -71,6 +77,7 @@ public class DatabaseInitializer {
         adminUser.setCreatedAt(Timestamp.from(Instant.now()));
         adminUser.setUpdatedAt(Timestamp.from(Instant.now()));
         adminUser.setCredits(BigDecimal.valueOf(1000000));
+        adminUser.setToken(1000000L);
         userRepository.save(adminUser);
         System.out.println("Admin user created.");
     }
@@ -88,25 +95,30 @@ public class DatabaseInitializer {
         createAndSaveBot("Chinese-Llama-2-7B", "An official chatbot powered by Chinese Llama-2-7B.", "Qianfan-Chinese-Llama-2-7B");
         createAndSaveBot("ChatGLM2-6B-32K", "An official chatbot powered by ChatGLM2-6B-32K.", "ChatGLM2-6B-32K");
         createAndSaveBot("AquilaChat-7B", "An official chatbot powered by AquilaChat-7B.", "AquilaChat-7B");
-        createAndSaveBot("Stable-Diffusion-XL","An official chat bot that generate images by Stable-Diffusion-XL","Stable-Diffusion-XL");
-        createAndSaveBot("Calculator-Bot","An official chatbot that calculates precisely.","Calculator-Bot");
+        createAndSaveBot("Stable-Diffusion-XL", "An official chat bot that generate images by Stable-Diffusion-XL", "Stable-Diffusion-XL");
+        createAndSaveBot("Calculator-Bot", "An official chatbot that calculates precisely.", "Calculator-Bot");
         System.out.println("All official bots created.");
     }
 
     private void createAndSaveBot(String name, String description, String model) {
-            Bot bot = new Bot();
-            bot.setName(name);
-            bot.setDescription(description);
-            bot.setCreator(userRepository.findByUsername("admin"));
-            bot.setType(Bot.BotType.OFFICIAL);
-            bot.setModel(model);
-            bot.setIsActive(true);
-            bot.setTokenCost(1);
-            bot.setDaily_limit(50);
-            bot.setCreatedAt(Timestamp.from(Instant.now()));
-            bot.setUpdatedAt(Timestamp.from(Instant.now()));
-            botRepository.save(bot);
-            System.out.println("Official bot " + name + " created.");
+        Bot bot = new Bot();
+        bot.setName(name);
+        bot.setDescription(description);
+        bot.setCreator(userRepository.findByUsername("admin"));
+        bot.setType(Bot.BotType.OFFICIAL);
+        bot.setModel(model);
+        bot.setIsActive(true);
+        bot.setTokenCost(1);
+        bot.setDaily_limit(50);
+        bot.setCreatedAt(Timestamp.from(Instant.now()));
+        bot.setUpdatedAt(Timestamp.from(Instant.now()));
+        botRepository.save(bot);
+        System.out.println("Official bot " + name + " created.");
+    }
+
+    private void createConversation(Long botId) {
+        Conversation conversation = new Conversation(null, userRepository.findByUsername("admin"), botRepository.findById(botId).orElse(null), "test conversation", Timestamp.from(Instant.now()), Timestamp.from(Instant.now()), true);
+        conversationRepository.save(conversation);
     }
 
     private void generateAndPrintAdminJwt() {
