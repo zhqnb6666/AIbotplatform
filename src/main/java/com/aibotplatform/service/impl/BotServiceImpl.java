@@ -100,7 +100,7 @@ public class BotServiceImpl implements BotService {
     @Override
     public List<Bot> getUserCustomBots(Long userId) {
         try {
-            return botRepository.findCustomBotsByCreator_UserId(userId);
+            return botRepository.findBotsByCreator_UserIdAndIsActiveTrue(userId);
         } catch (Exception e) {
             throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }

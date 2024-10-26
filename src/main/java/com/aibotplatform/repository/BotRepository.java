@@ -13,9 +13,9 @@ import java.util.Optional;
 public interface BotRepository extends JpaRepository<Bot, Long> {
     Optional<Bot> findByName(String name);
     List<Bot> findByIsActiveTrue();
-    List<Bot> findBotsByCreator_UserId(Long creatorId);
-    @Query("SELECT b FROM Bot b WHERE b.creator.userId = :creatorId AND b.type = 'CUSTOM'")
-    List<Bot> findCustomBotsByCreator_UserId(@Param("creatorId") Long creatorId);
+    List<Bot> findBotsByCreator_UserIdAndIsActiveTrue(Long creatorId);
+//    @Query("SELECT b FROM Bot b WHERE b.creator.userId = :creatorId AND b.type = 'CUSTOM' AND b.isActive = true")
+//    List<Bot> findCustomBotsByCreator_UserId(@Param("creatorId") Long creatorId);
     long count();
     long countByType(Bot.BotType type);
 }
