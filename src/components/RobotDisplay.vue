@@ -16,19 +16,19 @@
       </div>
     </div>
     <div class="media-right">
-      <el-button v-if="showReviewButton" text size="small" @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
-      <el-button v-if="showDeleteButton" text size="small" type="danger" @click="deleteRobot(robot.botId)">删除</el-button>
-      <el-button v-if="showChatButton" text size="small" @click="chat(robot.botId)">或者 与之聊天</el-button>
+      <el-button v-if="showReviewButton" text size="default" @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
+      <el-button v-if="showDeleteButton" text size="default" type="danger" @click="deleteRobot(robot.botId)">删除<el-icon><Delete /></el-icon></el-button>
+      <el-button v-if="showChatButton" text size="default" @click="chat(robot.botId)">或者 与之聊天<el-icon><ChatDotRound /></el-icon></el-button>
     </div>
   </div>
 </template>
 
 <script>
-import { EditPen } from "@element-plus/icons-vue";
+import {ChatDotRound, Delete, EditPen} from "@element-plus/icons-vue";
 
 export default {
   name: 'RobotDisplay',
-  components: { EditPen },
+  components: {Delete, ChatDotRound, EditPen },
   props: {
     robot: {
       type: Object,
