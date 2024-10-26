@@ -15,8 +15,10 @@
         </p>
       </div>
     </div>
-    <div class="media-right" v-if="showButton">
-      <el-button text size="large" round @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
+    <div class="media-right">
+      <el-button v-if="showReviewButton" text size="small" @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
+      <el-button v-if="showDeleteButton" text size="small" type="danger" @click="deleteRobot(robot.botId)">删除</el-button>
+      <el-button v-if="showChatButton" text size="small" @click="chat(robot.botId)">或者 与之聊天</el-button>
     </div>
   </div>
 </template>
@@ -32,19 +34,36 @@ export default {
       type: Object,
       required: true
     },
-    showButton: {
+    showReviewButton: {
       type: Boolean,
       default: true
+    },
+    showDeleteButton: {
+      type: Boolean,
+      default: false
+    },
+    showChatButton: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
     review(botId) {
       this.$emit('review', botId);
+    },
+    chat(botId) {
+      this.$router.push(`/chat?botId=${botId}`);
+    },
+    deleteRobot(botId) {
+      this.$emit('delete', botId);
     }
   }
 }
 </script>
 
 <style scoped>
-/* Add any specific styles for RobotCard here */
+.media-right {
+  display: flex;
+  flex-direction: column;
+}
 </style>

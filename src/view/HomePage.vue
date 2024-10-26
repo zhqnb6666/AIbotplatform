@@ -28,6 +28,7 @@
           v-for="robot in robots"
           :key="robot.id"
           :robot="robot"
+          :show-chat-button="true"
           @review="review"
       />
     </div>

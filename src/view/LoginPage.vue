@@ -26,9 +26,9 @@ export default {
         localStorage.setItem('token', jwt);
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
         await this.updateLoginState(true);
-        axiosInstance.get('/profile').then((response) => {
+        await axiosInstance.get('/profile').then((response) => {
           let { username, email, role, credits, avatarUrl, bio } = response.data;
-          avatarUrl = `http://localhost:8080/avatars/${avatarUrl}`;
+          avatarUrl = `http://localhost:8080/${avatarUrl}`;
           this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
         })
         this.$router.push('/');
@@ -42,7 +42,7 @@ export default {
           });
           return;
         }
-        this.$message.error('登录失败');
+        this.$message.error('未知原因导致登录失败');
       }
     }
   }
@@ -57,7 +57,7 @@ export default {
       <form @submit.prevent="login">
         <div class="field">
           <div class="control has-icons-left">
-            <input v-model="usernameOrEmail" class="input is-medium is-rounded" type="email" placeholder="请输入邮箱或用户名" autocomplete="username" required />
+            <input v-model="usernameOrEmail" class="input is-medium is-rounded" placeholder="请输入邮箱或用户名" autocomplete="username" required />
             <span class="icon is-medium is-left">
               <i class="fas fa-user"></i>
             </span>

@@ -33,7 +33,10 @@
           v-for="robot in robots"
           :key="robot.id"
           :robot="robot"
-          :show-button="false"
+          :show-review-button="false"
+          :show-chat-button="true"
+          :show-delete-button="true"
+          @delete="deleteRobot"
       />
 
     </div>
@@ -149,6 +152,15 @@ export default {
     editProfile() {
       this.isEditingProfile = true;
       this.localProfile = JSON.parse(JSON.stringify(this.personalProfile)); // 创建一个本地副本，避免直接修改全局状态
+    },
+    deleteRobot(botId) {
+      axiosInstance.delete(`/bots/${botId}`).then(() => {
+        this.robots = this.robots.filter((robot) => robot.botId !== botId);
+        this.$message.success('删除成功');
+      }).catch((error) => {
+        console.error('Failed to delete robot:', error);
+        this.$message.error('删除失败');
+      });
     },
     async submit() {
       // Update avatar

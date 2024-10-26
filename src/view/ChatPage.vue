@@ -21,7 +21,7 @@ export default {
       conversationBasicInfo: {
         conversationId: this.$route.query.conversationId,
         botId: this.$route.query.botId,
-        title: ''
+        title: this.$route.query.title
       },
       robotInfo: {
         botId: this.$route.query.botId,
@@ -30,6 +30,7 @@ export default {
       messages: [],
       files: [],
       newMessage: '',
+      streamContent: '',
       isSingleTurn: false,
       isStreamingComplete: true,
       isFeedbackDialogVisible: false,
@@ -46,9 +47,6 @@ export default {
       },
       followUpSuggestions:[],
     };
-  },
-  mounted() {
-    this.highlightCode();
   },
   created() {
     const isNewConversation = !this.conversationBasicInfo.conversationId;
@@ -78,10 +76,19 @@ export default {
       });
     },
     loadConversationHistory() {
-      axiosInstance.get(`/conversations/${this.conversationBasicInfo.conversationId}`).then(res => {
-        this.conversationBasicInfo.title = res.data.title;
+      axiosInstance.get(`/conversations/${this.conversationBasicInfo.conversationId}/chatHistory`).then(res => {
         this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
-        this.messages = res.data.messages;
+        this.messages = res.data;
+        this.messages.forEach((message) => {
+          if (message.senderType === 'BOT') {
+            //重新渲染markdown
+            message.content = md.render(message.content);
+          } else {
+            //用户消息的存储格式为"{\"content\":\"写一段归并排序代码\"}"，所以需要解析
+            message.content = JSON.parse(message.content).content;
+          }
+        });
+        this.highlightCode();
       }).catch(err => {
         console.error(err);
         this.$message.error('获取对话失败');
@@ -111,57 +118,89 @@ export default {
     },
     // 发送消息
     async sendMessage() {
-      if (!this.isStreamingComplete) return;
+      if (!this.isStreamingComplete || this.newMessage.trim() === '') return;
+
       this.isStreamingComplete = false;
-      if (this.newMessage.trim() === '') return;
+
+      // 添加用户消息到列表
       const messageUser = {
-        messageId: this.messages.length,
         senderType: 'USER',
         content: this.newMessage
       };
-      let rec_data = null;
+      this.messages.push(messageUser);
+
       try {
-        rec_data = await axiosInstance.post(`/conversations/${this.conversationBasicInfo.conversationId}/messages`, messageUser);
-        this.$message.success('发送成功');
-        this.messages.push(messageUser);
-        // rec_data = await axiosInstance.get(`/conversations/${this.conversationBasicInfo.conversationId}/stream`);
-        // this.$message.success('接收消息成功');
+        // 1. 发送消息获取messageId和botId
+        const response = await axiosInstance.post(`/conversations/${this.conversationBasicInfo.conversationId}/messages`, {
+          content: this.newMessage
+        });
+
+        const { botId, messageId } = response.data;
+
+        // 2. 开始SSE流式传输
+        this.startSse(botId, messageId);
+        this.newMessage = '';
+
       } catch (err) {
         console.error(err);
         this.$message.error('发送失败');
         this.isStreamingComplete = true;
-        return;
       }
-      this.newMessage = '';
-      if (this.isSingleTurn) {
-        this.clearMessages();
-      }
-      // todo: 后端调用API生成回复，并将回复存储到数据库，前端获取回复
-      setTimeout(() => {
-        this.streamMessage(rec_data.data.content);
-      }, 1000);
-
     },
 
-    // 流式消息, 逐字显示
-    streamMessage(text) {
-      let index = 0;
-      this.messages.push({ content: '', senderType: "BOT", isThumbUp: false, isThumbDown: false});
-      const interval = setInterval(() => {
-        if (index < text.length) {
-          this.messages[this.messages.length - 1].content += text.charAt(index);
-          index++;
-        } else {
-          clearInterval(interval);
-          this.messages[this.messages.length - 1].content = md.render(this.messages[this.messages.length - 1].content);
-          this.$nextTick(() => {
-            this.highlightCode();
+    // SSE传输
+    startSse(botId, messageId) {
+      // 添加机器人空消息占位
+      this.messages.push({
+        content: '',
+        senderType: 'BOT',
+        isThumbUp: false,
+        isThumbDown: false
+      });
+      this.streamContent = ''; // 重置流式内容
+
+      const eventSource = new EventSource(
+          `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream`
+      );
+
+      eventSource.addEventListener('message', (event) => {
+        // 累加流式内容到临时存储
+        this.streamContent += event.data;
+        // 更新显示的消息内容
+        this.messages[this.messages.length - 1].content += event.data;
+      });
+
+      eventSource.addEventListener('error', (event) => {
+        console.error('EventSource error:', event);
+        eventSource.close();
+        this.isStreamingComplete = true;
+      });
+
+      eventSource.addEventListener('complete', async () => {
+        // 渲染markdown
+        this.messages[this.messages.length - 1].content = md.render(this.streamContent);
+        // 保存完整的响应内容到后端
+        try {
+          await axiosInstance.post(`/conversations/${this.conversationBasicInfo.conversationId}/saveResponse`, {
+            messageId: messageId,
+            senderType: 'BOT',
+            botId: botId,
+            content: this.streamContent
           });
-          this.isStreamingComplete = true;
+        } catch (err) {
+          console.error('Failed to save response:', err);
+          this.$message.error('保存失败');
         }
-      }, 10);
-    },
 
+        // 高亮代码
+        this.$nextTick(() => {
+          this.highlightCode();
+        });
+        this.isStreamingComplete = true;
+        eventSource.close();
+
+      });
+    },
     // 清空消息
     clearMessages() {
       if (!this.isStreamingComplete) return;
