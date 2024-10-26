@@ -7,11 +7,11 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BotRepository extends JpaRepository<Bot, Long> {
-    Bot findByName(String name);
-    Bot findByModel(String model);
+    Optional<Bot> findByName(String name);
     List<Bot> findByIsActiveTrue();
     List<Bot> findBotsByCreator_UserId(Long creatorId);
     @Query("SELECT b FROM Bot b WHERE b.creator.userId = :creatorId AND b.type = 'CUSTOM'")

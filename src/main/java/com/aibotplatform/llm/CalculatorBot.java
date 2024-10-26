@@ -2,11 +2,14 @@ package com.aibotplatform.llm;
 
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.StreamingChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.model.openai.OpenAiStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import reactor.core.publisher.Flux;
 
 import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
 
@@ -16,7 +19,7 @@ public class CalculatorBot implements LLM {
 
     public CalculatorBot() {
         // 创建 OpenAI GPT-4 模型实例
-        ChatLanguageModel model = OpenAiChatModel.builder()
+        OpenAiStreamingChatModel model = OpenAiStreamingChatModel.builder()
                 .apiKey(OPENAI_API_KEY)
                 .baseUrl("https://xiaoai.plus/v1")
                 .modelName(GPT_4_O_MINI)
@@ -25,18 +28,18 @@ public class CalculatorBot implements LLM {
 
         // 创建AI服务
         calculatorAI = AiServices.builder(CalculatorAI.class)
-                .chatLanguageModel(model)
+                .streamingChatLanguageModel(model)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .tools(new CalculatorTools())
                 .build();
     }
 
     @Override
-    public String chat(String input) {
+    public Flux<String> chat(String input) {
         try {
             return calculatorAI.calculate(input);
         } catch (Exception e) {
-            return "计算出错: " + e.getMessage();
+            return Flux.just("计算出错: " + e.getMessage());
         }
     }
 }
@@ -45,7 +48,7 @@ interface CalculatorAI {
     @SystemMessage("你是一个专业的计算器，可以处理各种数学计算。" +
             "请根据用户输入选择合适的计算工具来执行计算。" +
             "对于无效输入，请给出友好的提示。")
-    String calculate(String expression);
+    Flux<String> calculate(String expression);
 }
 
 class CalculatorTools {

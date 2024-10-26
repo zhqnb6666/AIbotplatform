@@ -1,5 +1,7 @@
 package com.aibotplatform.llm;
 
+import reactor.core.publisher.Flux;
+
 public interface LLM {
-    String chat(String input);
+    Flux<String> chat(String input);
 }
