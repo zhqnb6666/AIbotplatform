@@ -94,17 +94,9 @@ public class BotServiceImpl implements BotService {
     @Override
     public List<Bot> getUserCustomBots(Long userId) {
         try {
-            List<Bot> userBotsList = botRepository.findBotsByCreator_UserId(userId);
-            for (Bot bot : userBotsList) {
-                if (!bot.getIsActive()) {
-                    userBotsList.remove(bot);
-                } else if (!bot.getType().equals(Bot.BotType.CUSTOM)) {
-                    userBotsList.remove(bot);
-                }
-            }
-            return userBotsList;
+            return botRepository.findCustomBotsByCreator_UserId(userId);
         } catch (Exception e) {
-            throw new ApiException("User Not Found",HttpStatus.NOT_FOUND);
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
