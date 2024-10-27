@@ -3,10 +3,10 @@
     <el-header direction = "horizontal">
       <div class="vertical-container">
         <el-avatar style="width: 100px; height: 100px" :src="robotInfo.url" :fit="fit" />
-        <p class="title is-6" style="margin-top: 4px">{{robotInfo.name}}</p>
+        <p class="title is-6">{{robotInfo.name}}</p>
       </div>
       <div class="vertical-container">
-        <p class="title is-6">评分和评价</p>
+        <p class="title is-6" style="margin-bottom: 0">评分和评价</p>
         <p class="title is-1">{{robotInfo.rating}}</p>
         <p class="subtitle">{{robotInfo.reviewCount}}条评论</p>
       </div>
@@ -170,7 +170,7 @@ export default {
   display: block !important; /* 强制显示 */
 }
 .el-header {
-  height: 160px;
+  height: 170px;
   align-items: center;
   justify-content: center;
   display: flex;
@@ -184,7 +184,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   width: 150px;
 }
 .rating-container {
@@ -201,12 +200,6 @@ export default {
 }
 .el-progress {
   width: 300px;
-}
-.el-header {
-  height: 170px;
-}
-.title.is-6{
-  margin-bottom: 0;
 }
 .up {
   height: 90%;

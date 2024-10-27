@@ -10,7 +10,8 @@ import marketPage from "@/view/MarketPage.vue";
 import reviewPage from "@/view/reviewPage.vue";
 import ChatHistory from "@/view/ChatHistory.vue";
 import store from '@/store';
-
+import SettingPage from "@/view/SettingPage.vue";
+import ResetPasswordPage from "@/view/ResetPasswordPage.vue";
 const routes = [
     { path: '/', component: HomePage },
     { path: '/login', component: LoginPage },
@@ -20,7 +21,9 @@ const routes = [
     { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
     { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }},
     { path: '/market', component: marketPage, meta: { requiresAuth: true } },
-    { path: '/chatHistory', component: ChatHistory, meta: { requiresAuth: true } }
+    { path: '/chatHistory', component: ChatHistory, meta: { requiresAuth: true } },
+    { path: '/setting', component: SettingPage, meta: { requiresAuth: true } },
+    { path: '/reset-password', component: ResetPasswordPage },
 ]
 
 const router = createRouter({

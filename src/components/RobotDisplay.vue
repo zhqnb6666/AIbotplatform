@@ -1,6 +1,6 @@
 <!-- src/components/RobotCard.vue -->
 <template>
-  <div class="media">
+  <div class="media" style="align-items: center">
     <figure class="media-left">
       <el-avatar :size="64" :src="robot.avatarURl" alt="Placeholder image" />
     </figure>
@@ -16,19 +16,34 @@
       </div>
     </div>
     <div class="media-right">
-      <el-button v-if="showReviewButton" text size="default" @click="review(robot.botId)">撰写评价<el-icon><EditPen /></el-icon></el-button>
-      <el-button v-if="showDeleteButton" text size="default" type="danger" @click="deleteRobot(robot.botId)">删除<el-icon><Delete /></el-icon></el-button>
-      <el-button v-if="showChatButton" text size="default" @click="chat(robot.botId)">或者 与之聊天<el-icon><ChatDotRound /></el-icon></el-button>
+      <el-dropdown>
+        <el-button type="info" circle text size="large">
+          <el-icon class="el-icon--right" :size="25"><More /></el-icon>
+        </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item v-if="showReviewButton" @click="review(robot.botId)">
+              撰写评价<el-icon><EditPen /></el-icon>
+            </el-dropdown-item>
+            <el-dropdown-item v-if="showDeleteButton" @click="deleteRobot(robot.botId)">
+              删除<el-icon><Delete /></el-icon>
+            </el-dropdown-item>
+            <el-dropdown-item v-if="showChatButton" @click="chat(robot.botId)">
+              与之聊天<el-icon><ChatDotRound /></el-icon>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
   </div>
 </template>
 
 <script>
-import {ChatDotRound, Delete, EditPen} from "@element-plus/icons-vue";
+import {ChatDotRound, Delete, EditPen, More} from "@element-plus/icons-vue";
 
 export default {
   name: 'RobotDisplay',
-  components: {Delete, ChatDotRound, EditPen },
+  components: {More, Delete, ChatDotRound, EditPen },
   props: {
     robot: {
       type: Object,
@@ -49,7 +64,7 @@ export default {
   },
   methods: {
     review(botId) {
-      this.$emit('review', botId);
+      this.$router.push(`/review/${botId}`);
     },
     chat(botId) {
       this.$router.push(`/chat?botId=${botId}`);
@@ -62,8 +77,4 @@ export default {
 </script>
 
 <style scoped>
-.media-right {
-  display: flex;
-  flex-direction: column;
-}
 </style>

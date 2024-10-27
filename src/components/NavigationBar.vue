@@ -6,8 +6,7 @@
     <router-link class="navbar-item" to="/register">注册</router-link>
   </div>
   <div class="navbar-container" v-else>
-    <router-link class="navbar-item" to="/logout">登出</router-link>
-    <router-link class="navbar-item" to="/reset-password">重置密码</router-link>
+    欢迎您，{{ personalProfile.username }}
   </div>
 </template>
 
@@ -19,7 +18,8 @@ import { mapGetters } from 'vuex';
 export default {
   name: 'NavigationBar',
   computed: {
-    ...mapGetters(['isLoggedIn'])
+    ...mapGetters(['isLoggedIn']),
+    ...mapGetters(['personalProfile'])
   }
 }
 </script>

@@ -45,7 +45,7 @@ export default {
   },
   watch: {
     $route(to) {
-      this.showSideBar = to.path !== '/login' && to.path !== '/register';
+      this.showSideBar = to.path !== '/login' && to.path !== '/register' && to.path !== '/reset-password';
       const actions = {
         '/market': '购买积分',
         '/createBot': '创建bot',
@@ -55,6 +55,7 @@ export default {
         '/setting': '设置',
         '/review': '评分',
         '/chatHistory': '聊天历史',
+        '/reset-password': '重置密码'
       };
       this.action = actions[to.path] || '探索';
     }

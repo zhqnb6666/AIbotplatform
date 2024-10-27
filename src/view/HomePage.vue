@@ -29,7 +29,6 @@
           :key="robot.id"
           :robot="robot"
           :show-chat-button="true"
-          @review="review"
       />
     </div>
 </template>
@@ -67,10 +66,6 @@ export default {
         console.log('click tags')
       }
     },
-    //跳转到评分界面
-    review(botId) {
-      this.$router.push(`/review/${botId}`);
-    }
   }
 }
 </script>

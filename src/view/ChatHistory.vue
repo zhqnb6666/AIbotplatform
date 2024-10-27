@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     continueChat(chat) {
-      // 例如，跳转到聊天页面并传递聊天历史ID
+      //跳转到聊天页面并传递聊天历史ID和标题
       const queryParameters = `botId=${chat.botId}&conversationId=${chat.conversationId}&title=${chat.title}`;
       this.$router.push('/chat?' + queryParameters);
     },

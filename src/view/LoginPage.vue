@@ -35,11 +35,8 @@ export default {
         this.$message.success('登录成功');
       } catch (error) {
         console.error('Login error:', error);
-        if(error.data==="Incorrect username or password"){
-          this.$message({
-            message: '用户名或密码错误',
-            type: 'error'
-          });
+        if (error.response && error.response.data === "Incorrect username or password") {
+          this.$message.error('用户名或密码错误');
           return;
         }
         this.$message.error('未知原因导致登录失败');
