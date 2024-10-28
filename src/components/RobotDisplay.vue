@@ -1,6 +1,6 @@
 <!-- src/components/RobotCard.vue -->
 <template>
-  <div class="media" style="align-items: center">
+  <div class="media" style="align-items: center" @click="chat(robot.botId)">
     <figure class="media-left">
       <el-avatar :size="64" :src="robot.avatarURl" alt="Placeholder image" />
     </figure>
@@ -17,7 +17,7 @@
     </div>
     <div class="media-right">
       <el-dropdown>
-        <el-button type="info" circle text size="large">
+        <el-button type="info" circle text size="large" @click.stop>
           <el-icon class="el-icon--right" :size="25"><More /></el-icon>
         </el-button>
         <template #dropdown>
@@ -77,4 +77,11 @@ export default {
 </script>
 
 <style scoped>
+.media:hover {
+  background-color: rgb(243.9, 244.2, 244.8);
+}
+.media{
+  margin: 0;
+  padding: var(--bulma-media-spacing);
+}
 </style>

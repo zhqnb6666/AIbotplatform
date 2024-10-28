@@ -51,7 +51,7 @@ export default {
 
 <style scoped>
 .container {
-  width: 70%;
+  width: 50%;
   margin-top: 20px;
 }
 .button-container {
@@ -62,8 +62,11 @@ export default {
   gap: 10px;
 }
 .el-button {
-  width: 100px;
+  width: 150px;
   height: 50px;
   font-size: 18px;
+}
+:deep(.el-button+.el-button) {
+  margin-left: 0;
 }
 </style>
