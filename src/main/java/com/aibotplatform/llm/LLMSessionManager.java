@@ -1,6 +1,7 @@
 package com.aibotplatform.llm;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ public class LLMSessionManager {
         }
     }
 
-    public String chat(Long sessionId, String modelName, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
+    public Flux<String> chat(Long sessionId, String modelName, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
         SessionInfo session = activeSessions.get(sessionId);
 
         if (session == null || isSessionExpired(session)) {
@@ -37,18 +38,9 @@ public class LLMSessionManager {
         return session.llm.chat(input);
     }
 
-    public String chat(Long sessionId, String modelName, String input) {
-        SessionInfo session = activeSessions.get(sessionId);
-
-        if (session == null || isSessionExpired(session)) {
-            // 创建新会话
-            List<AbstractMap.SimpleEntry<String,String>> newHistory = new ArrayList<>();
-            LLM newLLM = LLMFactory.createLLM(modelName, newHistory);
-            session = new SessionInfo(newLLM);
-            activeSessions.put(sessionId, session);
-        }
-        session.lastAccessTime = System.currentTimeMillis();
-        return session.llm.chat(input);
+    public Flux<String> chat(String modelName, String input, List<AbstractMap.SimpleEntry<String, String>>history) {
+        LLM newLLM = LLMFactory.createLLM(modelName, history);
+        return newLLM.chat(input);
     }
 
     private boolean isSessionExpired(SessionInfo session) {

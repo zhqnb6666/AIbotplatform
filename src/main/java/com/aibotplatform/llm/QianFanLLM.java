@@ -8,11 +8,12 @@ import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
-import dev.langchain4j.model.qianfan.QianfanChatModel;
+import dev.langchain4j.model.qianfan.*;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
+import reactor.core.publisher.Flux;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -22,18 +23,18 @@ public class QianFanLLM implements LLM {
     private static final String AK = "uMF5PVIQDQYY58QZJ0J04XrF";
     private static final String SK = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
     private final ChatMemory chatMemory;
-    private final ChatBot assistant;
+    private final LLM assistant;
 
     public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
         this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
-        QianfanChatModel model = QianfanChatModel.builder()
+        QianfanStreamingChatModel model = QianfanStreamingChatModel.builder()
                 .apiKey(AK)
                 .secretKey(SK)
                 .modelName(modelName)
                 .build();
         initializeMessages(chatHistory);
-        this.assistant = AiServices.builder(ChatBot.class)
-                .chatLanguageModel(model)
+        this.assistant = AiServices.builder(LLM.class)
+                .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
                 .build();
     }
@@ -46,7 +47,7 @@ public class QianFanLLM implements LLM {
      */
     public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
         this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
-        QianfanChatModel model = QianfanChatModel.builder()
+        QianfanStreamingChatModel model = QianfanStreamingChatModel.builder()
                 .apiKey(AK)
                 .secretKey(SK)
                 .modelName(modelName)
@@ -57,15 +58,15 @@ public class QianFanLLM implements LLM {
         InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
         //嵌入文档
         EmbeddingStoreIngestor.ingest(doc, embeddingStore);
-        this.assistant = AiServices.builder(ChatBot.class)
-                .chatLanguageModel(model)
+        this.assistant = AiServices.builder(LLM.class)
+                .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
                 .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))
                 .build();
     }
 
     @Override
-    public String chat(String userMessage) {
+    public Flux<String> chat(String userMessage) {
         return assistant.chat(userMessage);
     }
 

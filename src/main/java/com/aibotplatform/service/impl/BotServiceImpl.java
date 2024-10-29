@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +31,11 @@ public class BotServiceImpl implements BotService {
     public Bot getBotById(Long botId) {
         return botRepository.findById(botId)
                 .orElseThrow(() -> new ApiException("Bot Not Found", HttpStatus.NOT_FOUND));
+    }
+
+    @Override
+    public Optional<Bot> getBotByName(String name) {
+        return botRepository.findByName(name);
     }
 
     @Override
