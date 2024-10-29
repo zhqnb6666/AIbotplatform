@@ -16,4 +16,9 @@ public interface BotService {
     Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser);
     void deleteBot(Long botId, User deleteUser);
     List<Bot> getUserCustomBots(Long userId);
+    List<Bot> getLatestBots(Integer top);
+    List<Bot> getMostPopularBots(Integer top);
+    List<Bot> getHistoricalBestBots(Integer top);
+    List<Bot> getMonthlyBestBots(Integer top);
+
 }

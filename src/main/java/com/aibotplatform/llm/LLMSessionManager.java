@@ -1,4 +1,5 @@
 package com.aibotplatform.llm;
+import com.aibotplatform.model.Bot;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -25,12 +26,12 @@ public class LLMSessionManager {
         }
     }
 
-    public Flux<String> chat(Long sessionId, String modelName, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
+    public Flux<String> chat(Long sessionId, Bot bot, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
         SessionInfo session = activeSessions.get(sessionId);
 
         if (session == null || isSessionExpired(session)) {
             // 创建新会话
-            LLM newLLM = LLMFactory.createLLM(modelName, history);
+            LLM newLLM = LLMFactory.createLLM(bot, history);
             session = new SessionInfo(newLLM);
             activeSessions.put(sessionId, session);
         }
@@ -38,8 +39,8 @@ public class LLMSessionManager {
         return session.llm.chat(input);
     }
 
-    public Flux<String> chat(String modelName, String input, List<AbstractMap.SimpleEntry<String, String>>history) {
-        LLM newLLM = LLMFactory.createLLM(modelName, history);
+    public Flux<String> chat(Bot bot, String input, List<AbstractMap.SimpleEntry<String, String>>history) {
+        LLM newLLM = LLMFactory.createLLM(bot, history);
         return newLLM.chat(input);
     }
 

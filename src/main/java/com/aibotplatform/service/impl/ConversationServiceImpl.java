@@ -69,7 +69,7 @@ public class ConversationServiceImpl implements ConversationService {
         Message message = getMessageById(messageId);
         Conversation conversation = message.getConversation();
         Bot bot = botService.getBotById(botId);
-        return llmSessionManager.chat(bot.getModel(), message.getContent(), getChatHistory(conversation.getConversationId()));
+        return llmSessionManager.chat(bot, message.getContent(), getChatHistory(conversation.getConversationId()));
     }
 
 //    @Transactional

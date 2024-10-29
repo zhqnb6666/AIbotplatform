@@ -17,6 +17,7 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import reactor.core.publisher.Flux;
 
+import java.math.BigDecimal;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,13 @@ public class OpenAILLM implements LLM {
             .build();
     private LLM assistant;
 
-    public OpenAILLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chat_history) {
-        initializeModel(modelName);
+    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history) {
+        initializeModel(modelName, temperature);
         initialize_messages(chat_history);
     }
 
-    public OpenAILLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chat_history, String doc_path) {
-        initializeRagModel(modelName, doc_path);
+    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history, String doc_path) {
+        initializeRagModel(modelName, temperature, doc_path);
         initialize_messages(chat_history);
     }
 
@@ -48,36 +49,37 @@ public class OpenAILLM implements LLM {
         return assistant.chat(message);
     }
 
-    private OpenAiStreamingChatModel getChatModel(OpenAiChatModelName modelName) {
+    private OpenAiStreamingChatModel getChatModel(OpenAiChatModelName modelName, Double temperature) {
         String api_key = "sk-6hMxxGzo2ZT6WzKXBa9cB82d964e4cAe9eE0F95d70C1Ba0e";
         return OpenAiStreamingChatModel.builder()
                 .apiKey(api_key)
                 .baseUrl("https://xiaoai.plus/v1")
                 .modelName(modelName)
+                .temperature(temperature)
                 .build();
     }
 
-    private void chooseModel(String modelName) {
+    private void chooseModel(String modelName, Double temperature) {
         switch (modelName.toUpperCase()) {
             case "GPT_3_5_TURBO":
-                model = getChatModel(GPT_3_5_TURBO);
+                model = getChatModel(GPT_3_5_TURBO, temperature);
                 break;
             case "GPT_4_32K":
-                model = getChatModel(GPT_4_32K);
+                model = getChatModel(GPT_4_32K, temperature);
                 break;
             case "GPT_4_O":
-                model = getChatModel(GPT_4_O);
+                model = getChatModel(GPT_4_O, temperature);
                 break;
             case "GPT_4_O_MINI":
-                model = getChatModel(GPT_4_O_MINI);
+                model = getChatModel(GPT_4_O_MINI, temperature);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown model name: " + modelName);
         }
     }
 
-    private void initializeModel(String modelName) {
-        chooseModel(modelName);
+    private void initializeModel(String modelName, Double temperature) {
+        chooseModel(modelName, temperature);
         assistant = AiServices.builder(LLM.class)
                 .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
@@ -88,9 +90,10 @@ public class OpenAILLM implements LLM {
      * 简化创建RAG模型的构建，在创建模型时根据是否输入文件路径来决定
      * @param modelName 模型名称
      * @param doc_path 文件路径
+     * @param temperature 温度
      */
-    private void initializeRagModel(String modelName, String doc_path) {
-        chooseModel(modelName);
+    private void initializeRagModel(String modelName, Double temperature, String doc_path) {
+        chooseModel(modelName, temperature);
         //外部知识库（文档）
         Document doc = FileSystemDocumentLoader.loadDocument(doc_path);
         //构建向量数据库
