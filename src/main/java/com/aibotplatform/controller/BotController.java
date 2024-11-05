@@ -102,6 +102,71 @@ public class BotController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    //获取显示并排名最新的机器人、最高评分的机器人（本月最佳、历史最佳、访问量最多）的接口应该怎么命名
+    @GetMapping("/latest")
+    public ResponseEntity<List<BotResponse>> getLatestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getLatestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<BotResponse>> getMostPopularBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getMostPopularBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/best/historical")
+    public ResponseEntity<List<BotResponse>> getHistoricalBestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getHistoricalBestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/best/monthly")
+    public ResponseEntity<List<BotResponse>> getMonthlyBestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getMonthlyBestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
     // Convert Bot entity to BotDTO
     private BotResponse convertToDTO(Bot bot) {
         return new BotResponse(
@@ -112,7 +177,11 @@ public class BotController {
                 bot.getModel(),
                 bot.getType(),
                 bot.getIsActive(),
-                bot.getTokenCost()
+                bot.getTokenCost(),
+                bot.getPromptTemplate(),
+                bot.getGreetingMessage(),
+                bot.getTemperature(),
+                bot.getAccessibility()
         );
     }
 }

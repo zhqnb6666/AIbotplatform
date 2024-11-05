@@ -2,6 +2,8 @@ package com.aibotplatform.dto.botDTO;
 
 import com.aibotplatform.model.Bot;
 
+import java.math.BigDecimal;
+
 public record BotResponse(
         Long botId,
         Long userId,
@@ -10,6 +12,10 @@ public record BotResponse(
         String model,
         Bot.BotType type,
         Boolean isActive,
-        Integer tokenCost
+        Integer tokenCost,
+        String promptTemplate,
+        String greetingMessage,
+        Double temperature,
+        Bot.BotAccessibility accessibility
 ) {
 }

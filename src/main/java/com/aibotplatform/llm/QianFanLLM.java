@@ -25,12 +25,13 @@ public class QianFanLLM implements LLM {
     private final ChatMemory chatMemory;
     private final LLM assistant;
 
-    public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
+    public QianFanLLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chatHistory) {
         this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
         QianfanStreamingChatModel model = QianfanStreamingChatModel.builder()
                 .apiKey(AK)
                 .secretKey(SK)
                 .modelName(modelName)
+                .temperature(temperature)
                 .build();
         initializeMessages(chatHistory);
         this.assistant = AiServices.builder(LLM.class)
@@ -42,15 +43,17 @@ public class QianFanLLM implements LLM {
     /**
      * 简化了检索增强生成模型的构建，直接集成在创建模型时根据是否输入文件路径来决定
      * @param modelName 模型名称
+     * @param temperature 温度
      * @param chatHistory 历史聊天记录
      * @param doc_path 文件地址
      */
-    public QianFanLLM(String modelName, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
+    public QianFanLLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
         this.chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
         QianfanStreamingChatModel model = QianfanStreamingChatModel.builder()
                 .apiKey(AK)
                 .secretKey(SK)
                 .modelName(modelName)
+                .temperature(temperature)
                 .build();
         initializeMessages(chatHistory);
         Document doc = FileSystemDocumentLoader.loadDocument(doc_path);
