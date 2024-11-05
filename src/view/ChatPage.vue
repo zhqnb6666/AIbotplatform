@@ -6,6 +6,7 @@ import hljs from 'highlight.js';
 import MarkdownIt from 'markdown-it';
 import 'highlight.js/styles/github.css';
 import 'github-markdown-css';
+import {mapActions, mapState} from "vuex";
 
 
 const md = new MarkdownIt();
@@ -15,6 +16,9 @@ export default {
   components: {
     DropUpButton,
     DropDownButton
+  },
+  computed: {
+    ...mapState(['personalProfile']),
   },
   data() {
     return {
@@ -26,6 +30,7 @@ export default {
       robotInfo: {
         botId: this.$route.query.botId,
         name: '江澈',
+        tokenCost: 0
       },
       messages: [],
       files: [],
@@ -65,6 +70,7 @@ export default {
     });
   },
   methods: {
+    ...mapActions(['updatePersonalProfile']),
     createNewConversation() {
       this.conversationBasicInfo.title = '您和' + this.robotInfo.name + '的聊天';
       this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
@@ -119,9 +125,11 @@ export default {
     // 发送消息
     async sendMessage() {
       if (!this.isStreamingComplete || this.newMessage.trim() === '') return;
-
+      if (this.personalProfile.token < this.robotInfo.tokenCost) {
+        this.$message.error('token余额不足');
+        return;
+      }
       this.isStreamingComplete = false;
-
       // 添加用户消息到列表
       const messageUser = {
         senderType: 'USER',
@@ -140,9 +148,13 @@ export default {
         // 2. 开始SSE流式传输
         this.startSse(botId, messageId);
         this.newMessage = '';
-
+        this.personalProfile.token -= this.robotInfo.tokenCost;
+        this.updatePersonalProfile(this.personalProfile);
       } catch (err) {
         console.error(err);
+        if (err.response && err.response.status === 400 && err.response.data.code === 'INSUFFICIENT_TOKENS') {
+           this.$message.error('token余额不足');
+        }
         this.$message.error('发送失败');
         this.isStreamingComplete = true;
       }

@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div class="file has-name">
+    <div class="file has-name" style="margin-bottom: 5px;">
       <label class="file-label">
         <input class="file-input" type="file" name="resume" @change="handleImageUpload"/>
         <span class="file-cta">
@@ -64,12 +64,14 @@
           </span>
           <span class="file-label"> 上传图片 </span>
         </span>
-        <span class="file-name"> {{this.selectedFileName || '原来的头像.jpeg'}}
+        <span class="file-name"> {{this.selectedFileName[0]}}
         </span>
       </label>
     </div>
-
-    <div class="field">
+    <label class="subtitle is-6">
+      请上传小于10MB的图片文件
+    </label>
+    <div class="field"  style="margin-top: var(--bulma-field-block-spacing)">
       <label class="label is-medium">用户名:</label>
       <input class="input is-medium" type="text" :placeholder="localProfile.username" disabled/>
     </div>
@@ -99,7 +101,7 @@
       <img ref="image" :src="imageUrl" alt="Source Image" style="width: 500px;height: 500px"/>
     </div>
     <template #footer>
-      <el-button @click="cropperVisible = false">取消</el-button>
+      <el-button @click="cropperVisible = false;selectedFileName.pop();">取消</el-button>
       <el-button type="primary" @click="cropImage">裁剪</el-button>
     </template>
   </el-dialog>
@@ -126,7 +128,7 @@ export default {
       tab_index: 0,
       localProfile: null,//对个人资料的修改
       //图片上传需要的变量
-      selectedFileName: '',
+      selectedFileName: ['原来的头像.jpeg'],
       imageUrl: null,
       croppedImageUrl: null,
       cropper: null,
@@ -229,7 +231,7 @@ export default {
         return;
       }
       if (file && file.size <= maxSize) {
-        this.selectedFileName = file.name;
+        this.selectedFileName.push(file.name);
         this.imageUrl = URL.createObjectURL(file);
         this.cropperVisible = true;
         // Destroy the old Cropper instance if it exists
@@ -271,6 +273,7 @@ export default {
         this.croppedImageUrl = canvas.toDataURL('image/png');
         this.localProfile.avatarUrl = this.croppedImageUrl;
         this.cropperVisible = false;
+        this.selectedFileName.shift();
       }
     },
 
