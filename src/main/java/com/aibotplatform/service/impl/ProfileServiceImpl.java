@@ -39,6 +39,7 @@ public class ProfileServiceImpl implements ProfileService {
         ProfileResponse profileResponse = new ProfileResponse();
         profileResponse.setUsername(user.getUsername());
         profileResponse.setCredits(user.getCredits());
+        profileResponse.setToken(user.getToken());
         profileResponse.setRole(user.getRole().toString());
         profileResponse.setAvatarUrl(user.getAvatarUrl());
         profileResponse.setEmail(user.getEmail());
