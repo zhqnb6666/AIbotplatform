@@ -1,16 +1,22 @@
 <template>
   <div>
-    <el-table :data="chatHistories" style="width: 100%" fit :table-layout="'fixed'" empty-text="目前暂无数据">
+    <el-table :data="filteredChatHistories" style="width: 100%" fit :table-layout="'fixed'" empty-text="目前暂无数据">
       <el-table-column prop="conversationId" label="聊天ID"></el-table-column>
       <el-table-column prop="title" label="标题"></el-table-column>
-      <el-table-column label="操作一">
-        <template #default="scope">
-          <el-button @click="continueChat(scope.row)" type="primary" size="default">继续聊天</el-button>
+      <el-table-column align="center">
+        <template #header>
+          <el-input v-model="search" placeholder="通过标题或者聊天ID进行搜索" />
         </template>
-      </el-table-column>
-      <el-table-column label="操作二">
         <template #default="scope">
-          <el-button @click="deleteChat(scope.row)" type="danger" size="default">删除聊天</el-button>
+          <el-button @click="continueChat(scope.row)">
+            继续聊天
+          </el-button>
+          <el-button
+              type="danger"
+              @click="deleteChat(scope.row)"
+          >
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -29,10 +35,18 @@ export default {
       this.$message.error('获取聊天历史失败');
     });
   },
+  computed: {
+    filteredChatHistories() {
+      return this.chatHistories.filter((chat) => {
+        return chat.title.includes(this.search) || chat.conversationId === parseInt(this.search);
+      });
+    },
+  },
   data() {
     return {
       chatHistories: [
       ],
+      search: '',
     };
   },
   methods: {

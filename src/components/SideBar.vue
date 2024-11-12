@@ -45,6 +45,15 @@
           设置
         </el-menu-item>
       </el-sub-menu>
+      <el-sub-menu index="4" v-if="personalProfile.role === 'ADMIN'">
+        <template #title>
+          <el-icon><WarnTriangleFilled /></el-icon>
+          <span>管理员功能</span>
+        </template>
+        <el-menu-item index="/official-bot-edit">
+          修改官方机器人
+        </el-menu-item>
+      </el-sub-menu>
     </el-menu>
 
   </el-aside>
@@ -52,12 +61,17 @@
 
 <script>
 import NavigationBar from "@/components/NavigationBar.vue";
-import {Menu, Setting, User} from "@element-plus/icons-vue";
+import {Menu, Setting, User, WarnTriangleFilled} from "@element-plus/icons-vue";
+import {mapGetters} from "vuex";
 
 
 export default {
   name: 'SideBar',
+  computed: {
+    ...mapGetters(['personalProfile'])
+  },
   components: {
+    WarnTriangleFilled,
     Setting,
     User,
     Menu,
