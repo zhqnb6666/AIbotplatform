@@ -88,6 +88,7 @@ export default {
             if (response.status === 201) {
               this.$message.success('兑换成功');
               this.personalProfile.credits -= this.convertedCredits;
+              this.personalProfile.tokens += this.convertedCredits * 100;
               this.updatePersonalProfile(this.personalProfile);
               this.convertToTokenVisible = false;
             } else {

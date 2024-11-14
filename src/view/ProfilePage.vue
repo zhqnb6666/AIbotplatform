@@ -109,11 +109,11 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import axiosInstance from "@/service/axiosInstance";
 import { Coin } from "@element-plus/icons-vue";
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import RobotDisplay from "@/components/RobotDisplay.vue";
+import ProfileService from "@/service/ProfileService";
 
 export default {
   name: 'ProfilePage',
@@ -137,7 +137,7 @@ export default {
     };
   },
   created() {
-    axiosInstance.get('/profile').then((response) => {
+    ProfileService.getProfile().then((response) => {
       this.robots = response.data.userBotList;
     }).catch((error) => {
       this.$message.error('获取个人资料失败');
@@ -156,7 +156,7 @@ export default {
       this.localProfile = JSON.parse(JSON.stringify(this.personalProfile)); // 创建一个本地副本，避免直接修改全局状态
     },
     deleteRobot(botId) {
-      axiosInstance.delete(`/bots/${botId}`).then(() => {
+      ProfileService.deleteRobot(botId).then(() => {
         this.robots = this.robots.filter((robot) => robot.botId !== botId);
         this.$message.success('删除成功');
       }).catch((error) => {
@@ -165,17 +165,12 @@ export default {
       });
     },
     async submit() {
-      // Update avatar
       if (this.croppedImageUrl) {
         const blob = await fetch(this.croppedImageUrl).then(res => res.blob());
         const formData = new FormData();
         formData.append('file', blob, `avatar-${this.localProfile.email}.png`);
         try {
-          const response = await axiosInstance.put('/profile/change-avatar', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          });
+          const response = await ProfileService.changeAvatar(formData);
           if (!response || response.status !== 200) {
             this.$message.error('修改失败');
             return;
@@ -186,15 +181,8 @@ export default {
           return;
         }
       }
-      // Update bio
       try {
-        const response = await axiosInstance.put('/profile/change-bio', {
-          newBio: this.localProfile.bio
-        }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        const response = await ProfileService.changeBio(this.localProfile.bio);
         if (!response || response.status !== 200) {
           this.$message.error('修改失败');
           return;
@@ -205,7 +193,7 @@ export default {
         return;
       }
       this.$message.success('修改成功');
-      await this.updatePersonalProfile(this.localProfile); // Update global state
+      await this.updatePersonalProfile(this.localProfile);
       this.isEditingProfile = false;
     },
     cancel() {

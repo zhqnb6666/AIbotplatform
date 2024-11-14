@@ -79,13 +79,7 @@ export default {
       this.infoDialogState = 2;
     },
     handleUpdate() {
-      axiosInstance.put(`/admin/bot`, {
-        botId: this.currentBot.botId,
-        name: this.currentBot.name,
-        description: this.currentBot.description,
-        model: this.currentBot.model,
-        tokenCost: this.currentBot.tokenCost,
-      }).then(() => {
+      axiosInstance.put(`/admin/bot`, this.currentBot).then(() => {
         const index = this.officialBots.findIndex(bot => bot.botId === this.currentBot.botId);
         if (index !== -1) {
           this.officialBots.splice(index, 1, this.currentBot);
@@ -98,12 +92,7 @@ export default {
       });
     },
     handleAdd() {
-      axiosInstance.post(`/admin/bot`, {
-        name: this.currentBot.name,
-        description: this.currentBot.description,
-        model: this.currentBot.model,
-        tokenCost: this.currentBot.tokenCost,
-      }).then((response) => {
+      axiosInstance.post(`/admin/bot`, this.currentBot).then((response) => {
         this.officialBots.push(response.data);
         this.$message.success('添加成功');
         this.infoDialogState = 0;
@@ -128,6 +117,23 @@ export default {
         this.$message.error('删除失败');
       });
     },
+    handleExport() {
+      axiosInstance.get('/admin/export').then((response) => {
+        const excel_url = `http://localhost:8080/${response.data.split(' ')[5]}`;
+        this.downloadFile(excel_url);
+      }).catch((error) => {
+        console.error('Failed to export official bots:', error);
+        this.$message.error('导出失败');
+      });
+    },
+    downloadFile(url) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'total_info.xlsx';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
 }
 </script>
@@ -180,7 +186,7 @@ export default {
 <el-button class="mt-4" @click="openAddDialog">
   添加官方机器人
 </el-button>
-<el-button class="mt-4" @click="openAddDialog">
+<el-button class="mt-4" @click="handleExport">
   导出数据
 </el-button>
 <!-- 编辑机器人对话框 -->

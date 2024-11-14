@@ -18,7 +18,7 @@
     <div class="media-right">
       <el-dropdown>
         <el-button type="info" circle text size="large" @click.stop>
-          <el-icon class="el-icon--right" :size="25"><More /></el-icon>
+          <el-icon :size="25"><More /></el-icon>
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>

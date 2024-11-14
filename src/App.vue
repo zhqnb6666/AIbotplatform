@@ -55,7 +55,8 @@ export default {
         '/setting': '设置',
         '/review': '评分',
         '/chatHistory': '聊天历史',
-        '/reset-password': '重置密码'
+        '/reset-password': '重置密码',
+        '/official-bot-edit': '官方机器人',
       };
       this.action = actions[to.path] || '探索';
     }
