@@ -27,9 +27,9 @@ export default {
         axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${jwt}`;
         await this.updateLoginState(true);
         await axiosInstance.get('/profile').then((response) => {
-          let { username, email, role, credits, avatarUrl, bio } = response.data;
+          let { username, email, role, credits, avatarUrl, bio, token} = response.data;
           avatarUrl = `http://localhost:8080/${avatarUrl}`;
-          this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio });
+          this.updatePersonalProfile({ username, email, role, credits, avatarUrl, bio, token});
         })
         this.$router.push('/');
         this.$message.success('登录成功');

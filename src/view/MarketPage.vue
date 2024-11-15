@@ -88,7 +88,7 @@ export default {
             if (response.status === 201) {
               this.$message.success('兑换成功');
               this.personalProfile.credits -= this.convertedCredits;
-              this.personalProfile.tokens += this.convertedCredits * 100;
+              this.personalProfile.token += this.convertedCredits * 100;
               this.updatePersonalProfile(this.personalProfile);
               this.convertToTokenVisible = false;
             } else {
@@ -114,12 +114,16 @@ export default {
       <el-descriptions-item label="用户名：">{{personalProfile.username}}</el-descriptions-item>
       <el-descriptions-item label="邮箱：">{{personalProfile.email}}</el-descriptions-item>
       <el-descriptions-item label="用户等级：">
-        <el-tag size="small">{{personalProfile.role === 'USER' ? '普通用户' : '管理员'}}</el-tag>
+        <el-tag size="small" :type="personalProfile.role === 'USER' ? 'primary' : 'warning'">
+          {{personalProfile.role === 'USER' ? '普通用户' : '管理员'}}
+        </el-tag>
       </el-descriptions-item>
       <el-descriptions-item label="剩余积分：">
         {{personalProfile.credits}}
       </el-descriptions-item>
-
+      <el-descriptions-item label="剩余token数：">
+        {{personalProfile.token}}
+      </el-descriptions-item>
     </el-descriptions>
 
     <div id="head_purchase" class="title is-4 header-style">

@@ -19,7 +19,7 @@
     </div>
     <el-row class="subtitle is-5" align="middle">
       您是<strong>{{ personalProfile.role === 'USER'?'普通用户':'管理员'}}</strong>，目前拥有<strong>{{ personalProfile.credits }}</strong>
-      <el-icon><Coin/></el-icon>
+      <el-icon><Coin/></el-icon>，剩余<strong>{{ personalProfile.token }}</strong>个token。
     </el-row>
     <div class="tabs">
       <ul>

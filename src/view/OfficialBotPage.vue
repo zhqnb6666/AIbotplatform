@@ -1,9 +1,9 @@
 <script>
 import axiosInstance from "@/service/axiosInstance";
-import {Plus} from "@element-plus/icons-vue";
+import {Delete, Download, Edit, Plus} from "@element-plus/icons-vue";
 export default {
   name: "OfficialBotPage",
-  components: {Plus},
+  components: {Download, Delete, Edit, Plus},
   computed: {
     filterTableData() {
       return this.officialBots.filter((data) => {
@@ -172,24 +172,24 @@ export default {
     </template>
     <template #default="scope">
       <el-button @click="openEditDialog(scope.row)">
-        编辑
+        编辑<el-icon class="el-icon--right"><Edit /></el-icon>
       </el-button>
       <el-button
           type="danger"
           @click="handleDelete(scope.row.botId)"
       >
-        删除
+        删除<el-icon class="el-icon--right"><Delete /></el-icon>
       </el-button>
     </template>
   </el-table-column>
 </el-table>
 <el-button class="mt-4" @click="openAddDialog">
-  添加官方机器人
+  添加官方机器人<el-icon class="el-icon--right"><Plus /></el-icon>
 </el-button>
 <el-button class="mt-4" @click="handleExport">
-  导出数据
+  导出数据<el-icon class="el-icon--right"><Download /></el-icon>
 </el-button>
-<!-- 编辑机器人对话框 -->
+<!-- 编辑或更新机器人对话框 -->
 <el-dialog v-model="infoDialogState" title="编辑机器人">
   <el-form v-model="currentBot">
     <el-form-item label="机器人图片">
@@ -213,7 +213,7 @@ export default {
       <el-input v-model="currentBot.model"></el-input>
     </el-form-item>
     <el-form-item label="token消耗">
-      <el-input v-model="currentBot.tokenCost" type="number"></el-input>
+      <el-input-number v-model="currentBot.tokenCost" :min="1" :max="10000"></el-input-number>
     </el-form-item>
   </el-form>
   <template #footer>

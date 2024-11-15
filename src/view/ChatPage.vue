@@ -8,13 +8,13 @@ import {mapActions, mapState} from "vuex";
 // src/view/ChatPage.vue
 import ChatService from "@/service/ChatService";
 import hljs from "highlight.js";
-import {ArrowRight} from "@element-plus/icons-vue";
+import {Right} from "@element-plus/icons-vue";
 
 const md = new MarkdownIt();
 export default {
   name: 'ChatPage',
   components: {
-    ArrowRight,
+    Right,
     DropUpButton,
     DropDownButton
   },
@@ -36,7 +36,7 @@ export default {
       messages: [],
       files: [],
       newMessage: '',
-      streamContent: '',
+      suggestionButtonWidth: '100px',
       isSingleTurn: false,
       isStreamingComplete: true,
       isFeedbackDialogVisible: false,
@@ -79,6 +79,21 @@ export default {
         });
       });
     },
+    setButtonWidth() {
+      this.$nextTick(() => {
+        const messageContents = this.$refs.messageContents;
+        const suggestionButtons = this.$refs.suggestionButtons;
+        if (messageContents && suggestionButtons) {
+          const lastMessageContent = messageContents[messageContents.length - 1];
+          const computedStyle = window.getComputedStyle(lastMessageContent);
+          this.suggestionButtonWidth = computedStyle.width;
+        }
+      });
+    },
+    getFollowUpSuggestions() {
+      this.followUpSuggestions = ['建议 1', '建议 2', '建议 3'];
+      this.setButtonWidth();
+    },
     createNewConversation() {
       this.conversationBasicInfo.title = '您和' + this.robotInfo.name + '的聊天';
       this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
@@ -118,8 +133,11 @@ export default {
         content: this.newMessage
       };
       this.messages.push(messageUser);
-
+      if(this.isSingleTurn){
+        this.clearMessages();
+      }
       try {
+        //先发送消息
         const response = await ChatService.sendMessage(this.conversationBasicInfo.conversationId, this.newMessage);
         const { botId, messageId } = response.data;
         this.startSse(botId, messageId);
@@ -143,28 +161,32 @@ export default {
         isThumbUp: false,
         isThumbDown: false
       });
-      this.streamContent = '';
-
+      let streamContent = '';
       const eventSource = new EventSource(
           `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream`
       );
-
+      // 服务器端推送消息
       eventSource.addEventListener('message', (event) => {
-        this.streamContent += event.data;
+        //console.log('EventSource message:', '"' + event.data + '"');
+        streamContent += event.data;
         this.messages[this.messages.length - 1].content += event.data;
       });
-
+      // 服务器端推送错误
       eventSource.addEventListener('error', (event) => {
-        console.error('EventSource error:', event);
+        if (!this.isStreamingComplete) {
+          this.$message.error('连接失败');
+          console.error('EventSource error:', event);
+        }
         eventSource.close();
         this.isStreamingComplete = true;
       });
-
+      // 结束SSe
       eventSource.addEventListener('complete', async () => {
-        this.messages[this.messages.length - 1].content = md.render(this.streamContent);
+        this.isStreamingComplete = true;
+        this.messages[this.messages.length - 1].content = md.render(streamContent);
         try {
           this.getFollowUpSuggestions();
-          await ChatService.saveResponse(this.conversationBasicInfo.conversationId, messageId, botId, this.streamContent);
+          await ChatService.saveResponse(this.conversationBasicInfo.conversationId, messageId, botId, streamContent);
         } catch (err) {
           console.error('Failed to save response:', err);
           this.$message.error('保存失败');
@@ -172,12 +194,8 @@ export default {
         this.$nextTick(() => {
           this.highlightCode();
         });
-        this.isStreamingComplete = true;
         eventSource.close();
       });
-    },
-    getFollowUpSuggestions() {
-      this.followUpSuggestions = ['建议 1', '建议 2', '建议 3'];
     },
     handleFollowUpClick(suggestion) {
       this.newMessage = suggestion;
@@ -260,7 +278,7 @@ export default {
         <div v-for="(message, index) in messages" :key="index" >
           <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
           <div :class="['message', message.senderType]">
-            <article class="message-content markdown-body" v-html="message.content"></article>
+            <article ref="messageContents" class="message-content markdown-body" v-html="message.content"></article>
           </div>
           <div class="field is-grouped" v-if="message.senderType==='BOT'">
             <DropDownButton
@@ -281,12 +299,16 @@ export default {
             />
           </div>
         </div>
-        <div v-if="followUpSuggestions.length > 0 && isStreamingComplete" class="buttons">
-            <el-button v-for="(suggestion, index) in followUpSuggestions"
+        <div v-show="followUpSuggestions.length > 0 && isStreamingComplete"
+             class="buttons" :style="{ width: suggestionButtonWidth}">
+            <el-button ref="suggestionButtons" v-for="(suggestion, index) in followUpSuggestions"
                        :key="index" @click="handleFollowUpClick(suggestion)"
-                       style="width: 70%;font-size: 16px" size="large" round>
+                       size="large" round
+                       style="width: 100%; font-size: 16px">
+              <!--因为使用了space-between的排版方式，因此需要一个占位元素，让文本位于中间，图标位于最右边-->
+              <p/>
               <p>{{ suggestion }}</p>
-              <el-icon class="el-icon--right"><ArrowRight /></el-icon>
+              <el-icon class="el-icon--right" :size="22"><Right /></el-icon>
             </el-button>
         </div>
       </div>
@@ -411,7 +433,13 @@ export default {
 :deep(.el-button+.el-button) {
   margin-left: 0;
 }
+:deep(.el-button span) {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
 .buttons {
   margin-top: 0.75em;
+  flex-direction: column;
 }
 </style>

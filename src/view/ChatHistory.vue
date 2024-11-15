@@ -9,13 +9,13 @@
         </template>
         <template #default="scope">
           <el-button @click="continueChat(scope.row)">
-            继续聊天
+            继续聊天<el-icon class="el-icon--right"><ChatDotRound /></el-icon>
           </el-button>
           <el-button
               type="danger"
               @click="deleteChat(scope.row)"
           >
-            删除
+            删除<el-icon class="el-icon--right"><Delete /></el-icon>
           </el-button>
         </template>
       </el-table-column>
@@ -25,8 +25,10 @@
 
 <script>
 import axiosInstance from "@/service/axiosInstance";
+import {ChatDotRound, Delete} from "@element-plus/icons-vue";
 export default {
   name: 'ChatHistory',
+  components: {ChatDotRound, Delete},
   created() {
     axiosInstance.get('/conversations').then((response) => {
       this.chatHistories = response.data;
