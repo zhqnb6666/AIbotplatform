@@ -84,9 +84,17 @@ export default {
         const messageContents = this.$refs.messageContents;
         const suggestionButtons = this.$refs.suggestionButtons;
         if (messageContents && suggestionButtons) {
+          let textWidth = 0;
+          suggestionButtons.forEach((button, index) => {
+            const text = this.followUpSuggestions[index];
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            context.font = window.getComputedStyle(button.ref).font;
+            textWidth = Math.max(context.measureText(text).width + 80, textWidth);
+          });
           const lastMessageContent = messageContents[messageContents.length - 1];
           const computedStyle = window.getComputedStyle(lastMessageContent);
-          this.suggestionButtonWidth = computedStyle.width;
+          this.suggestionButtonWidth = Math.max(textWidth, parseInt(computedStyle.width)) + 'px';
         }
       });
     },
@@ -437,6 +445,9 @@ export default {
   width: 100%;
   display: flex;
   justify-content: space-between;
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏溢出文本 */
+  text-overflow: ellipsis; /* 使用省略号表示溢出文本 */
 }
 .buttons {
   margin-top: 0.75em;
