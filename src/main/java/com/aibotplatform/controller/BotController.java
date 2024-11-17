@@ -62,13 +62,23 @@ public class BotController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        Bot createdBot = null;
+        Bot createdBot;
         try {
             createdBot = botService.createBot(createBotRequest, user, Bot.BotType.CUSTOM);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(convertToDTO(createdBot), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{bot_id}/greeting")
+    @Operation(summary = "Get greeting form bot", description = "Get greeting message from bot")
+    public ResponseEntity<String> getGreetingMessage(@PathVariable Long bot_id) {
+        Bot bot = botService.getBotById(bot_id);
+        if (bot == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(bot.getGreetingMessage(), HttpStatus.OK);
     }
 
     // PUT /api/bots/{bot_id} - Update a custom bot
@@ -80,7 +90,7 @@ public class BotController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        Bot updatedBot = null;
+        Bot updatedBot;
         try {
             updatedBot = botService.updateBot(updateBotRequest, user);
         } catch (ApiException e) {

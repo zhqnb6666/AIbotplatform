@@ -34,12 +34,12 @@ public class OpenAILLM implements LLM {
             .build();
     private LLM assistant;
 
-    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history) {
-        initializeModel(modelName, temperature);
+    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history, String systemMessage) {
+        initializeModel(modelName, temperature, systemMessage);
         initialize_messages(chat_history);
     }
 
-    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history, String doc_path) {
+    public OpenAILLM(String modelName, Double temperature, List<AbstractMap.SimpleEntry<String, String>> chat_history,String systemMessage, String doc_path) {
         initializeRagModel(modelName, temperature, doc_path);
         initialize_messages(chat_history);
     }
@@ -78,11 +78,12 @@ public class OpenAILLM implements LLM {
         }
     }
 
-    private void initializeModel(String modelName, Double temperature) {
+    private void initializeModel(String modelName, Double temperature, String systemMessage) {
         chooseModel(modelName, temperature);
         assistant = AiServices.builder(LLM.class)
                 .streamingChatLanguageModel(model)
                 .chatMemory(chatMemory)
+                .systemMessageProvider(context -> systemMessage)
                 .build();
     }
 
