@@ -15,7 +15,7 @@
 
       <div class="field">
         <label class="label">名称</label>
-        <label class="label" style="font-weight: lighter">必须唯一，并且使用4-20个字符，包括字母、数字、破折号、句号和下划线。</label>
+        <label class="label" style="font-weight: lighter">使用4-20个字符，包括字母、数字、破折号、句号和下划线。</label>
         <input class="input" type="text" placeholder="BWDSADKJ" v-model="formInfo.name">
       </div>
 
@@ -34,7 +34,15 @@
         <label class="label">提示词</label>
         <label class="label" style="font-weight: lighter">告诉您的机器人如何行事以及如何回应用户信息。尽可能明确和具体。</label>
         <div class="control">
-          <textarea class="textarea" placeholder="例如，你是一名旅行助手。" v-model="formInfo.prompt"></textarea>
+          <textarea class="textarea" placeholder="例如，你是一名旅行助手。" v-model="formInfo.promptTemplate"></textarea>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">欢迎语</label>
+        <label class="label" style="font-weight: lighter">告诉您的机器人向用户打招呼的方式</label>
+        <div class="control">
+          <textarea class="textarea" placeholder="你好，我是一个专门用来逗人开心的笑话机器人" v-model="formInfo.greetingMessage"></textarea>
         </div>
       </div>
 
@@ -48,12 +56,32 @@
       <div class="field" v-if="this.personalProfile.role === 'ADMIN'">
         <label class="label">每token花费</label>
         <div class="control">
-          <el-input-number v-model="formInfo.cost" :min="1" :max="1000" class="input"/>
+          <el-input-number v-model="formInfo.tokenCost" :min="1" :max="1000" class="input"/>
         </div>
       </div>
 
+      <div class="field">
+        <label class="label">temperature参数设置</label>
+        <div class="control">
+          <el-input-number v-model="formInfo.temperature" :min="0" :max="1" :step="0.01" class="input"/>
+        </div>
+      </div>
 
-      <div class="field is-grouped">
+      <div class="field">
+        <label class="label">可见性</label>
+        <div class="control">
+          <label class="radio">
+            <input type="radio" name="accessibility" value="PUBLIC" v-model="formInfo.accessibility">
+            公开
+          </label>
+          <label class="radio" style="margin-left: 5px">
+            <input type="radio" name="accessibility" value="PRIVATE" v-model="formInfo.accessibility">
+            私有
+          </label>
+        </div>
+      </div>
+
+      <div class="field is-grouped" style="margin-bottom: 10px">
         <div class="control">
           <button class="button is-link" @click="onSubmit">创建机器人</button>
         </div>
@@ -75,9 +103,12 @@ export default {
         robotType: '',
         name: '',
         model: '',
-        prompt: '',
+        promptTemplate: '',
         description: '',
-        cost: 0
+        greetingMessage: '',
+        tokenCost: 0,
+        temperature: 0,
+        accessibility: "PUBLIC"
       },
       robotType: [
         '提示词机器人',
@@ -108,33 +139,27 @@ export default {
     ...mapState(['personalProfile']),
   },
   methods: {
+    validateName(name) {
+      const regex = /^[a-zA-Z0-9._-]{4,20}$/;
+      return regex.test(name);
+    },
     async onSubmit() {
+      if (!this.validateName(this.formInfo.name)) {
+        this.$message.error('名称无效。请使用4-20个字符，包括字母、数字、破折号、句号和下划线。');
+        return;
+      }
       try {
-        const response = await axiosInstance.post('/bots', {
-          name: this.formInfo.name,
-          description: this.formInfo.description,
-          model: this.formInfo.model,
-          tokenCost: this.formInfo.cost,
-        });
+        const response = await axiosInstance.post('/bots', this.formInfo);
         if(response.status === 201) {
-          this.$message({
-            message: '创建成功',
-            type: 'success'
-          });
+          this.$message.success('创建成功');
         } else {
-          this.$message({
-            message: '创建失败',
-            type: 'error'
-          });
+          this.$message.error('创建失败');
           return;
         }
         const botId = response.data.botId;
         this.$router.push(`/chat?botId=${botId}`);
       }catch (error) {
-        this.$message({
-          message: '创建失败',
-          type: 'error'
-        });
+        this.$message.error('创建失败');
         console.error('Create bot error:', error);
       }
     },

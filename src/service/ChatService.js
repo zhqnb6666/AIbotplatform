@@ -14,6 +14,9 @@ const ChatService = {
     sendMessage(conversationId, content){
         return axiosInstance.post(`/conversations/${conversationId}/messages`, {content});
     },
+    getGreeting(botId){
+        return axiosInstance.get(`/bots/${botId}/greeting`);
+    },
     saveResponse(conversationId, messageId, botId, content){
         return axiosInstance.post(`/conversations/${conversationId}/saveResponse`, {
             messageId,

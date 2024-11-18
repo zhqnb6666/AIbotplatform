@@ -61,6 +61,7 @@ export default {
       this.robotInfo = res.data;
       if (isNewConversation) {
         this.createNewConversation();
+        this.loadGreeting();
       } else {
         this.loadConversationHistory();
       }
@@ -69,9 +70,12 @@ export default {
       this.$message.error('获取该机器人信息失败');
     });
   },
-
+  mounted() {
+    this.highlightCode();
+  },
   methods: {
     ...mapActions(['updatePersonalProfile']),
+
     highlightCode() {
       this.$nextTick(() => {
         document.querySelectorAll('pre code').forEach((block) => {
@@ -79,6 +83,7 @@ export default {
         });
       });
     },
+
     setButtonWidth() {
       this.$nextTick(() => {
         const messageContents = this.$refs.messageContents;
@@ -110,6 +115,19 @@ export default {
       }).catch(err => {
         console.error(err);
         this.$message.error('创建对话失败');
+      });
+    },
+    loadGreeting() {
+      ChatService.getGreeting(this.conversationBasicInfo.botId).then(res => {
+        if(!res.data) return;
+        this.messages.push({
+          content: md.render(res.data),
+          senderType: 'BOT'
+        });
+        //this.highlightCode();
+      }).catch(err => {
+        console.error(err);
+        this.$message.error('获取问候语失败');
       });
     },
     loadConversationHistory() {
@@ -175,9 +193,10 @@ export default {
       );
       // 服务器端推送消息
       eventSource.addEventListener('message', (event) => {
-        //console.log('EventSource message:', '"' + event.data + '"');
-        streamContent += event.data;
-        this.messages[this.messages.length - 1].content += event.data;
+        const decodedData = atob(event.data); // Base64 decode
+        const utf8Data = new TextDecoder('utf-8').decode(new Uint8Array([...decodedData].map(char => char.charCodeAt(0)))); // Convert to UTF-8
+        streamContent += utf8Data;
+        this.messages[this.messages.length - 1].content += utf8Data;
       });
       // 服务器端推送错误
       eventSource.addEventListener('error', (event) => {

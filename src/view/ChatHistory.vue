@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container" style="width: 80%;">
     <el-table :data="filteredChatHistories" style="width: 100%" fit :table-layout="'fixed'" empty-text="目前暂无数据">
       <el-table-column prop="conversationId" label="聊天ID"></el-table-column>
       <el-table-column prop="title" label="标题"></el-table-column>
