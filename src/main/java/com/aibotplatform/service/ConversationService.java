@@ -17,8 +17,4 @@ public interface ConversationService {
     List<Message> streamMessages(Long conversationId);
 
     Message getMessageById(Long messageId);
-
-
-
-
 }

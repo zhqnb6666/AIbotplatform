@@ -14,4 +14,5 @@ public interface BotService {
     Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser);
     void deleteBot(Long botId, User deleteUser);
     List<Bot> getUserCustomBots(Long userId);
+    List<Bot> search(String keyword);
 }

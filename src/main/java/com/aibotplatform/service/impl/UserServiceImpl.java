@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -129,5 +130,10 @@ public class UserServiceImpl implements UserDetailsService, UserService {
             throw new ApiException("User NOT Found", HttpStatus.NOT_FOUND);
         }
         return user;
+    }
+
+    @Override
+    public List<User> search(String keyword) {
+        return userRepository.findUsersByUsernameIsContainingIgnoreCase(keyword);
     }
 }

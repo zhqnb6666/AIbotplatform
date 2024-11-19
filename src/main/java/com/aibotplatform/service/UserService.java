@@ -3,6 +3,7 @@ package com.aibotplatform.service;
 import com.aibotplatform.model.User;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public interface UserService {
     void sendVerificationCode(String email);
@@ -12,4 +13,5 @@ public interface UserService {
     void changeTokens(User user, Long tokenBalance);
     public User getUserById(Long userId);
     public User getUserByName(String username);
+    public List<User> search(String keyword);
 }

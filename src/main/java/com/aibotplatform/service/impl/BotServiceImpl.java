@@ -108,5 +108,10 @@ public class BotServiceImpl implements BotService {
         }
     }
 
+    @Override
+    public List<Bot> search(String keyword) {
+        return botRepository.findBotsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword);
+    }
+
 
 }
