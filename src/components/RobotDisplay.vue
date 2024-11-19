@@ -1,8 +1,12 @@
 <!-- src/components/RobotCard.vue -->
 <template>
   <div class="media" style="align-items: center" @click="chat(robot.botId)">
+    <!-- If showRightButton is false, show the number -->
+    <div class="media-left" v-if="!showRightButton" style="width: 100px">
+      <span class="title" :style="{ color: numberColor }">{{ index }}.</span>
+    </div>
     <figure class="media-left">
-      <el-avatar :size="64" :src="robot.avatarURl" alt="Placeholder image" />
+      <el-avatar :size="64" :src="avatarURl" alt="Placeholder image" />
     </figure>
     <div class="media-content">
       <div class="content">
@@ -15,7 +19,8 @@
         </p>
       </div>
     </div>
-    <div class="media-right">
+    <!-- If showRightButton is true, show the dropdown button -->
+    <div class="media-right" v-if="showRightButton">
       <el-dropdown>
         <el-button type="info" circle text size="large" @click.stop>
           <el-icon :size="25"><More /></el-icon>
@@ -35,12 +40,13 @@
         </template>
       </el-dropdown>
     </div>
+
   </div>
 </template>
 
 <script>
 import {ChatDotRound, Delete, EditPen, More} from "@element-plus/icons-vue";
-
+import {AVATAR_MAP, DEFAULT_AVATAR} from "@/util/constants";
 export default {
   name: 'RobotDisplay',
   components: {More, Delete, ChatDotRound, EditPen },
@@ -48,6 +54,14 @@ export default {
     robot: {
       type: Object,
       required: true
+    },
+    index : {
+      type: Number,
+      default: 0
+    },
+    showRightButton: {
+      type: Boolean,
+      default: true
     },
     showReviewButton: {
       type: Boolean,
@@ -60,6 +74,15 @@ export default {
     showChatButton: {
       type: Boolean,
       default: false
+    }
+  },
+  computed: {
+    avatarURl() {
+      return AVATAR_MAP[this.robot.name] || DEFAULT_AVATAR;
+    },
+    numberColor() {
+      const colors = ['rgb(237.5, 189.9, 118.5)', 'rgb(250, 181.5, 181.5)', 'rgb(121.3, 187.1, 255)', '#606266'];
+      return colors[this.index <= 3 ? this.index - 1 : 3];
     }
   },
   methods: {

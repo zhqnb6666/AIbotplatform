@@ -17,7 +17,7 @@
             class="tag is-hoverable is-medium"
             v-for="tag in allTags"
             :key="tag"
-            :class="{ 'is-link is-light': activeTag.includes(tag) }"
+            :class="{ 'is-link is-light': activeTag === tag }"
             @click="handleClickTags(tag)"
         >
         {{ tag }}
@@ -45,8 +45,8 @@ export default {
       robots: [
 
       ],
-      allTags: ['官方', '简体中文', '热门', '用户', '机器人'],
-      activeTag: []
+      allTags: ['官方', '用户', '机器人'],
+      activeTag: '官方'
     }
   },
   created() {
@@ -59,12 +59,7 @@ export default {
   },
   methods: {
     handleClickTags(tag) {
-      if(this.activeTag.includes(tag)) {
-        this.activeTag = this.activeTag.filter(t => t !== tag)
-      } else {
-        this.activeTag.push(tag)
-        console.log('click tags')
-      }
+      this.activeTag = tag;
     },
   }
 }

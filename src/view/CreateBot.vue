@@ -3,17 +3,6 @@
 
     <div class="container">
       <div class="field">
-        <label class="label">机器人类型</label>
-        <div class="control">
-          <div class="select">
-            <select v-model="formInfo.robotType">
-              <option v-for="type in robotType" :key="type">{{ type }}</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="field">
         <label class="label">名称</label>
         <label class="label" style="font-weight: lighter">使用4-20个字符，包括字母、数字、破折号、句号和下划线。</label>
         <input class="input" type="text" placeholder="BWDSADKJ" v-model="formInfo.name">
@@ -24,7 +13,7 @@
         <div class="control">
           <div class="select">
             <select v-model="formInfo.model">
-              <option v-for="type in basicRobot" :key="type">{{ type }}</option>
+              <option v-for="type in BASIC_ROBOTS" :key="type">{{ type }}</option>
             </select>
           </div>
         </div>
@@ -95,12 +84,12 @@
 </template>
 <script>
 import axiosInstance from "@/service/axiosInstance";
+import {BASIC_ROBOTS} from "@/util/constants";
 import {mapState} from "vuex";
 export default {
   data() {
     return {
       formInfo: {
-        robotType: '',
         name: '',
         model: '',
         promptTemplate: '',
@@ -110,33 +99,14 @@ export default {
         temperature: 0,
         accessibility: "PUBLIC"
       },
-      robotType: [
-        '提示词机器人',
-        '图像生成',
-        '视频生成',
-        '角色扮演',
-        '服务器机器人'
-      ],
-      basicRobot: [
-        "GPT_3_5_TURBO",
-        "GPT_4_32K",
-        "GPT_4_O",
-        "GPT_4_O_MINI",
-        "ERNIE-Bot",
-        "BLOOMZ-7B",
-        "Llama-2-7b-chat",
-        "Llama-2-13b-chat",
-        "Llama-2-70b-chat",
-        "Qianfan-Chinese-Llama-2-7B",
-        "ChatGLM2-6B-32K",
-        "AquilaChat-7B",
-        "Stable-Diffusion-XL",
-        "Calculator-Bot"
-      ]
+
     }
   },
   computed: {
     ...mapState(['personalProfile']),
+    BASIC_ROBOTS() {
+      return BASIC_ROBOTS
+    },
   },
   methods: {
     validateName(name) {
@@ -148,6 +118,11 @@ export default {
         this.$message.error('名称无效。请使用4-20个字符，包括字母、数字、破折号、句号和下划线。');
         return;
       }
+      if (!this.formInfo.model) {
+        this.$message.error('请选择一个基础机器人');
+        return;
+      }
+      this.formInfo.description = this.formInfo.description || '暂无描述。。。';
       try {
         const response = await axiosInstance.post('/bots', this.formInfo);
         if(response.status === 201) {

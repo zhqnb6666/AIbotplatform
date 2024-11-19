@@ -37,11 +37,6 @@ export default {
 
 <template>
 <div class="container">
-  <div class="panel">
-    <router-link class="panel-block" v-for="block in panelBlocks" :key="block.title" :to="block.link">
-      {{ block.title }}
-    </router-link>
-  </div>
   <div class="button-container">
     <el-button type="danger" text @click="handleLogout">登出</el-button>
     <el-button type="danger" text @click="handleResetPassword">重置密码</el-button>

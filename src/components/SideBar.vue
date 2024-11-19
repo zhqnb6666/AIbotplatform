@@ -11,6 +11,9 @@
         <el-menu-item index="/market">
           购买积分
         </el-menu-item>
+        <el-menu-item index="/popularity">
+         趋势
+        </el-menu-item>
         <el-menu-item index="/createBot">
          创建bot
         </el-menu-item>
@@ -38,9 +41,6 @@
           <el-icon><Setting /></el-icon>
           <span>更多</span>
         </template>
-        <el-menu-item index="/contact">
-          联系我们
-        </el-menu-item>
         <el-menu-item index="/setting">
           设置
         </el-menu-item>

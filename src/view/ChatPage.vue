@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     ...mapActions(['updatePersonalProfile']),
-
+    // 高亮代码
     highlightCode() {
       this.$nextTick(() => {
         document.querySelectorAll('pre code').forEach((block) => {
@@ -83,7 +83,7 @@ export default {
         });
       });
     },
-
+    // 动态设置按钮宽度
     setButtonWidth() {
       this.$nextTick(() => {
         const messageContents = this.$refs.messageContents;
@@ -304,8 +304,11 @@ export default {
       <div class="scrollable-content">
         <div v-for="(message, index) in messages" :key="index" >
           <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
-          <div :class="['message', message.senderType]">
+          <div :class="['message', message.senderType]" v-if="message.content.length !== 0">
             <article ref="messageContents" class="message-content markdown-body" v-html="message.content"></article>
+          </div>
+          <div :class="['message', message.senderType]" v-loading="true" v-else>
+            <article class="message-content">加载中。。。</article>
           </div>
           <div class="field is-grouped" v-if="message.senderType==='BOT'">
             <DropDownButton

@@ -1,31 +1,22 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router'
-import HomePage from '@/view/HomePage.vue'
-import LoginPage from '@/view/LoginPage.vue'
-import RegisterPage from "@/view/RegisterPage.vue";
-import ProfilePage from "@/view/ProfilePage.vue";
-import ChatPage from "@/view/ChatPage.vue";
-import createBot from "@/view/CreateBot.vue";
-import marketPage from "@/view/MarketPage.vue";
-import reviewPage from "@/view/reviewPage.vue";
-import ChatHistory from "@/view/ChatHistory.vue";
 import store from '@/store';
-import SettingPage from "@/view/SettingPage.vue";
-import ResetPasswordPage from "@/view/ResetPasswordPage.vue";
-import OfficialBotPage from "@/view/OfficialBotPage.vue";
+
+
 const routes = [
-    { path: '/', component: HomePage },
-    { path: '/login', component: LoginPage },
-    { path: '/register', component: RegisterPage },
-    { path: '/profile', component: ProfilePage, meta: { requiresAuth: true } },
-    { path: '/chat', component: ChatPage, meta: { requiresAuth: true } },
-    { path: '/createBot', component: createBot, meta: { requiresAuth: true } },
-    { path: '/review/:botId', component: reviewPage, meta: { requiresAuth: true }},
-    { path: '/market', component: marketPage, meta: { requiresAuth: true } },
-    { path: '/chatHistory', component: ChatHistory, meta: { requiresAuth: true } },
-    { path: '/setting', component: SettingPage, meta: { requiresAuth: true } },
-    { path: '/reset-password', component: ResetPasswordPage },
-    { path: '/official-bot-edit', component:  OfficialBotPage, meta: { requiresAuth: true } },
+    { path: '/', component: () => import('@/view/HomePage.vue') },
+    { path: '/login', component: () => import('@/view/LoginPage.vue') },
+    { path: '/register', component: () => import('@/view/RegisterPage.vue') },
+    { path: '/profile', component: () => import('@/view/ProfilePage.vue'), meta: { requiresAuth: true } },
+    { path: '/chat', component: () => import('@/view/ChatPage.vue'), meta: { requiresAuth: true } },
+    { path: '/createBot', component: () => import('@/view/CreateBot.vue'), meta: { requiresAuth: true } },
+    { path: '/review/:botId', component: () => import('@/view/reviewPage.vue'), meta: { requiresAuth: true } },
+    { path: '/market', component: () => import('@/view/MarketPage.vue'), meta: { requiresAuth: true } },
+    { path: '/chatHistory', component: () => import('@/view/ChatHistory.vue'), meta: { requiresAuth: true } },
+    { path: '/setting', component: () => import('@/view/SettingPage.vue'), meta: { requiresAuth: true } },
+    { path: '/resetPassword', component: () => import('@/view/ResetPasswordPage.vue') },
+    { path: '/official-bot-edit', component:  () => import('@/view/OfficialBotPage.vue'), meta: { requiresAuth: true } },
+    { path: '/popularity', component: () => import('@/view/PopularityPage.vue'), meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/view/NotFound.vue') }
 ]
 

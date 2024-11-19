@@ -1,5 +1,6 @@
 <script>
 import axiosInstance from "@/service/axiosInstance";
+import {AVATAR_MAP, DEFAULT_AVATAR, BASIC_ROBOTS} from "@/util/constants";
 import {Delete, Download, Edit, Plus} from "@element-plus/icons-vue";
 export default {
   name: "OfficialBotPage",
@@ -13,10 +14,16 @@ export default {
         );
       });
     },
+    BASIC_ROBOTS() {
+      return BASIC_ROBOTS
+    },
   },
   created() {
     axiosInstance.get('/bots').then((response) => {
       this.officialBots = response.data;
+      this.officialBots.forEach((bot) => {
+        bot.avatar = this.avatarURl(bot.name);
+      });
     }).catch((error) => {
       console.error('Failed to fetch official bots:', error);
       this.$message.error('获取官方机器人失败');
@@ -44,24 +51,16 @@ export default {
         description: "",
         model: "",
         tokenCost: 0,
+        promptTemplate: '',
+        greetingMessage: '',
+        temperature: 0,
+        accessibility: "PUBLIC"
       },
     };
   },
   methods: {
-    handleAvatarSuccess(res, file) {
-      this.currentBot.avatar = URL.createObjectURL(file.raw);
-      this.$message.success('上传成功');
-    },
-    beforeAvatarUpload(file) {
-      const isJPG = file.type === 'image/png';
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 PNG 格式');
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB');
-      }
-      return isJPG && isLt2M;
+    avatarURl(robotName) {
+      return AVATAR_MAP[robotName] || DEFAULT_AVATAR;
     },
     openEditDialog(bot) {
       this.currentBot = { ...bot };
@@ -75,6 +74,10 @@ export default {
         description: "",
         model: "",
         tokenCost: 0,
+        promptTemplate: '',
+        greetingMessage: '',
+        temperature: 0,
+        accessibility: "PUBLIC"
       };
       this.infoDialogState = 2;
     },
@@ -190,30 +193,46 @@ export default {
   导出数据<el-icon class="el-icon--right"><Download /></el-icon>
 </el-button>
 <!-- 编辑或更新机器人对话框 -->
-<el-dialog v-model="infoDialogState" title="编辑机器人">
-  <el-form v-model="currentBot">
-    <el-form-item label="机器人图片">
-      <el-upload
-          class="avatar-uploader"
-          :show-file-list="false"
-          :on-progress="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload"
-      >
-        <img v-if="currentBot.avatar" :src="currentBot.avatar" class="avatar" alt="failed"/>
-        <el-icon v-else class="avatar-uploader-icon"><Plus /></el-icon>
-      </el-upload>
-    </el-form-item>
+<el-dialog v-model="infoDialogState" draggable>
+  <template #header>
+    <div class="subtitle is-4" style="width: 100%;justify-content: center;display: flex">
+      {{infoDialogState === 1 ? '更新机器人' : '添加机器人'}}
+    </div>
+  </template>
+  <el-form v-model="currentBot" label-width="auto">
     <el-form-item label="名称">
       <el-input v-model="currentBot.name"></el-input>
     </el-form-item>
-    <el-form-item label="描述">
-      <el-input v-model="currentBot.description"></el-input>
-    </el-form-item>
     <el-form-item label="模型">
-      <el-input v-model="currentBot.model"></el-input>
+      <el-select v-model="currentBot.model" placeholder="">
+        <el-option
+            v-for="item in BASIC_ROBOTS"
+            :key="item"
+            :label="item"
+            :value="item"
+        />
+      </el-select>
+    </el-form-item>
+    <el-form-item label="描述">
+      <el-input type="textarea" v-model="currentBot.description"></el-input>
+    </el-form-item>
+    <el-form-item label="提示词">
+      <el-input type="textarea" v-model="currentBot.promptTemplate"></el-input>
+    </el-form-item>
+    <el-form-item label="欢迎语">
+      <el-input type="textarea" v-model="currentBot.greetingMessage"></el-input>
     </el-form-item>
     <el-form-item label="token消耗">
       <el-input-number v-model="currentBot.tokenCost" :min="1" :max="10000"></el-input-number>
+    </el-form-item>
+    <el-form-item label="temperature">
+      <el-input-number v-model="currentBot.temperature" :min="0" :max="1" :step="0.01"></el-input-number>
+    </el-form-item>
+    <el-form-item label="可见性">
+      <el-radio-group v-model="currentBot.accessibility">
+        <el-radio label="PUBLIC">公开</el-radio>
+        <el-radio label="PRIVATE">私有</el-radio>
+      </el-radio-group>
     </el-form-item>
   </el-form>
   <template #footer>
@@ -225,32 +244,4 @@ export default {
 </template>
 
 <style scoped>
-.avatar-uploader .avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
-}
-</style>
-
-<style>
-.avatar-uploader .el-upload {
-  border: 1px dashed var(--el-border-color);
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  transition: var(--el-transition-duration-fast);
-}
-
-.avatar-uploader .el-upload:hover {
-  border-color: var(--el-color-primary);
-}
-
-.el-icon.avatar-uploader-icon {
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  text-align: center;
-}
 </style>

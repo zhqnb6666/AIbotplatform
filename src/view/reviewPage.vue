@@ -71,8 +71,8 @@
 </template>
 
 <script>
-import localImage from '@/assets/jpegs/main-thumb-pb-3015-200-ivodfqemfvztmvgafhdouijhknthkvmp.jpeg';
-import avatorImage from '@/assets/jpegs/main-thumb-pb-5038493-200-kaqjjvliljatttdmmgeqyflyvlevubcb.jpeg'
+// import localImage from '@/assets/jpegs/main-thumb-pb-3015-200-ivodfqemfvztmvgafhdouijhknthkvmp.jpeg';
+// import avatorImage from '@/assets/jpegs/main-thumb-pb-5038493-200-kaqjjvliljatttdmmgeqyflyvlevubcb.jpeg'
 import { Edit } from '@element-plus/icons-vue';
 
 export default {
@@ -81,14 +81,14 @@ export default {
     return {
       fit: "cover",
       showForm: false,
-      avatorImage: avatorImage,
+      //avatorImage: avatorImage,
       form: {
         rating: 0,
         review: ''
       },
       robotInfo: {
         name: "ChatGPT-JC买的",
-        url: localImage,
+        //url: localImage,
         rating: 3.8,
         reviewCount: 20,
         fiveStarPercent: 0.5,
