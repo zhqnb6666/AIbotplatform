@@ -66,7 +66,11 @@ public class SearchController {
                 bot.getModel(),
                 bot.getType(),
                 bot.getIsActive(),
-                bot.getTokenCost()
+                bot.getTokenCost(),
+                bot.getPromptTemplate(),
+                bot.getGreetingMessage(),
+                bot.getTemperature(),
+                bot.getAccessibility()
         );
     }
 }

@@ -3,6 +3,9 @@ package com.aibotplatform.service;
 import com.aibotplatform.model.User;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.List;
+
 
 public interface UserService {
     void sendVerificationCode(String email);
@@ -13,4 +16,6 @@ public interface UserService {
     User getUserById(Long userId);
     User getUserByName(String username);
     void deductTokens(User user,Long amount,String description);
+
+    List<User> search(String keyword);
 }
