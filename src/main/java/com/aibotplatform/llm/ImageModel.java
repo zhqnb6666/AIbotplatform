@@ -2,6 +2,7 @@ package com.aibotplatform.llm;
 
 import com.baidubce.qianfan.Qianfan;
 import com.baidubce.qianfan.model.image.Text2ImageResponse;
+import reactor.core.publisher.Flux;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -11,7 +12,7 @@ import java.util.UUID;
 
 import static com.baidubce.qianfan.core.auth.Auth.TYPE_OAUTH;
 
-public class ImageModel {
+public class ImageModel implements LLM{
     private static final String ak = "uMF5PVIQDQYY58QZJ0J04XrF";
     private static final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
     private static final String imageFolder = "src/main/resources/static/BotImage";
@@ -22,12 +23,13 @@ public class ImageModel {
      * @param prompt
      * @return String
      */
-    public String generateImage(String prompt) {
+    @Override
+    public Flux<String> chat(String prompt) {
         Text2ImageResponse response = qianfan.text2Image().model("Stable-Diffusion-XL")
                 .prompt(prompt)
                 .execute();
         byte[] image_data = response.getData().get(0).getImage();
-        return saveImage(image_data, imageFolder);
+        return Flux.just(saveImage(image_data, imageFolder));
     }
 
     public static String saveImage(byte[] imageData, String folderPath) {

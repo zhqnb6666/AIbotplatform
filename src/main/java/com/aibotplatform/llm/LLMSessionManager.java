@@ -1,5 +1,8 @@
 package com.aibotplatform.llm;
+import com.aibotplatform.model.Bot;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -8,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 // 会话管理器，负责处理LLM实例的生命周期
+@Service
 public class LLMSessionManager {
     private static final long SESSION_TIMEOUT = 30 * 60 * 1000; // 30分钟超时
     private final Map<Long, SessionInfo> activeSessions = new ConcurrentHashMap<>();
@@ -22,12 +26,12 @@ public class LLMSessionManager {
         }
     }
 
-    public String chat(Long sessionId, String modelName, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
+    public Flux<String> chat(Long sessionId, Bot bot, String input, List<AbstractMap.SimpleEntry<String, String>> history) {
         SessionInfo session = activeSessions.get(sessionId);
 
         if (session == null || isSessionExpired(session)) {
             // 创建新会话
-            LLM newLLM = LLMFactory.createLLM(modelName, history);
+            LLM newLLM = LLMFactory.createLLM(bot, history);
             session = new SessionInfo(newLLM);
             activeSessions.put(sessionId, session);
         }
@@ -35,18 +39,9 @@ public class LLMSessionManager {
         return session.llm.chat(input);
     }
 
-    public String chat(Long sessionId, String modelName, String input) {
-        SessionInfo session = activeSessions.get(sessionId);
-
-        if (session == null || isSessionExpired(session)) {
-            // 创建新会话
-            List<AbstractMap.SimpleEntry<String,String>> newHistory = new ArrayList<>();
-            LLM newLLM = LLMFactory.createLLM(modelName, newHistory);
-            session = new SessionInfo(newLLM);
-            activeSessions.put(sessionId, session);
-        }
-        session.lastAccessTime = System.currentTimeMillis();
-        return session.llm.chat(input);
+    public Flux<String> chat(Bot bot, String input, List<AbstractMap.SimpleEntry<String, String>>history) {
+        LLM newLLM = LLMFactory.createLLM(bot, history);
+        return newLLM.chat(input);
     }
 
     private boolean isSessionExpired(SessionInfo session) {

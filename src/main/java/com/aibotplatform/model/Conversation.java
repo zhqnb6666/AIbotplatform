@@ -31,6 +31,18 @@ public class Conversation {
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean active;
 
+    public Conversation(Long conversationId, User user, Bot bot, String title, Timestamp createdAt, Timestamp updatedAt, boolean active) {
+        this.conversationId = conversationId;
+        this.user = user;
+        this.bot = bot;
+        this.title = title;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.active = active;
+    }
+
+    public Conversation() {
+    }
     // Getters, Setters, equals, hashCode, etc.
 
     public Long getConversationId() {

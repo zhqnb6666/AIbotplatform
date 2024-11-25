@@ -62,13 +62,23 @@ public class BotController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        Bot createdBot = null;
+        Bot createdBot;
         try {
             createdBot = botService.createBot(createBotRequest, user, Bot.BotType.CUSTOM);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(convertToDTO(createdBot), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{bot_id}/greeting")
+    @Operation(summary = "Get greeting form bot", description = "Get greeting message from bot")
+    public ResponseEntity<String> getGreetingMessage(@PathVariable Long bot_id) {
+        Bot bot = botService.getBotById(bot_id);
+        if (bot == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(bot.getGreetingMessage(), HttpStatus.OK);
     }
 
     // PUT /api/bots/{bot_id} - Update a custom bot
@@ -80,7 +90,7 @@ public class BotController {
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-        Bot updatedBot = null;
+        Bot updatedBot;
         try {
             updatedBot = botService.updateBot(updateBotRequest, user);
         } catch (ApiException e) {
@@ -102,6 +112,71 @@ public class BotController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    //获取显示并排名最新的机器人、最高评分的机器人（本月最佳、历史最佳、访问量最多）的接口应该怎么命名
+    @GetMapping("/latest")
+    public ResponseEntity<List<BotResponse>> getLatestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getLatestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/popular")
+    public ResponseEntity<List<BotResponse>> getMostPopularBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getMostPopularBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/best/historical")
+    public ResponseEntity<List<BotResponse>> getHistoricalBestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getHistoricalBestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
+    @GetMapping("/best/monthly")
+    public ResponseEntity<List<BotResponse>> getMonthlyBestBots(@RequestParam @Valid Integer top) {
+        if (top == null || top <= 0) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            List<Bot> latestBots = botService.getMonthlyBestBots(top);
+            return new ResponseEntity<>(
+                    latestBots.stream().map(this::convertToDTO)
+                            .collect(Collectors.toList()),
+                    HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
     // Convert Bot entity to BotDTO
     private BotResponse convertToDTO(Bot bot) {
         return new BotResponse(
@@ -112,7 +187,11 @@ public class BotController {
                 bot.getModel(),
                 bot.getType(),
                 bot.getIsActive(),
-                bot.getTokenCost()
+                bot.getTokenCost(),
+                bot.getPromptTemplate(),
+                bot.getGreetingMessage(),
+                bot.getTemperature(),
+                bot.getAccessibility()
         );
     }
 }

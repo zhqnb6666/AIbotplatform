@@ -2,6 +2,8 @@ package com.aibotplatform.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 @Data
@@ -39,6 +41,20 @@ public class Bot {
     @Column(nullable = false)
     private Integer daily_limit = 50;
 
+    // todo
+    @Column(nullable = false)
+    private String promptTemplate = "";
+
+    @Column(nullable = false)
+    private String greetingMessage = "";
+
+    @Column(nullable = false)
+    private Double temperature = 0.8;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BotAccessibility accessibility = BotAccessibility.PUBLIC;
+
     @Column(nullable = false)
     private Timestamp createdAt;
 
@@ -47,5 +63,9 @@ public class Bot {
 
     public enum BotType {
         OFFICIAL, CUSTOM
+    }
+
+    public enum BotAccessibility {
+        PRIVATE, PUBLIC
     }
 }

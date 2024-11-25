@@ -6,13 +6,19 @@ import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BotService {
     List<Bot> getAllBots();
     Bot getBotById(Long botId);
+    Optional<Bot> getBotByName(String name);
     Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type);
     Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser);
     void deleteBot(Long botId, User deleteUser);
     List<Bot> getUserCustomBots(Long userId);
-    List<Bot> search(String keyword);
+    List<Bot> getLatestBots(Integer top);
+    List<Bot> getMostPopularBots(Integer top);
+    List<Bot> getHistoricalBestBots(Integer top);
+    List<Bot> getMonthlyBestBots(Integer top);
+
 }

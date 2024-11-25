@@ -12,7 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +35,11 @@ public class BotServiceImpl implements BotService {
     }
 
     @Override
+    public Optional<Bot> getBotByName(String name) {
+        return botRepository.findByName(name);
+    }
+
+    @Override
     public Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type) {
         Bot bot = new Bot();
         bot.setName(createBotRequest.name());
@@ -44,6 +51,10 @@ public class BotServiceImpl implements BotService {
         bot.setCreatedAt(Timestamp.from(java.time.Instant.now()));
         bot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
         bot.setType(type);
+        bot.setPromptTemplate(createBotRequest.promptTemplate());
+        bot.setGreetingMessage(createBotRequest.greetingMessage());
+        bot.setTemperature(createBotRequest.temperature());
+        bot.setAccessibility(createBotRequest.accessibility());
         try{
             return botRepository.save(bot);
         } catch (Exception e) {
@@ -71,6 +82,14 @@ public class BotServiceImpl implements BotService {
             existingBot.setModel(updateBotRequest.model());
         if (updateBotRequest.name() != null)
             existingBot.setName(updateBotRequest.name());
+        if (updateBotRequest.promptTemplate() != null)
+            existingBot.setPromptTemplate(updateBotRequest.promptTemplate());
+        if (updateBotRequest.greetingMessage() != null)
+            existingBot.setGreetingMessage(updateBotRequest.greetingMessage());
+        if (updateBotRequest.temperature() != null)
+            existingBot.setTemperature(updateBotRequest.temperature());
+        if (updateBotRequest.accessibility() != null)
+            existingBot.setAccessibility(updateBotRequest.accessibility());
         existingBot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
         return botRepository.save(existingBot);
     }
@@ -94,17 +113,50 @@ public class BotServiceImpl implements BotService {
     @Override
     public List<Bot> getUserCustomBots(Long userId) {
         try {
-            List<Bot> userBotsList = botRepository.findBotsByCreator_UserId(userId);
-            for (Bot bot : userBotsList) {
-                if (!bot.getIsActive()) {
-                    userBotsList.remove(bot);
-                } else if (!bot.getType().equals(Bot.BotType.CUSTOM)) {
-                    userBotsList.remove(bot);
-                }
-            }
-            return userBotsList;
+            return botRepository.findBotsByCreator_UserIdAndIsActiveTrue(userId);
         } catch (Exception e) {
-            throw new ApiException("User Not Found",HttpStatus.NOT_FOUND);
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<Bot> getLatestBots(Integer top) {
+        try {
+            List<Bot> topBots = botRepository.findLatestBots(top);
+            return topBots;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<Bot> getMostPopularBots(Integer top) {
+        try {
+            List<Bot> topBots = botRepository.findMostPopularBots(top);
+            return topBots;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<Bot> getHistoricalBestBots(Integer top) {
+        try {
+            List<Bot> topBots = botRepository.findHistoricalBestBots(top);
+            return topBots;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @Override
+    public List<Bot> getMonthlyBestBots(Integer top) {
+        try {
+            LocalDateTime oneMonthAgo = LocalDateTime.now().minusMonths(1);
+            List<Bot> topBots = botRepository.findMonthlyBestBots(oneMonthAgo, top);
+            return topBots;
+        } catch (Exception e) {
+            throw new ApiException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

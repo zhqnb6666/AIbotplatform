@@ -13,6 +13,7 @@ public class ProfileResponse {
     private String email;
     private String role;
     private BigDecimal credits;
+    private Long token;
     private String avatarUrl;
     private String bio;
     private List<Bot> userBotList;
