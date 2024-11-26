@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserDetailsService, UserService {
@@ -151,6 +152,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         }catch (Exception e){
             throw new ApiException("Deduct tokens failed: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @Override
+    public List<User> search(String keyword) {
+        return userRepository.findUsersByUsernameIsContainingIgnoreCase(keyword);
     }
 
     private Long calculateNewTokenBalance(User user, Long changeAmount) {

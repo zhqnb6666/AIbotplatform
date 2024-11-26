@@ -59,4 +59,5 @@ public interface BotRepository extends JpaRepository<Bot, Long> {
 
     long count();
     long countByType(Bot.BotType type);
+    List<Bot> findBotsByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String name, String description);
 }
