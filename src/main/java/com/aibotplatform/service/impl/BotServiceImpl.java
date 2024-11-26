@@ -8,13 +8,21 @@ import com.aibotplatform.model.User;
 import com.aibotplatform.repository.BotRepository;
 import com.aibotplatform.service.BotService;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +49,16 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type) {
+        Bot bot = getBot(createBotRequest, creator, type);
+        try {
+            return botRepository.save(bot);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating bot: " + e.getMessage());
+        }
+    }
+
+    @NotNull
+    private static Bot getBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type) {
         Bot bot = new Bot();
         bot.setName(createBotRequest.name());
         bot.setCreator(creator);
@@ -55,11 +73,14 @@ public class BotServiceImpl implements BotService {
         bot.setGreetingMessage(createBotRequest.greetingMessage());
         bot.setTemperature(createBotRequest.temperature());
         bot.setAccessibility(createBotRequest.accessibility());
-        try{
-            return botRepository.save(bot);
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating bot: " + e.getMessage());
-        }
+        return bot;
+    }
+
+    @Override
+    public Bot createBotWithRag(CreateBotRequest createBotRequest, User creator, Bot.BotType type, String ragDocUrl) {
+        Bot bot = getBot(createBotRequest, creator, type);
+        bot.setRagDocUrl(ragDocUrl);
+        return null;
     }
 
     @Override
@@ -173,5 +194,35 @@ public class BotServiceImpl implements BotService {
             throw new ApiException("User not found", HttpStatus.NOT_FOUND);
         }
         return botRepository.findRecommendedBotsByUserPreferences(user.getUserId());
+    }
+
+    @Override
+    public String saveRagDoc(String ragDocPath, MultipartFile docFile) throws ApiException {
+        String newFileName = UUID.randomUUID().toString() + ".pdf";
+        try {
+            Path path = Paths.get(ragDocPath, newFileName);
+            Files.createDirectories(path.getParent()); // 确保目录存在
+            docFile.transferTo(path);
+        } catch (IOException e) {
+            throw new ApiException("Error saving file: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return newFileName;
+    }
+
+    @Override
+    public Bot updateRag(Long botId, String ragUrl, User updateUser) {
+        Bot existingBot = getBotById(botId);
+        if (existingBot == null) {
+            throw new ApiException("Bot Not Found",HttpStatus.NOT_FOUND);
+        }
+        if (updateUser.getRole().equals(User.Role.USER) && !existingBot.getCreator().getUserId().equals(updateUser.getUserId())) {
+            throw new ApiException("You are not authorized to update this bot", HttpStatus.UNAUTHORIZED);
+        }
+        if (!existingBot.getIsActive()) {
+            throw new ApiException("Bot is deleted", HttpStatus.BAD_REQUEST);
+        }
+        existingBot.setRagDocUrl(ragUrl);
+        existingBot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
+        return botRepository.save(existingBot);
     }
 }

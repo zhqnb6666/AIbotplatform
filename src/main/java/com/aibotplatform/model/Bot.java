@@ -41,7 +41,9 @@ public class Bot {
     @Column(nullable = false)
     private Integer daily_limit = 50;
 
-    // todo
+    @Column
+    private String ragDocUrl;
+
     @Column(nullable = false)
     private String promptTemplate = "";
 

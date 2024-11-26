@@ -4,6 +4,7 @@ import com.aibotplatform.dto.botDTO.CreateBotRequest;
 import com.aibotplatform.dto.botDTO.UpdateBotRequest;
 import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ public interface BotService {
     Bot getBotById(Long botId);
     Optional<Bot> getBotByName(String name);
     Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type);
+    Bot createBotWithRag(CreateBotRequest createBotRequest, User creator, Bot.BotType type, String ragDocUrl);
     Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser);
     void deleteBot(Long botId, User deleteUser);
     List<Bot> getUserCustomBots(Long userId);
@@ -23,4 +25,6 @@ public interface BotService {
 
     List<Bot> search(String keyword);
     List<Bot> getRecommendedBots(String username);
+    String saveRagDoc(String ragDocPath, MultipartFile docFile);
+    Bot updateRag(Long botId, String ragUrl, User updateUser);
 }

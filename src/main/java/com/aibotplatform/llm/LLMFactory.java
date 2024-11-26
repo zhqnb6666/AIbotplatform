@@ -48,30 +48,26 @@ public class LLMFactory {
         String systemMessage = (promptTemplate == null || promptTemplate.trim().isEmpty()) ? "You are a helpful AI assistant. Analyze problems step by step and provide clear, concise answers." : promptTemplate;
         String modelName = bot.getModel();
         ModelType type = ModelType.fromModelName(modelName);
-        return switch (type) {
-            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
-                    new OpenAILLM(modelName, bot.getTemperature(), chatHistory, systemMessage);
-            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
-                    new QianFanLLM(modelName, bot.getTemperature(), chatHistory, systemMessage);
-            case Stable_Diffusion_XL ->
-                    new ImageModel();
-            case Calculator_Bot -> new CalculatorBot();
-        };
-    }
-
-    public static LLM createRagLLM(Bot bot, List<AbstractMap.SimpleEntry<String, String>> chatHistory, String doc_path) {
-        String modelName = bot.getName();
-        ModelType type = ModelType.fromModelName(modelName);
-
-        return switch (type) {
-            case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
-                    new OpenAILLM(modelName, bot.getTemperature(), chatHistory, "", doc_path);
-            case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
-                    new QianFanLLM(modelName, bot.getTemperature(), chatHistory, "", doc_path);
-            case Stable_Diffusion_XL ->
-                    new ImageModel();
-            case Calculator_Bot -> new CalculatorBot();
-
-        };
+        if (bot.getRagDocUrl() == null) {
+            return switch (type) {
+                case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
+                        new OpenAILLM(modelName, bot.getTemperature(), chatHistory, systemMessage);
+                case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
+                        new QianFanLLM(modelName, bot.getTemperature(), chatHistory, systemMessage);
+                case Stable_Diffusion_XL ->
+                        new ImageModel();
+                case Calculator_Bot -> new CalculatorBot();
+            };
+        } else {
+            return switch (type) {
+                case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
+                        new OpenAILLM(modelName, bot.getTemperature(), chatHistory, "", bot.getRagDocUrl());
+                case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
+                        new QianFanLLM(modelName, bot.getTemperature(), chatHistory, "", bot.getRagDocUrl());
+                case Stable_Diffusion_XL ->
+                        new ImageModel();
+                case Calculator_Bot -> new CalculatorBot();
+            };
+        }
     }
 }

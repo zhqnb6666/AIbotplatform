@@ -10,6 +10,7 @@ import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,13 +18,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/bots")
 @Tag(name = "Bots API", description = "APIs for getting, creating, updating, and deleting bots")
 public class BotController {
+
+    @Value("${path.rag_doc}")
+    private String ragDocPath;
 
     private final BotService botService;
     private final UserServiceImpl userService;
@@ -69,6 +81,64 @@ public class BotController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(convertToDTO(createdBot), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/rag")
+    @Operation(summary = "Create a new custom bot with RAG", description = "Create a new custom bot with RAG document")
+    public ResponseEntity<?> createBotWithRag(@AuthenticationPrincipal UserDetails userDetails,
+                                                 @RequestBody @Valid CreateBotRequest createBotRequest,
+                                                 @RequestParam("file") MultipartFile docFile) {
+        User user = userService.getUserByName(userDetails.getUsername());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!Objects.requireNonNull(docFile.getOriginalFilename()).substring(docFile.getOriginalFilename().lastIndexOf(".")).equals(".pdf")) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String docName;
+        try {
+            docName = botService.saveRagDoc(ragDocPath, docFile);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
+
+        Bot createdBot;
+        try {
+            createdBot = botService.createBotWithRag(createBotRequest, user, Bot.BotType.CUSTOM, ragDocPath + docName);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(convertToDTO(createdBot), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{bot_id}/rag")
+    @Operation(summary = "Insert or update RAG document of bot", description = "Insert or update RAG document of bot")
+    public ResponseEntity<?> insertOrUpdateRag(@AuthenticationPrincipal UserDetails userDetails,
+                                              @PathVariable Long bot_id,
+                                              @RequestParam("file") MultipartFile docFile) {
+        User user = userService.getUserByName(userDetails.getUsername());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!Objects.requireNonNull(docFile.getOriginalFilename()).substring(docFile.getOriginalFilename().lastIndexOf(".")).equals(".pdf")) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        String docName;
+        try {
+            docName = botService.saveRagDoc(ragDocPath, docFile);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
+
+        Bot updatedBot;
+        try {
+            updatedBot = botService.updateRag(bot_id, ragDocPath + docName, user);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+        return new ResponseEntity<>(convertToDTO(updatedBot), HttpStatus.OK);
     }
 
     @GetMapping("/{bot_id}/greeting")
