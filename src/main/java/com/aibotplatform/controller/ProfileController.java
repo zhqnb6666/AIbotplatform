@@ -33,7 +33,6 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileServiceImpl profileService;
-    private final BotService botService;
     private final FeedbackService feedbackService;
 
     @Value("${path.avatars}")

@@ -1,6 +1,7 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.dto.profileDTO.ProfileResponse;
+import com.aibotplatform.dto.profileDTO.UserFeedbackResponse;
 import com.aibotplatform.dto.profileDTO.UserStatisticsResponse;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.User;
@@ -10,9 +11,13 @@ import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.FeedbackService;
 import com.aibotplatform.service.ProfileService;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -51,19 +56,34 @@ public class ProfileServiceImpl implements ProfileService {
         profileResponse.setBio(user.getBio());
         profileResponse.setUserBotList(botService.getUserCustomBots(user.getUserId()));
 
-        profileResponse.setUserFeedbackList(feedbackService.getUserFeedback(user.getUserId()));
-        long totalRatingCnt = profileResponse.getUserFeedbackList().size();
+        List<UserFeedback> feedbacks = feedbackService.getUserFeedback(user.getUserId());
+        long totalRatingCnt = feedbacks.size();
         if (totalRatingCnt == 0) {
             profileResponse.setAvgRating(0);
         } else {
             long totalRating = 0;
-            for (UserFeedback userFeedback : profileResponse.getUserFeedbackList()) {
+            for (UserFeedback userFeedback : feedbacks) {
                 totalRating += userFeedback.getRating() * 1000;
             }
             int avgRating = (int) (totalRating / totalRatingCnt);
             avgRating = avgRating / 10 + (avgRating % 10 >= 5 ? 1 : 0);
             profileResponse.setAvgRating(avgRating);
         }
+
+        List<UserFeedbackResponse> userFeedbackResponses = new ArrayList<>();
+        for (UserFeedback userFeedback : feedbacks) {
+            User commenter = userFeedback.getCommenter();
+            UserFeedbackResponse userFeedbackResponse = new UserFeedbackResponse(
+                    commenter.getUsername(),
+                    commenter.getAvatarUrl(),
+                    userFeedback.getRating(),
+                    userFeedback.getContent(),
+                    userFeedback.getCreatedAt()
+            );
+            userFeedbackResponses.add(userFeedbackResponse);
+        }
+        profileResponse.setUserFeedbackList(userFeedbackResponses);
+
         return profileResponse;
     }
 
