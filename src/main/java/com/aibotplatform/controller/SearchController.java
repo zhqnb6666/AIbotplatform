@@ -43,7 +43,12 @@ public class SearchController {
     @GetMapping("/bot/{keyword}")
     @Operation(summary = "Search for bots", description = "Search for bots by name")
     public ResponseEntity<List<BotResponse>> searchBots(@PathVariable String keyword) {
-        List<Bot> bots = botService.search(keyword);
+        List<Bot> bots;
+        if(keyword.equals("all")){
+            bots = botService.getAllBots();
+        }else {
+            bots = botService.search(keyword);
+        }
         List<BotResponse> botResponses = bots.stream().map(this::convertToBotDTO).collect(Collectors.toList());
         return new ResponseEntity<>(botResponses, HttpStatus.OK);
     }
@@ -51,7 +56,13 @@ public class SearchController {
     @GetMapping("/user/{keyword}")
     @Operation(summary = "Search for users", description = "Search for users by username")
     public ResponseEntity<List<ProfileResponse>> searchUsers(@PathVariable String keyword) {
-        List<ProfileResponse> profileResponses = userService.search(keyword).stream()
+        List<User> users;
+        if(keyword.equals("all")){
+            users = userService.getAllUsers();
+        }else{
+            users = userService.search(keyword);
+        }
+        List<ProfileResponse> profileResponses = users.stream()
                 .map(user -> profileService.getUserProfile(user.getUsername()))
                 .collect(Collectors.toList());
         return new ResponseEntity<>(profileResponses, HttpStatus.OK);
