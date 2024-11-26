@@ -1,10 +1,11 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.dto.profileDTO.ProfileResponse;
+import com.aibotplatform.dto.profileDTO.UserStatisticsResponse;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.User;
 import com.aibotplatform.model.UserFeedback;
-import com.aibotplatform.repository.UserRepository;
+import com.aibotplatform.repository.*;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.FeedbackService;
 import com.aibotplatform.service.ProfileService;
@@ -19,6 +20,10 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserRepository userRepository;
     private final BotService botService;
     private final FeedbackService feedbackService;
+    private final ConversationRepository conversationRepository;
+    private final TokenHistoryRepository tokenRepository;
+    private final UserFeedbackRepository userFeedbackRepository;
+    private final MessageFeedbackRepository messageFeedbackRepository;
 
     @Override
     public ProfileResponse getUserProfile(String username) {
@@ -100,5 +105,21 @@ public class ProfileServiceImpl implements ProfileService {
             user.setBio(bio);
             userRepository.save(user);
         }
+    }
+
+    public UserStatisticsResponse getUserStatistics(String username) {
+        User user = userRepository.findByUsername(username);
+        Long botCount = conversationRepository.countConversationBotByUserId(user.getUserId());
+        Long conversationCount = conversationRepository.countConversationByUserId(user.getUserId());
+        Long tokenConsumed = tokenRepository.sumTokensByUserId(user.getUserId());
+        Long userCommentCount = userFeedbackRepository.countByUser_UserId(user.getUserId());
+        Long botCommentCount = messageFeedbackRepository.countByCommenter_UserId(user.getUserId());
+
+        return new UserStatisticsResponse(
+                botCount == null ? 0 : botCount,
+                conversationCount == null ? 0 : conversationCount,
+                tokenConsumed == null ? 0 : -tokenConsumed,
+                userCommentCount == null ? 0 : userCommentCount,
+                botCommentCount == null ? 0 : botCommentCount);
     }
 }
