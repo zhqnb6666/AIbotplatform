@@ -177,6 +177,22 @@ public class BotController {
         }
     }
 
+    @GetMapping("/recommend")
+    @Operation(summary = "Get recommended bots", description = "Get recommended bots based on user's frequently used bot types or themes")
+    public ResponseEntity<List<BotResponse>> getRecommendedBots(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        try {
+            List<Bot> recommendedBots = botService.getRecommendedBots(userDetails.getUsername());
+            List<BotResponse> botResponses = recommendedBots.stream().map(this::convertToDTO).collect(Collectors.toList());
+            return new ResponseEntity<>(botResponses, HttpStatus.OK);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getStatus());
+        }
+    }
+
     // Convert Bot entity to BotDTO
     private BotResponse convertToDTO(Bot bot) {
         return new BotResponse(

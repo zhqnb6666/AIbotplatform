@@ -22,10 +22,21 @@ public static void main(String[] args) {
 //    System.out.println(calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2"));
 
 
-    OpenAILLM openAILLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"用中文回答用户问题");
+    OpenAILLM openAIRagLLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"","src\\main\\resources\\出师表.docx");
 
 //    startTime = System.currentTimeMillis();
-    openAILLM.chat("who are u")
+    openAIRagLLM.chat("翻译一下陟罚臧否，不宜异同")
+            .subscribe(
+                    System.out::print,
+                    error -> System.err.println("Error: " + error),  // onError
+                    () -> {
+                        System.out.println("\nStream completed!");
+                    }
+            );
+    OpenAILLM openAILLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"用中文回答用户的问题");
+
+//    startTime = System.currentTimeMillis();
+    openAILLM.chat("翻译一下陟罚臧否，不宜异同")
             .subscribe(
                     System.out::print,
                     error -> System.err.println("Error: " + error),  // onError

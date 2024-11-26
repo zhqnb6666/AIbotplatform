@@ -20,5 +20,5 @@ public interface BotService {
     List<Bot> getMostPopularBots(Integer top);
     List<Bot> getHistoricalBestBots(Integer top);
     List<Bot> getMonthlyBestBots(Integer top);
-
+    List<Bot> getRecommendedBots(String username);
 }

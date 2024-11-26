@@ -160,5 +160,12 @@ public class BotServiceImpl implements BotService {
         }
     }
 
-
+    @Override
+    public List<Bot> getRecommendedBots(String username) throws ApiException {
+        User user = userService.getUserByName(username);
+        if (user == null) {
+            throw new ApiException("User not found", HttpStatus.NOT_FOUND);
+        }
+        return botRepository.findRecommendedBotsByUserPreferences(user.getUserId());
+    }
 }

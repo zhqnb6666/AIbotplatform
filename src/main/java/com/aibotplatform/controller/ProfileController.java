@@ -3,6 +3,7 @@ package com.aibotplatform.controller;
 import com.aibotplatform.dto.profileDTO.ChangeBioRequest;
 import com.aibotplatform.dto.profileDTO.ChangeUserNameRequest;
 import com.aibotplatform.dto.profileDTO.ProfileResponse;
+import com.aibotplatform.dto.profileDTO.UserStatisticsResponse;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.FeedbackService;
@@ -32,7 +33,6 @@ import java.util.UUID;
 public class ProfileController {
 
     private final ProfileServiceImpl profileService;
-    private final BotService botService;
     private final FeedbackService feedbackService;
 
     @Value("${path.avatars}")
@@ -137,5 +137,16 @@ public class ProfileController {
                     .body("Internal server error: " + e.getMessage());
         }
         return ResponseEntity.ok("Bio changed successfully.");
+    }
+
+    @GetMapping("/statistics")
+    @Operation(summary = "Get user statistics",
+            description = "Get statistics including bot count, conversation count, token consumed, and comment count")
+    public ResponseEntity<?> getUserStatistics(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+        }
+        UserStatisticsResponse statistics = profileService.getUserStatistics(userDetails.getUsername());
+        return ResponseEntity.ok(statistics);
     }
 }
