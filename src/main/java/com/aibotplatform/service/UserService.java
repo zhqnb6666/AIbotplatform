@@ -18,4 +18,6 @@ public interface UserService {
     void deductTokens(User user,Long amount,String description);
 
     List<User> search(String keyword);
+
+    List<User> getAllUsers();
 }

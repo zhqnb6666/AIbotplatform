@@ -159,6 +159,11 @@ public class UserServiceImpl implements UserDetailsService, UserService {
         return userRepository.findUsersByUsernameIsContainingIgnoreCase(keyword);
     }
 
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findUsersByRole(User.Role.USER);
+    }
+
     private Long calculateNewTokenBalance(User user, Long changeAmount) {
         return user.getToken() - changeAmount;
     }

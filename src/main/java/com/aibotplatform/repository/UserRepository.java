@@ -1,6 +1,7 @@
 package com.aibotplatform.repository;
 
 import com.aibotplatform.model.User;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -21,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countByRole(User.Role role);
 
     List<User>  findUsersByUsernameIsContainingIgnoreCase(String key);
+
+    List<User> findUsersByRole(User.Role role);
 }
