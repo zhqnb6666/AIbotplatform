@@ -2,8 +2,12 @@
 import axiosInstance from "@/service/axiosInstance";
 
 const ProfileService = {
-    getProfile() {
-        return axiosInstance.get('/profile');
+    getProfile(id) {
+        if (!id) {
+            return axiosInstance.get('/profile');
+        } else {
+            return axiosInstance.get(`/profile/${id}`);
+        }
     },
     deleteRobot(botId) {
         return axiosInstance.delete(`/bots/${botId}`);
@@ -17,6 +21,16 @@ const ProfileService = {
     },
     changeBio(newBio) {
         return axiosInstance.put('/profile/change-bio', { newBio }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    },
+    getUserStatistics() {
+        return axiosInstance.get('/profile/statistics');
+    },
+    postFeedback(feedbackForm) {
+        return axiosInstance.post('/users/feedback', feedbackForm, {
             headers: {
                 'Content-Type': 'application/json'
             }

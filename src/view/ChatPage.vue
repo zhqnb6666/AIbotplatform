@@ -394,7 +394,7 @@ export default {
       <template #header>
         <span class="title is-6">请填写您对此条信息{{feedbackDialogInfo.type==='LIKE'?'满意':'不满意'}}的原因</span>
       </template>
-      <el-input type="textarea" v-model="feedbackDialogInfo.content" placeholder="关注taffy谢谢喵" rows = 6></el-input>
+      <el-input type="textarea" v-model="feedbackDialogInfo.content" placeholder="暂无内容" rows = 6></el-input>
       <template #footer>
         <el-button @click="isFeedbackDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="submitReview">提交</el-button>
@@ -407,12 +407,12 @@ export default {
           <el-rate v-model="rateDialogInfo.rating"></el-rate>
         </el-form-item>
         <el-form-item label="评价">
-          <el-input type="textarea" v-model="rateDialogInfo.content" placeholder="关注taffy谢谢喵"></el-input>
+          <el-input type="textarea" v-model="rateDialogInfo.content" placeholder="暂无内容"></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="isRateDialogVisible = false">Cancel</el-button>
-        <el-button type="primary" @click="submitRating">Submit</el-button>
+        <el-button @click="isRateDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitRating">提交</el-button>
       </template>
     </el-dialog>
 

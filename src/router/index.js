@@ -16,7 +16,8 @@ const routes = [
     { path: '/setting', component: () => import('@/view/SettingPage.vue'), meta: { requiresAuth: true } },
     { path: '/resetPassword', component: () => import('@/view/ResetPasswordPage.vue') },
     { path: '/official-bot-edit', component:  () => import('@/view/OfficialBotPage.vue'), meta: { requiresAuth: true } },
-    { path: '/popularity', component: () => import('@/view/PopularityPage.vue'), meta: { requiresAuth: true } },
+    { path: '/popularity', component: () => import('@/view/PopularityPage.vue')},
+    { path: '/view-profile', component: () => import('@/view/ViewProfile.vue'), meta: { requiresAuth: true } },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: () => import('@/view/NotFound.vue') }
 ]
 

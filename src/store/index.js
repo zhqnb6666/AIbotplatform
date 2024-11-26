@@ -11,6 +11,7 @@ const store = createStore({
                 avatarUrl: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
                 bio: 'Hello, I am a new user',
                 token: 0,
+                avgRating: 0,
             },
             isLoggedIn: false
         };

@@ -17,30 +17,109 @@
         <button class="button is-medium is-white" @click="editProfile">编辑个人资料</button>
       </div>
     </div>
-    <el-row class="subtitle is-5" align="middle">
-      您是<strong>{{ personalProfile.role === 'USER'?'普通用户':'管理员'}}</strong>，目前拥有<strong>{{ personalProfile.credits }}</strong>
-      <el-icon><Coin/></el-icon>，剩余<strong>{{ personalProfile.token }}</strong>个token。
-    </el-row>
+
+    <div class="columns">
+      <div class="column">
+        <div class="box">
+          <p class="title is-5 is-spaced">用户身份</p>
+          <p class="subtitle is-4">{{personalProfile.role === 'USER'?'普通用户':'管理员'}}</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5 is-spaced">剩余积分</p>
+          <p class="subtitle is-4">{{ personalProfile.credits }}<Coin style="width: 1em; height: 1em;"/></p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5 is-spaced">剩余token数</p>
+          <p class="subtitle is-4">{{ personalProfile.token }}个</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">他人对您的平均评分</p>
+          <el-rate v-model="personalProfile.avgRating"
+                   show-score
+                   text-color="#ff9900"
+                   :score-template="`${personalProfile.avgRating !== 0 ? '{value} 分' : '暂无评分'}`"
+                   disabled/>
+        </div>
+      </div>
+    </div>
+
+    <div class="columns">
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">机器人数量</p>
+          <p class="subtitle is-4">{{ userStatistic.botCount }}个</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">对话数量</p>
+          <p class="subtitle is-4">{{ userStatistic.conversationCount }}条</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">消耗token</p>
+          <p class="subtitle is-4">{{ userStatistic.tokenConsumed }}个</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">用户评论数量</p>
+          <p class="subtitle is-4">{{ userStatistic.userCommentCount }}条</p>
+        </div>
+      </div>
+      <div class="column">
+        <div class="box">
+          <p class="title is-5">机器人评论数</p>
+          <p class="subtitle is-4">{{ userStatistic.botCommentCount }}条</p>
+        </div>
+      </div>
+
+    </div>
+
     <div class="tabs">
       <ul>
         <li :class="{'is-active':tab_index === 0}" @click="changeTab(0)"><a>{{ robots.length }}个机器人</a></li>
-        <li :class="{'is-active':tab_index === 1}" @click="changeTab(1)"><a>使用情况</a></li>
-        <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>他人评论</a></li>
+        <li :class="{'is-active':tab_index === 2}" @click="changeTab(2)"><a>{{ feedbackList.length }}条他人评论</a></li>
       </ul>
     </div>
 
-      <RobotDisplay
-          v-for="robot in robots"
-          :key="robot.id"
-          :robot="robot"
-          :show-review-button="false"
-          :show-chat-button="true"
-          :show-delete-button="true"
-          @delete="deleteRobot"
-      />
-
+    <div v-if="tab_index === 0">
+      <div v-if="robots.length !== 0">
+        <RobotDisplay
+            v-for="robot in robots"
+            :key="robot.id"
+            :robot="robot"
+            :show-review-button="false"
+            :show-chat-button="true"
+            :show-delete-button="true"
+            @delete="deleteRobot"
+        />
+      </div>
+      <div class="message" v-else>
+        您还没有机器人，快去创建一个吧！
+      </div>
     </div>
 
+    <div v-if="tab_index === 2">
+      <div v-if="feedbackList.length !== 0">
+        <FeedbackDisplay
+            v-for="feedback in personalProfile.feedbackList"
+            :key="feedback.name"
+            :feedback="feedback"
+        />
+      </div>
+      <div class="message" v-else>
+        他人还没有对您进行评论
+      </div>
+    </div>
+  </div>
 
   <div class="container" v-else>
     <!-- 资料修改页面 -->
@@ -114,10 +193,11 @@ import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 import RobotDisplay from "@/components/RobotDisplay.vue";
 import ProfileService from "@/service/ProfileService";
+import FeedbackDisplay from "@/components/FeedbackDisplay.vue";
 
 export default {
   name: 'ProfilePage',
-  components: {RobotDisplay, Coin },
+  components: {FeedbackDisplay, RobotDisplay, Coin },
   computed: {
     ...mapState(['personalProfile']),
   },
@@ -133,12 +213,21 @@ export default {
       croppedImageUrl: null,
       cropper: null,
       cropperVisible: false,
-
+      feedbackList: [],
+      userStatistic: {
+        "botCount": 0,
+        "conversationCount": 0,
+        "tokenConsumed": 0,
+        "userCommentCount": 0,
+        "botCommentCount": 0
+      }
     };
   },
   created() {
-    ProfileService.getProfile().then((response) => {
-      this.robots = response.data.userBotList;
+    Promise.all([ProfileService.getProfile(), ProfileService.getUserStatistics()]).then((responses) => {
+      this.robots = responses[0].data.userBotList;
+      this.feedbackList = responses[0].data.userFeedbackList;
+      this.userStatistic = responses[1].data;
     }).catch((error) => {
       this.$message.error('获取个人资料失败');
       console.error(error);
@@ -202,7 +291,6 @@ export default {
     },
     changeTab(index) {
       this.tab_index = index;
-      console.log('change tab');
     },
     isImageFile(file) {
       const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'tiff'];
