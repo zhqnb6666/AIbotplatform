@@ -65,9 +65,9 @@ public class LLMFactory {
 
         return switch (type) {
             case GPT_3_5, GPT_4_32K, GPT_4_O, GPT_4_O_MINI ->
-                    new OpenAILLM(modelName, bot.getTemperature(), chatHistory, doc_path);
+                    new OpenAILLM(modelName, bot.getTemperature(), chatHistory, "", doc_path);
             case ERNIE_BOT, BLOOMZ_7B, Llama_2_7B, Llama_2_13B, Llama_2_70B, Chinese_Llama_2_7B, ChatGLM, Aquila ->
-                    new QianFanLLM(modelName, bot.getTemperature(), chatHistory, doc_path);
+                    new QianFanLLM(modelName, bot.getTemperature(), chatHistory, "", doc_path);
             case Stable_Diffusion_XL ->
                     new ImageModel();
             case Calculator_Bot -> new CalculatorBot();
