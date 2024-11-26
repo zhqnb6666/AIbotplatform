@@ -24,6 +24,7 @@ public interface BotRepository extends JpaRepository<Bot, Long> {
 
     @Query("SELECT b, COUNT(c.bot.botId) AS access_count \n" +
             "FROM Bot b LEFT JOIN Conversation c ON b.botId = c.bot.botId \n" +
+            "WHERE b.isActive = true " +
             "GROUP BY b.botId \n" +
             "ORDER BY access_count DESC \n" +
             "LIMIT :top")
@@ -31,6 +32,7 @@ public interface BotRepository extends JpaRepository<Bot, Long> {
 
     @Query("SELECT b, COALESCE(AVG(br.rating), 0) AS avg_rating \n" +
             "FROM Bot b LEFT JOIN BotRating br ON b.botId = br.bot.botId \n" +
+            "WHERE b.isActive = true " +
             "GROUP BY b.botId \n" +
             "ORDER BY avg_rating DESC \n" +
             "LIMIT :top")
@@ -39,10 +41,21 @@ public interface BotRepository extends JpaRepository<Bot, Long> {
     @Query("SELECT b, COALESCE(AVG(br.rating), 0) AS avg_rating \n" +
             "FROM Bot b LEFT JOIN BotRating br ON b.botId = br.bot.botId AND \n" +
             "br.createdAt >= :oneMonthAgo \n" +
+            "WHERE b.isActive = true " +
             "GROUP BY b.botId \n" +
             "ORDER BY avg_rating DESC \n" +
             "LIMIT :top")
     List<Bot> findMonthlyBestBots(@Param("oneMonthAgo") LocalDateTime oneMonthAgo, @Param("top") Integer top);
+
+    @Query("SELECT b FROM Bot b WHERE b.type = " +
+            "(SELECT b2.type FROM Conversation c LEFT JOIN Bot b2 ON c.bot.botId = b2.botId " +
+            "WHERE c.user.userId = :userId AND b.isActive = true " +
+            "GROUP BY b2.type " +
+            "ORDER BY COUNT(b2.type) DESC " +
+            "LIMIT 1) " +
+            "ORDER BY FUNCTION('RANDOM') " +
+            "LIMIT 3")
+    List<Bot> findRecommendedBotsByUserPreferences(@Param("userId") Long userId);
 
     long count();
     long countByType(Bot.BotType type);

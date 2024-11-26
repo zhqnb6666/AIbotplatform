@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -128,7 +129,7 @@ public class ConversationController {
         return conversationService.getMessageStream(botId, messageId)
                 .map(content -> ServerSentEvent.builder()
                         .event("message")
-                        .data(content)
+                        .data(Base64.getEncoder().encodeToString(content.getBytes()))
                         .build())
                 .onErrorResume(error -> Flux.just(
                         ServerSentEvent.builder()
