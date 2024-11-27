@@ -1,6 +1,16 @@
 <template>
   <div class="container" style="width: 80%;">
-    <el-table :data="filteredChatHistories" style="width: 100%" fit :table-layout="'fixed'" empty-text="目前暂无数据">
+    <el-table
+        :data="filteredChatHistories"
+        style="width: 100%"
+        height="700px"
+        empty-text="目前暂无数据"
+        row-key="conversationId"
+        lazy
+        virtual-scroll
+        :default-sort="{ prop: 'conversationId', order: 'ascending' }"
+        highlight-current-row
+    >
       <el-table-column prop="conversationId" label="聊天ID"></el-table-column>
       <el-table-column prop="title" label="标题"></el-table-column>
       <el-table-column align="center">
@@ -11,10 +21,7 @@
           <el-button @click="continueChat(scope.row)">
             继续聊天<el-icon class="el-icon--right"><ChatDotRound /></el-icon>
           </el-button>
-          <el-button
-              type="danger"
-              @click="deleteChat(scope.row)"
-          >
+          <el-button type="danger" @click="deleteChat(scope.row)">
             删除<el-icon class="el-icon--right"><Delete /></el-icon>
           </el-button>
         </template>

@@ -17,6 +17,9 @@ export default {
     BASIC_ROBOTS() {
       return BASIC_ROBOTS
     },
+    infoDialogVisible() {
+      return this.infoDialogState !== 0;
+    }
   },
   created() {
     axiosInstance.get('/bots').then((response) => {
@@ -142,7 +145,12 @@ export default {
 </script>
 
 <template>
-<el-table :data="filterTableData" style="width: 100%" :default-sort="{ prop: 'botId', order: 'ascending' }" max-height="700">
+<el-table :data="filterTableData"
+          style="width: 100%"
+          height="700px"
+          lazy row-key="botId"
+          highlight-current-row
+          :default-sort="{ prop: 'botId', order: 'ascending' }">
   <el-table-column type="expand">
     <template #default="scope">
       <el-descriptions title="机器人详情" border direction="vertical" column="5">
@@ -193,7 +201,7 @@ export default {
   导出数据<el-icon class="el-icon--right"><Download /></el-icon>
 </el-button>
 <!-- 编辑或更新机器人对话框 -->
-<el-dialog v-model="infoDialogState" draggable>
+<el-dialog v-model="infoDialogVisible" draggable>
   <template #header>
     <div class="subtitle is-4" style="width: 100%;justify-content: center;display: flex">
       {{infoDialogState === 1 ? '更新机器人' : '添加机器人'}}
