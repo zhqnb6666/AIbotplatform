@@ -13,10 +13,10 @@ public class Util {
     private static final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
     private final Qianfan qianfan = new Qianfan(TYPE_OAUTH,ak, sk);
     private final String nq_CoT = "user：'支持向量机是什么？'请你根据用户的这个问题，推测用户可能会继续询问的下一个问题，给出三个可能" +
-            "assistant：支持向量机的运行机制和原理是什么？ 在实际应用中，支持向量机主要应用于哪些领域或场景？ 如何利用支持向量机来解决实际问题，例如分类、回归或预测任务？";
+            "assistant：1.支持向量机的运行机制和原理是什么？ 2.在实际应用中，支持向量机主要应用于哪些领域或场景？ 3.如何利用支持向量机来解决实际问题，例如分类、回归或预测任务？";
     private final String nq_prompt = "请你根据用户的这个问题，推测用户可能会继续询问的下一个问题，给出三个可能。 assistant：";
 
-    private final String tittle_CoT = "user：'如何证明 (p → q) → ((r → p) → (r → q)) 是一个重言式？' 请你根据用户的这个问题，总结出这段对话的标题。"+
+    private final String tittle_CoT = "user：'如何证明一个逻辑表达式是一个重言式？' 请你根据用户的这个问题，总结出这段对话的标题。"+
             "assistant：逻辑与命题演算的讨论"+
             "user：'如何用Python随机生成20个1到1000之间的整数？' 请你根据用户的这个问题，总结出这段对话的标题。"+
             "assistant：Python编程问题：随机数生成"+
@@ -30,9 +30,13 @@ public class Util {
      * @return List<String>
      */
     public List<String> predictNextQuestions(String user_question) {
+        user_question = user_question.replaceAll("^\"|\"$", "");
         ChatResponse resp = qianfan.chatCompletion()
                 .model("Yi-34B-Chat")
+                .disableSearch(true)
                 .addMessage("user",nq_CoT + "user：'" + user_question + "'" + nq_prompt)
+                .enableSystemMemory(Boolean.FALSE)
+                .enableUserMemory(Boolean.FALSE)
                 .execute();
         String ans = resp.getResult();
 
@@ -43,17 +47,22 @@ public class Util {
     }
 
     public String predictTittle(String user_question) {
+        user_question = user_question.replaceAll("^\"|\"$", "");
         ChatResponse resp = qianfan.chatCompletion()
                 .model("Yi-34B-Chat")
+                .disableSearch(true)
+                .maxOutputTokens(15)
                 .addMessage("user",tittle_CoT + "user：'" + user_question + "'" + tittle_prompt)
+                .enableSystemMemory(Boolean.FALSE)
+                .enableUserMemory(Boolean.FALSE)
                 .execute();
         return resp.getResult();
     }
 
-//调用示例
+////调用示例
 //    public static void main(String[] args) {
-//        String q = "Python怎么生成随机数？";
-//        uitl u = new uitl();
+//        String q = "py";
+//        Util u = new Util();
 //        List<String> l = u.predictNextQuestions(q);
 //        for (String s : l) {
 //            System.out.println(s);
