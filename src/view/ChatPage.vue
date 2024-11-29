@@ -108,7 +108,7 @@ export default {
     // 创建新对话，加载问候语
     createNewConversation() {
       this.conversationBasicInfo.title = '您和' + this.robotInfo.name + '的聊天';
-      this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      this.updateTitle();
       ChatService.createNewConversation(this.conversationBasicInfo).then(res => {
         this.conversationBasicInfo.conversationId = res.data.conversationId;
       }).catch(err => {
@@ -283,7 +283,9 @@ export default {
     },
     // 清空消息
     clearMessages() {
-      this.$router.push(`/chat?botId=${this.conversationBasicInfo.botId}`);
+      this.createNewConversation();
+      this.messages = [];
+      this.followUpSuggestions = [];
     },
     // 切换模式
     toggleMode() {
