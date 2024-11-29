@@ -30,6 +30,12 @@ const ChatService = {
     },
     submitRating(rateDialogInfo){
         return axiosInstance.post(`/bots/ratings`, rateDialogInfo);
+    },
+    predictTitle(content) {
+        return axiosInstance.post(`/conversations/predict-title`, {content});
+    },
+    predictNext(content) {
+        return axiosInstance.post(`/conversations/predict-next`, {content});
     }
 }
 export default ChatService

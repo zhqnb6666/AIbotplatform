@@ -1,6 +1,7 @@
 <template>
 <div class="hero hero-body">
   <div class="container" style="width: 30%">
+    <h1 class="title" style="display: flex; justify-content: center">注册</h1>
     <form @submit.prevent="submit" v-if="!isSubmitting">
     <div class="field">
       <label class="label is-medium">用户名</label>

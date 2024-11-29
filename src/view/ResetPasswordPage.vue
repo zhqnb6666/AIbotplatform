@@ -1,5 +1,6 @@
 <template>
 <div class="container">
+  <h1 class="title" style="display: flex; justify-content: center">重置密码</h1>
   <form @submit.prevent="submit" v-if="!isSubmitting">
     <div class="field">
       <label class="label is-medium">邮箱</label>

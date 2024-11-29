@@ -1,5 +1,4 @@
 <script>
-import DropUpButton from '@/components/DropUpButton.vue';
 import DropDownButton from '@/components/DropDownButton.vue';
 import MarkdownIt from 'markdown-it';
 import 'highlight.js/styles/github.css';
@@ -8,14 +7,17 @@ import {mapActions, mapState} from "vuex";
 // src/view/ChatPage.vue
 import ChatService from "@/service/ChatService";
 import hljs from "highlight.js";
-import {Right} from "@element-plus/icons-vue";
+import {Delete, Edit, Right, Switch, Upload} from "@element-plus/icons-vue";
 
 const md = new MarkdownIt();
 export default {
   name: 'ChatPage',
   components: {
+    Upload,
+    Switch,
+    Delete,
+    Edit,
     Right,
-    DropUpButton,
     DropDownButton
   },
   computed: {
@@ -103,10 +105,7 @@ export default {
         }
       });
     },
-    getFollowUpSuggestions() {
-      this.followUpSuggestions = ['建议 1', '建议 2', '建议 3'];
-      this.setButtonWidth();
-    },
+    // 创建新对话，加载问候语
     createNewConversation() {
       this.conversationBasicInfo.title = '您和' + this.robotInfo.name + '的聊天';
       this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
@@ -130,9 +129,13 @@ export default {
         this.$message.error('获取问候语失败');
       });
     },
+    updateTitle(){
+      this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+    },
+    // 加载对话历史,如果是新对话则加载问候语
     loadConversationHistory() {
       ChatService.loadConversationHistory(this.conversationBasicInfo.conversationId).then(res => {
-        this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+        this.updateTitle();
         this.messages = res.data;
         this.messages.forEach((message) => {
           if (message.senderType === 'BOT') {
@@ -153,19 +156,32 @@ export default {
         this.$message.error('token余额不足');
         return;
       }
+      this.followUpSuggestions = [];
       this.isStreamingComplete = false;
       const messageUser = {
         senderType: 'USER',
         content: this.newMessage
       };
       this.messages.push(messageUser);
+      if(this.messages.length === 3){
+        await ChatService.predictTitle(this.newMessage).then(res => {
+          this.conversationBasicInfo.title = res.data;
+          this.updateTitle();
+        }).catch(err => {
+          console.error(err);
+          this.$message.error('获取标题失败');
+          this.isStreamingComplete = true;
+        })
+      }
       if(this.isSingleTurn){
         this.clearMessages();
       }
       try {
         //先发送消息
-        const response = await ChatService.sendMessage(this.conversationBasicInfo.conversationId, this.newMessage);
-        const { botId, messageId } = response.data;
+        const response = await Promise.all([ChatService.sendMessage(this.conversationBasicInfo.conversationId, this.newMessage),
+            ChatService.predictNext(this.newMessage)]);
+        const { botId, messageId } = response[0].data;
+        this.followUpSuggestions = response[1].data;
         this.startSse(botId, messageId);
         this.newMessage = '';
         this.personalProfile.token -= this.robotInfo.tokenCost;
@@ -212,8 +228,8 @@ export default {
         this.isStreamingComplete = true;
         this.messages[this.messages.length - 1].content = md.render(streamContent);
         try {
-          this.getFollowUpSuggestions();
-          await ChatService.saveResponse(this.conversationBasicInfo.conversationId, messageId, botId, streamContent);
+          this.setButtonWidth();
+          ChatService.saveResponse(this.conversationBasicInfo.conversationId, messageId, botId, streamContent);
         } catch (err) {
           console.error('Failed to save response:', err);
           this.$message.error('保存失败');
@@ -267,19 +283,16 @@ export default {
     },
     // 清空消息
     clearMessages() {
-      if (!this.isStreamingComplete) return;
-      this.messages = [];
+      this.$router.push(`/chat?botId=${this.conversationBasicInfo.botId}`);
     },
     // 切换模式
     toggleMode() {
-      if (!this.isStreamingComplete) return;
       this.clearMessages();
       this.isSingleTurn = !this.isSingleTurn;
-      this.$emit('update-action', this.conversationBasicInfo.title + (this.isSingleTurn ? '[单轮模式]' : '[多轮模式]'));
+      this.updateTitle();
     },
     // 触发文件上传
     triggerFileUpload() {
-      if (!this.isStreamingComplete) return;
       this.$refs.imageInput.click();
     },
     // 处理文件上传
@@ -304,7 +317,7 @@ export default {
       <div class="scrollable-content">
         <div v-for="(message, index) in messages" :key="index" >
           <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
-          <div :class="['message', message.senderType]" v-if="message.content.length !== 0">
+          <div :class="['message', message.senderType]" v-if="message.content.length !== 0 || isStreamingComplete">
             <article ref="messageContents" class="message-content markdown-body" v-html="message.content"></article>
           </div>
           <div :class="['message', message.senderType]" v-loading="true" v-else>
@@ -348,23 +361,25 @@ export default {
 
       <div class="field is-grouped is-grouped-centered">
 
-        <DropUpButton
-            iconClass="fa fa-edit fa-2x"
-            text="给机器人评分"
-            :handleClick="() => { isRateDialogVisible = true; }"
-        />
+        <el-tooltip content="给机器人评分" placement="top">
+          <el-button :disabled="!isStreamingComplete" text size="large" @click="isRateDialogVisible = true">
+            <el-icon :size="30"><Edit /></el-icon>
+          </el-button>
+        </el-tooltip>
 
-        <DropUpButton
-            iconClass="fa fa-trash-alt fa-2x"
-            text="清空聊天记录"
-            :handleClick="clearMessages"
-        />
 
-        <DropUpButton
-            iconClass="fa fa-sync-alt fa-2x"
-            text="切换模式"
-            :handleClick="toggleMode"
-        />
+        <el-tooltip content="清空对话" placement="top">
+          <el-button :disabled="!isStreamingComplete" text size="large" @click="clearMessages">
+            <el-icon :size="30"><Delete /></el-icon>
+          </el-button>
+        </el-tooltip>
+
+        <el-tooltip content="切换模式" placement="top">
+          <el-button :disabled="!isStreamingComplete" text size="large" @click="toggleMode">
+            <el-icon :size="30"><Switch/></el-icon>
+          </el-button>
+        </el-tooltip>
+
         <div class="field has-addons">
           <p class="control">
             <input
@@ -374,17 +389,18 @@ export default {
                 type="text"
                 placeholder="输入信息"
                 @keyup.enter="sendMessage"
+                :disabled="!isStreamingComplete"
             />
           </p>
           <div class="control">
-            <button class="button is-link is-light" @click="sendMessage">发送</button>
+            <button :disabled="!isStreamingComplete" class="button is-link is-light" @click="sendMessage">发送</button>
           </div>
         </div>
-        <DropUpButton
-            iconClass="fa fa-plus fa-2x"
-            text="文件上传"
-            :handleClick="triggerFileUpload"
-        />
+        <el-tooltip content="上传文件" placement="top">
+          <el-button :disabled="!isStreamingComplete" text icon="Upload" size="large" @click="triggerFileUpload">
+            <el-icon :size="30"><Upload /></el-icon>
+          </el-button>
+        </el-tooltip>
       </div>
       <!-- 将文件输入设置为隐藏 -->
       <input type="file" ref="imageInput" style="display: none;" @change="handleFileUpload"/>

@@ -2,9 +2,7 @@
 
   <div v-if="showSideBar" class="common-layout">
     <el-container direction="horizontal">
-
       <SideBar />
-
       <el-container direction="vertical">
         <el-header class="title is-4">{{action}}</el-header>
         <el-main>
@@ -73,6 +71,9 @@ export default {
   text-align: center;
   border-bottom: 1px solid var(--el-border-color);
   margin-bottom: 0;
+  white-space: nowrap; /* 防止文本换行 */
+  overflow: hidden; /* 隐藏溢出文本 */
+  text-overflow: ellipsis; /* 使用省略号表示溢出文本 */
 }
 .el-container {
   padding: 0;
