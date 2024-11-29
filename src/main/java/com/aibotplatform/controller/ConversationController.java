@@ -179,6 +179,7 @@ public class ConversationController {
         if (userQuestion == null || userQuestion.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Collections.singletonList("Invalid user_question input"));
         }
+        System.out.println(userQuestion);
         List<String> predictions = util.predictNextQuestions(userQuestion);
         return ResponseEntity.ok(predictions);
     }
@@ -189,6 +190,7 @@ public class ConversationController {
         if (userQuestion == null || userQuestion.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid user_question input");
         }
+        System.out.println(userQuestion);
         String title = util.predictTittle(userQuestion);
         return ResponseEntity.ok(title);
     }
@@ -208,7 +210,7 @@ public class ConversationController {
         return message;
     }
 
-private  ConversationDTO convertToDTO(Conversation conversation) {
+    private  ConversationDTO convertToDTO(Conversation conversation) {
         return new ConversationDTO(
                 conversation.getConversationId(),
                 conversation.getBot().getBotId(),
