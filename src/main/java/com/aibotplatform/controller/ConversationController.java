@@ -11,6 +11,7 @@ import com.aibotplatform.model.User;
 import com.aibotplatform.service.BotService;
 import com.aibotplatform.service.ConversationService;
 import com.aibotplatform.service.impl.UserServiceImpl;
+import com.aibotplatform.llm.Util;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -35,6 +38,7 @@ public class ConversationController {
     private final ConversationService conversationService;
     private final UserServiceImpl userService;
     private final BotService botService;
+    private final Util util = new Util();
 
     public ConversationController(ConversationService conversationService, UserServiceImpl userService, BotService botService) {
         this.conversationService = conversationService;
@@ -170,6 +174,25 @@ public class ConversationController {
         return ResponseEntity.ok(messageDTOs);
     }
 
+    @PostMapping("/predict-next")
+    public ResponseEntity<List<String>> predictNextQuestions(@RequestBody String userQuestion) {
+        if (userQuestion == null || userQuestion.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Collections.singletonList("Invalid user_question input"));
+        }
+        List<String> predictions = util.predictNextQuestions(userQuestion);
+        return ResponseEntity.ok(predictions);
+    }
+
+    // 预测标题的 API
+    @PostMapping("/predict-title")
+    public ResponseEntity<String> predictTitle(@RequestBody String userQuestion) {
+        if (userQuestion == null || userQuestion.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Invalid user_question input");
+        }
+        String title = util.predictTittle(userQuestion);
+        return ResponseEntity.ok(title);
+    }
+
     private MessageDTO convertToDTO(Message message) {
         return new MessageDTO(message.getMessageId(), message.getSenderType(), message.getBot() != null ? message.getBot().getBotId() : 0, message.getContent());
     }
@@ -199,7 +222,4 @@ private  ConversationDTO convertToDTO(Conversation conversation) {
         conversation.setTitle(conversationDTO.title());
         return conversation;
     }
-
-
-
 }

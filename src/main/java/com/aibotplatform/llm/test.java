@@ -22,28 +22,28 @@ public static void main(String[] args) {
 //    System.out.println(calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2"));
 
 
-    OpenAILLM openAIRagLLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"","src\\main\\resources\\出师表.docx");
+//    OpenAILLM openAIRagLLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"","D:\\Document\\project2_libtensor.pdf");
+//
+////    startTime = System.currentTimeMillis();
+//    openAIRagLLM.chat(" Basic Requirements占多少的分值")
+//            .subscribe(
+//                    System.out::print,
+//                    error -> System.err.println("Error: " + error),  // onError
+//                    () -> {
+//                        System.out.println("\nStream completed!");
+//                    }
+//            );
+//    OpenAILLM openAILLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"用中文回答用户的问题");
 
 //    startTime = System.currentTimeMillis();
-    openAIRagLLM.chat("翻译一下陟罚臧否，不宜异同")
-            .subscribe(
-                    System.out::print,
-                    error -> System.err.println("Error: " + error),  // onError
-                    () -> {
-                        System.out.println("\nStream completed!");
-                    }
-            );
-    OpenAILLM openAILLM = new OpenAILLM("GPT_4_O_MINI",0.8, null,"用中文回答用户的问题");
-
-//    startTime = System.currentTimeMillis();
-    openAILLM.chat("翻译一下陟罚臧否，不宜异同")
-            .subscribe(
-                    System.out::print,
-                    error -> System.err.println("Error: " + error),  // onError
-                    () -> {
-                        System.out.println("\nStream completed!");
-                    }
-            );
+//    openAILLM.chat("Basic Requirements占多少的分值")
+//            .subscribe(
+//                    System.out::print,
+//                    error -> System.err.println("Error: " + error),  // onError
+//                    () -> {
+//                        System.out.println("\nStream completed!");
+//                    }
+//            );
 
 //    QianFanLLM qianFanLLM = new QianFanLLM("ERNIE-Bot", null);
 //    qianFanLLM.chat("Hello")

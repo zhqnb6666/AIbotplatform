@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import static com.baidubce.qianfan.core.auth.Auth.TYPE_OAUTH;
 
-public class uitl {
+public class Util {
     private static final String ak = "uMF5PVIQDQYY58QZJ0J04XrF";
     private static final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
     private final Qianfan qianfan = new Qianfan(TYPE_OAUTH,ak, sk);
@@ -47,8 +47,7 @@ public class uitl {
                 .model("Yi-34B-Chat")
                 .addMessage("user",tittle_CoT + "user：'" + user_question + "'" + tittle_prompt)
                 .execute();
-        String ans = resp.getResult();
-        return ans;
+        return resp.getResult();
     }
 
 //调用示例
