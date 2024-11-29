@@ -5,8 +5,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/aibotplatform?currentSchema=public
-    username: postgres
-    password: 123456
+    username: zhq
+    password: abc@1234
   jpa:
     hibernate:
       ddl-auto: update
