@@ -43,6 +43,7 @@ export default {
       isStreamingComplete: true,
       isFeedbackDialogVisible: false,
       isRateDialogVisible: false,
+      loading: false,
       feedbackDialogInfo: {
         messageId: 0,
         content: '',
@@ -157,6 +158,7 @@ export default {
         return;
       }
       this.followUpSuggestions = [];
+      this.loading = true;
       this.isStreamingComplete = false;
       const messageUser = {
         senderType: 'USER',
@@ -170,6 +172,7 @@ export default {
         }).catch(err => {
           console.error(err);
           this.$message.error('获取标题失败');
+          this.loading = false;
           this.isStreamingComplete = true;
         })
       }
@@ -192,6 +195,7 @@ export default {
           this.$message.error('token余额不足');
         }
         this.$message.error('发送失败');
+        this.loading = false;
         this.isStreamingComplete = true;
       }
     },
@@ -203,6 +207,7 @@ export default {
         isThumbUp: false,
         isThumbDown: false
       });
+      this.loading = false;
       let streamContent = '';
       const eventSource = new EventSource(
           `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream`
@@ -316,14 +321,11 @@ export default {
   <el-container>
     <el-main>
     <!-- 聊天框内容 -->
-      <div class="scrollable-content">
+      <div class="scrollable-content" v-loading="loading">
         <div v-for="(message, index) in messages" :key="index" >
           <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
-          <div :class="['message', message.senderType]" v-if="message.content.length !== 0 || isStreamingComplete">
+          <div :class="['message', message.senderType]">
             <article ref="messageContents" class="message-content markdown-body" v-html="message.content"></article>
-          </div>
-          <div :class="['message', message.senderType]" v-loading="true" v-else>
-            <article class="message-content">加载中。。。</article>
           </div>
           <div class="field is-grouped" v-if="message.senderType==='BOT'">
             <DropDownButton
