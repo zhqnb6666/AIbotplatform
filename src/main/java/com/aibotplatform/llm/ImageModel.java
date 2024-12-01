@@ -15,7 +15,7 @@ import static com.baidubce.qianfan.core.auth.Auth.TYPE_OAUTH;
 public class ImageModel implements LLM{
     private static final String ak = "uMF5PVIQDQYY58QZJ0J04XrF";
     private static final String sk = "zzNMgEl8pDpDBEQLVpawuQLRzRnYkVh1";
-    private static final String imageFolder = "src/main/resources/static/BotImage";
+    private static final String imageFolder = "BotImage";
     private final Qianfan qianfan = new Qianfan(TYPE_OAUTH,ak, sk);
 
     /**
@@ -41,6 +41,6 @@ public class ImageModel implements LLM{
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return outputFile.getName();
+        return "![alt text](http://localhost:8080/" + outputFile.getName() + ")";
     }
 }
