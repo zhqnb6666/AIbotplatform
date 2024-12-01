@@ -25,10 +25,10 @@
       <div class="column is-one-third" >
         <div class="box" style="height: 100%">
           <p class="title is-5">平均评分</p>
-          <el-rate v-model="personalProfile.avgRating"
+          <el-rate v-model="rating"
                    show-score
                    text-color="#ff9900"
-                   :score-template="`${personalProfile.avgRating !== 0 ? '{value} 分' : '暂无评分'}`"
+                   :score-template="`${personalProfile.avgRating !== 0 ? `${personalProfile.avgRating} 分` : '暂无评分'}`"
                    disabled/>
         </div>
       </div>
@@ -50,7 +50,6 @@
             :show-review-button="false"
             :show-chat-button="true"
             :show-delete-button="false"
-            @delete="deleteRobot"
         />
       </div>
       <div class="message" v-else>
@@ -82,7 +81,7 @@
         <el-input type="textarea" :rows="6" v-model="feedbackForm.content" />
       </el-form-item>
       <el-form-item label="评分">
-        <el-rate v-model="feedbackForm.userId" show-score/>
+        <el-rate v-model="feedbackForm.rating" show-score/>
       </el-form-item>
     </el-form>
     <el-form-item>
@@ -101,6 +100,11 @@ import {Edit} from "@element-plus/icons-vue";
 export default {
   name: 'ProfilePage',
   components: {Edit, FeedbackDisplay, RobotDisplay},
+  computed: {
+    rating() {
+      return parseFloat((this.personalProfile.avgRating / 100.0).toFixed(2));
+    }
+  },
   data() {
     return {
       userId: this.$route.query.userId,
@@ -111,13 +115,13 @@ export default {
         username: 'username',
         email: 'hello@gmail',
         role: 'USER',
-        avatarUrl: 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
+        avatarUrl: 'https://picture-973460_960_720.png',
         bio: 'Hello, I am a new user',
         avgRating: 0,
       },
       dialogFormVisible: false,
       feedbackForm: {
-        "userId": this.userId,
+        "userId": this.$route.query.userId,
         "content": "",
         "rating": 0
       }
@@ -142,11 +146,11 @@ export default {
     onSubmit() {
       ProfileService.postFeedback(this.feedbackForm).then(() => {
         this.$message.success('评价成功');
-        this.dialogFormVisible = false;
       }).catch((error) => {
         this.$message.error('评价失败');
         console.error(error);
       });
+      this.dialogFormVisible = false;
     }
   }
 };

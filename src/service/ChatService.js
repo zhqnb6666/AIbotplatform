@@ -12,17 +12,17 @@ const ChatService = {
         return axiosInstance.get(`/conversations/${conversationId}/chatHistory`);
     },
     sendMessage(conversationId, content){
-        return axiosInstance.post(`/conversations/${conversationId}/messages`, {content});
+        return axiosInstance.post(`/conversations/${conversationId}/messages`, content);
     },
     getGreeting(botId){
         return axiosInstance.get(`/bots/${botId}/greeting`);
     },
     saveResponse(conversationId, messageId, botId, content){
         return axiosInstance.post(`/conversations/${conversationId}/saveResponse`, {
-            messageId,
+            messageId: messageId,
             senderType: 'BOT',
-            botId,
-            content
+            botId: botId,
+            content: content
         });
     },
     submitFeedback(feedbackDialogInfo){
@@ -32,10 +32,10 @@ const ChatService = {
         return axiosInstance.post(`/bots/ratings`, rateDialogInfo);
     },
     predictTitle(content) {
-        return axiosInstance.post(`/conversations/predict-title`, {content});
+        return axiosInstance.post(`/conversations/predict-title`, content);
     },
     predictNext(content) {
-        return axiosInstance.post(`/conversations/predict-next`, {content});
+        return axiosInstance.post(`/conversations/predict-next`, content);
     }
 }
 export default ChatService

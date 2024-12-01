@@ -10,14 +10,9 @@ export default {
       required: true
     }
   },
-  data() {
-    return {
-      userRating: this.user.avgRating
-    }
-  },
   methods: {
     viewProfile() {
-      this.$router.push(`/view-profile?userId=${this.user.id}`);
+      this.$router.push(`/view-profile?userId=${this.user.userId}`);
     }
   }
 }
@@ -27,16 +22,15 @@ export default {
   <div class="media">
     <figure class="media-left">
       <el-avatar
-          :size="128"
+          :size="100"
           :src="`http://localhost:8080/${user.avatarUrl}`"
           alt="Image"
       ></el-avatar>
     </figure>
     <div class="media-content">
-      <h6 class="title is-6">{{ user.username }}</h6>
-      <p>{{ user.bio.trim() === ''?'暂无评价':user.bio }}</p>
-      <br>
-      评分: <el-rate v-model="userRating" disabled></el-rate>
+      <h6 class="title is-5">{{ user.username }}</h6>
+      <p class="subtitle is-6">邮箱: {{ user.email }}</p>
+      <p>{{ user.bio.trim() === ''?'暂无内容':user.bio }}</p>
     </div>
     <div class="media-right">
       <el-dropdown>

@@ -40,10 +40,10 @@
       <div class="column">
         <div class="box">
           <p class="title is-5">他人对您的平均评分</p>
-          <el-rate v-model="personalProfile.avgRating"
+          <el-rate v-model="rating"
                    show-score
                    text-color="#ff9900"
-                   :score-template="`${personalProfile.avgRating !== 0 ? '{value} 分' : '暂无评分'}`"
+                   :score-template="`${personalProfile.avgRating !== 0 ? `${personalProfile.avgRating} 分` : '暂无评分'}`"
                    disabled/>
         </div>
       </div>
@@ -106,11 +106,10 @@
         您还没有机器人，快去创建一个吧！
       </div>
     </div>
-
-    <div v-if="tab_index === 2">
+    <div v-else>
       <div v-if="feedbackList.length !== 0">
         <FeedbackDisplay
-            v-for="feedback in personalProfile.feedbackList"
+            v-for="feedback in feedbackList"
             :key="feedback.name"
             :feedback="feedback"
         />
@@ -200,6 +199,9 @@ export default {
   components: {FeedbackDisplay, RobotDisplay, Coin },
   computed: {
     ...mapState(['personalProfile']),
+    rating() {
+      return parseFloat((this.personalProfile.avgRating / 100.0).toFixed(2));
+    }
   },
   data() {
     return {
@@ -227,6 +229,7 @@ export default {
     Promise.all([ProfileService.getProfile(), ProfileService.getUserStatistics()]).then((responses) => {
       this.robots = responses[0].data.userBotList;
       this.feedbackList = responses[0].data.userFeedbackList;
+      console.log(this.feedbackList);
       this.userStatistic = responses[1].data;
     }).catch((error) => {
       this.$message.error('获取个人资料失败');
