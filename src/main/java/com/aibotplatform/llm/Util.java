@@ -31,6 +31,12 @@ public class Util {
      */
     public List<String> predictNextQuestions(String user_question) {
         user_question = user_question.replaceAll("^\"|\"$", "");
+        if(user_question.startsWith("你好")&&user_question.length() <= 4) {
+            return List.of("你好呀","你是谁？","你会做什么？");
+        }
+        if(user_question.startsWith("再见")&&user_question.length() <= 4) {
+            return List.of("再见！","再见！","再见！");
+        }
         ChatResponse resp = qianfan.chatCompletion()
                 .model("Yi-34B-Chat")
                 .disableSearch(true)
@@ -48,6 +54,9 @@ public class Util {
 
     public String predictTittle(String user_question) {
         user_question = user_question.replaceAll("^\"|\"$", "");
+        if(user_question.startsWith("你好")&&user_question.length() <= 4) {
+            return "基本问候语的使用";
+        }
         ChatResponse resp = qianfan.chatCompletion()
                 .model("Yi-34B-Chat")
                 .disableSearch(true)

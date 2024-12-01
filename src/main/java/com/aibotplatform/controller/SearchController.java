@@ -3,6 +3,7 @@ import com.aibotplatform.dto.botDTO.BotResponse;
 import com.aibotplatform.dto.profileDTO.ChangeBioRequest;
 import com.aibotplatform.dto.profileDTO.ChangeUserNameRequest;
 import com.aibotplatform.dto.profileDTO.ProfileResponse;
+import com.aibotplatform.dto.profileDTO.SearchUserResponse;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.User;
@@ -55,17 +56,27 @@ public class SearchController {
 
     @GetMapping("/user/{keyword}")
     @Operation(summary = "Search for users", description = "Search for users by username")
-    public ResponseEntity<List<ProfileResponse>> searchUsers(@PathVariable String keyword) {
+    public ResponseEntity<List<SearchUserResponse>> searchUsers(@PathVariable String keyword) {
         List<User> users;
         if(keyword.equals("all")){
             users = userService.getAllUsers();
         }else{
             users = userService.search(keyword);
         }
-        List<ProfileResponse> profileResponses = users.stream()
-                .map(user -> profileService.getUserProfile(user.getUsername()))
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(profileResponses, HttpStatus.OK);
+        List<SearchUserResponse> resp = users.stream().map(this::convertToUserDTO).collect(Collectors.toList());
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
+    private SearchUserResponse convertToUserDTO(User user) {
+        return new SearchUserResponse(
+                user.getUserId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRole().toString(),
+                user.getCredits(),
+                user.getToken(),
+                user.getAvatarUrl(),
+                user.getBio()
+        );
     }
 
     private BotResponse convertToBotDTO(Bot bot) {
