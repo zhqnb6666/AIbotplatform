@@ -29,5 +29,5 @@ public interface ConversationService {
 
     Long saveMessage(Long conversationId, Message message);
 
-    Flux<String> getMessageStream(Long botId, Long messageId);
+    Flux<String> getMessageStream(Long botId, Long messageId, Boolean isSingleTurn);
 }

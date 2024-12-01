@@ -65,11 +65,11 @@ public class ConversationServiceImpl implements ConversationService {
 
     @Transactional
     @Override
-    public Flux<String> getMessageStream(Long botId, Long messageId) {
+    public Flux<String> getMessageStream(Long botId, Long messageId, Boolean isSingleTurn) {
         Message message = getMessageById(messageId);
         Conversation conversation = message.getConversation();
         Bot bot = botService.getBotById(botId);
-        return llmSessionManager.chat(bot, message.getContent(), getChatHistory(conversation.getConversationId()));
+        return llmSessionManager.chat(bot, message.getContent(), isSingleTurn ? null : getChatHistory(conversation.getConversationId()));
     }
 
 //    @Transactional

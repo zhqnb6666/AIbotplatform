@@ -16,6 +16,7 @@ public record BotResponse(
         String promptTemplate,
         String greetingMessage,
         Double temperature,
+        String ragDocUrl,
         Bot.BotAccessibility accessibility
 ) {
 }

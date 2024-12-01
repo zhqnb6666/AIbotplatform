@@ -123,6 +123,7 @@ public class AdminController {
                 bot.getPromptTemplate(),
                 bot.getGreetingMessage(),
                 bot.getTemperature(),
+                bot.getRagDocUrl(),
                 bot.getAccessibility()
         );
     }

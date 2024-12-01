@@ -128,9 +128,10 @@ public class ConversationController {
     @Operation(summary = "Stream bot responses", description = "Stream real-time responses from the bot in a conversation")
     public Flux<ServerSentEvent<Object>> streamResponse(
             @PathVariable Long botId,
-            @PathVariable Long messageId) {
+            @PathVariable Long messageId,
+            @RequestParam Boolean isSingleTurn) {
 
-        return conversationService.getMessageStream(botId, messageId)
+        return conversationService.getMessageStream(botId, messageId, isSingleTurn)
                 .map(content -> ServerSentEvent.builder()
                         .event("message")
                         .data(Base64.getEncoder().encodeToString(content.getBytes()))
@@ -146,6 +147,8 @@ public class ConversationController {
                                 .data("Message completed")
                                 .build()));
     }
+
+
 
     @PostMapping("/{conversation_id}/saveResponse")
     @Operation(summary = "Save response", description = "message_id和sendType为非必填项")

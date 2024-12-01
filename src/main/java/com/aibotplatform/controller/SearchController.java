@@ -92,6 +92,7 @@ public class SearchController {
                 bot.getPromptTemplate(),
                 bot.getGreetingMessage(),
                 bot.getTemperature(),
+                bot.getRagDocUrl(),
                 bot.getAccessibility()
         );
     }
