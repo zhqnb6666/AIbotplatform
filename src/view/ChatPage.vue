@@ -177,7 +177,7 @@ export default {
         })
       }
       if(this.isSingleTurn){
-        this.clearMessages();
+        this.messages = [messageUser];
       }
       try {
         //先发送消息
@@ -210,7 +210,7 @@ export default {
       this.loading = false;
       let streamContent = '';
       const eventSource = new EventSource(
-          `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream`
+          `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream?isSingleTurn=${this.isSingleTurn}`
       );
       // 服务器端推送消息
       eventSource.addEventListener('message', (event) => {

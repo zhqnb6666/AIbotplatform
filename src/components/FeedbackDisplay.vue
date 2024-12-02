@@ -27,7 +27,7 @@ export default {
     </figure>
     <div class="media-content">
       <h6 class="title is-6">{{ feedback.commenter }}</h6>
-      <p>{{ feedback.content }}</p>
+      <p>评价：{{ feedback.content }}</p>
       <br>
       评分: <el-rate v-model="rating" disabled></el-rate>
     </div>
