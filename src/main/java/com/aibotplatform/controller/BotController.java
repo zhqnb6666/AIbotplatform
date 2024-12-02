@@ -87,7 +87,7 @@ public class BotController {
     @PostMapping("/rag")
     @Operation(summary = "Create a new custom bot with RAG", description = "Create a new custom bot with RAG document")
     public ResponseEntity<?> createBotWithRag(@AuthenticationPrincipal UserDetails userDetails,
-                                              @RequestBody @Valid CreateRagBotRequest createBotRequest) {
+                                              @ModelAttribute @Valid CreateRagBotRequest createBotRequest) {
         User user = userService.getUserByName(userDetails.getUsername());
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
