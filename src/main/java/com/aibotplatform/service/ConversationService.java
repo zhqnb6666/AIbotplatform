@@ -17,6 +17,7 @@ public interface ConversationService {
 //    Flux<String> addMessageToConversation(Long conversationId, Message message);
 
 //    Flux<String> chatWithOtherBot(Long conversationId, Message message, Bot bot);
+    void changeConversationTitle(Long conversationId, String title);
 
     List<AbstractMap.SimpleEntry<String, String>> getChatHistory(Long conversationId);
 

@@ -189,12 +189,13 @@ public class ConversationController {
 
     // 预测标题的 API
     @PostMapping("/predict-title")
-    public ResponseEntity<String> predictTitle(@RequestBody String userQuestion) {
+    public ResponseEntity<String> predictTitle(@RequestBody String userQuestion, @RequestParam Long conversationId) {
         if (userQuestion == null || userQuestion.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Invalid user_question input");
         }
         System.out.println(userQuestion);
-        String title = util.predictTittle(userQuestion);
+        String title = util.predictTitle(userQuestion);
+        conversationService.changeConversationTitle(conversationId, title);
         return ResponseEntity.ok(title);
     }
 

@@ -112,6 +112,13 @@ public class ConversationServiceImpl implements ConversationService {
         return conversationRepository.findByUser_UserIdAndActiveTrue(userId);
     }
 
+    @Override
+    public void changeConversationTitle(Long conversationId, String title) {
+        Conversation conversation = getConversationById(conversationId);
+        conversation.setTitle(title);
+        conversationRepository.save(conversation);
+    }
+
     public Message getMessageById(Long messageId) {
         return messageRepository.findByMessageId(messageId)
                 .orElseThrow(() -> new ApiException("Message Not Found", HttpStatus.NOT_FOUND));
