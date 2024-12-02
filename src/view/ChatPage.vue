@@ -163,7 +163,7 @@ export default {
       };
       this.messages.push(messageUser);
       if(this.messages.length === 3){
-        await ChatService.predictTitle(this.newMessage).then(res => {
+        await ChatService.predictTitle(this.newMessage, this.conversationBasicInfo.conversationId).then(res => {
           this.conversationBasicInfo.title = res.data;
           this.updateTitle();
         }).catch(err => {
@@ -204,11 +204,11 @@ export default {
         isThumbUp: false,
         isThumbDown: false
       });
-      this.loading = false;
       let streamContent = '';
       const eventSource = new EventSource(
           `http://localhost:8080/api/conversations/${botId}/messages/${messageId}/stream?isSingleTurn=${this.isSingleTurn}`
       );
+      this.loading = false;
       // 服务器端推送消息
       eventSource.addEventListener('message', (event) => {
         const decodedData = atob(event.data); // Base64 decode

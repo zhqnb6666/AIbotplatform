@@ -31,8 +31,8 @@ const ChatService = {
     submitRating(rateDialogInfo){
         return axiosInstance.post(`/bots/ratings`, rateDialogInfo);
     },
-    predictTitle(content) {
-        return axiosInstance.post(`/conversations/predict-title`, content);
+    predictTitle(content, conversationId) {
+        return axiosInstance.post(`/conversations/predict-title?conversationId=${conversationId}`, content);
     },
     predictNext(content) {
         return axiosInstance.post(`/conversations/predict-next`, content);
