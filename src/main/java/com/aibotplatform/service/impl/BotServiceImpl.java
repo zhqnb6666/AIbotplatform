@@ -100,7 +100,7 @@ public class BotServiceImpl implements BotService {
     public Bot createBotWithRag(CreateRagBotRequest createRagBotRequest, User creator, Bot.BotType type, String ragDocUrl) {
         Bot bot = getBot(createRagBotRequest, creator, type);
         bot.setRagDocUrl(ragDocUrl);
-        return null;
+        return bot;
     }
 
     @Override
