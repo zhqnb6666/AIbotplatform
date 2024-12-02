@@ -47,6 +47,7 @@ public class CalculatorBot implements LLM {
 interface CalculatorAI {
     @SystemMessage("你是一个专业的计算器，可以处理各种数学计算。" +
             "请根据用户输入选择合适的计算工具来执行计算。" +
+            "输出内容只需包含计算结果。" +
             "对于无效输入，请给出友好的提示。")
     Flux<String> calculate(String expression);
 }

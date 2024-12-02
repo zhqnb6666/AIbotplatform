@@ -60,9 +60,6 @@ public class ConversationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(convertToDTO(startedConversation));
     }
 
-
-
-
     @GetMapping()
     @Operation(summary = "Get conversations of user",description = "Retrieve all active conversation created by user")
     public ResponseEntity<List<ConversationDTO>> getConversations(@AuthenticationPrincipal UserDetails userDetails){

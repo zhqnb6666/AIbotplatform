@@ -1,9 +1,13 @@
 package com.aibotplatform.llm;
 
+import com.aibotplatform.model.Conversation;
+import com.aibotplatform.service.ConversationService;
+import com.aibotplatform.service.impl.ConversationServiceImpl;
 import org.aspectj.apache.bcel.classfile.Module;
 import reactor.core.publisher.SignalType;
 
 public class test {
+
 public static void main(String[] args) {
 //    LLMSessionManager llmSessionManager = new LLMSessionManager();
 //
@@ -19,6 +23,15 @@ public static void main(String[] args) {
 //    System.out.println("Response time: " + (endTime - startTime) + " ms");
 //
 //    CalculatorBot calculatorBot = new CalculatorBot();
+//    calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2")
+//            .subscribe(
+//                    System.out::print,
+//                    error -> System.err.println("Error: " + error),  // onError
+//                    () -> {
+//                        System.out.println("\nStream completed!");
+//                    }
+//            );
+
 //    System.out.println(calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2"));
 
 
@@ -61,5 +74,8 @@ public static void main(String[] args) {
 //    System.out.println(openAILLM.chat("Say my name"));
 //    endTime = System.currentTimeMillis();
 //    System.out.println("Response time: " + (endTime - startTime) + " ms");
+
+
+
 }
 }
