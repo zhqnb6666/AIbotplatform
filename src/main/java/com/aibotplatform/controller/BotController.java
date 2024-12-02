@@ -2,6 +2,7 @@ package com.aibotplatform.controller;
 
 import com.aibotplatform.dto.botDTO.BotResponse;
 import com.aibotplatform.dto.botDTO.CreateBotRequest;
+import com.aibotplatform.dto.botDTO.CreateRagBotRequest;
 import com.aibotplatform.dto.botDTO.UpdateBotRequest;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Bot;
@@ -86,13 +87,12 @@ public class BotController {
     @PostMapping("/rag")
     @Operation(summary = "Create a new custom bot with RAG", description = "Create a new custom bot with RAG document")
     public ResponseEntity<?> createBotWithRag(@AuthenticationPrincipal UserDetails userDetails,
-                                                 @RequestBody @Valid CreateBotRequest createBotRequest,
-                                                 @RequestParam("file") MultipartFile docFile) {
+                                              @RequestBody @Valid CreateRagBotRequest createBotRequest) {
         User user = userService.getUserByName(userDetails.getUsername());
         if (user == null) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
+        MultipartFile docFile = createBotRequest.docFile();
         if (!Objects.requireNonNull(docFile.getOriginalFilename()).substring(docFile.getOriginalFilename().lastIndexOf(".")).equals(".pdf")) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

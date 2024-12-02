@@ -1,6 +1,7 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.dto.botDTO.CreateBotRequest;
+import com.aibotplatform.dto.botDTO.CreateRagBotRequest;
 import com.aibotplatform.dto.botDTO.UpdateBotRequest;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.Bot;
@@ -76,9 +77,28 @@ public class BotServiceImpl implements BotService {
         return bot;
     }
 
+    @NotNull
+    private static Bot getBot(CreateRagBotRequest createBotRequest, User creator, Bot.BotType type) {
+        Bot bot = new Bot();
+        bot.setName(createBotRequest.name());
+        bot.setCreator(creator);
+        bot.setDescription(createBotRequest.description());
+        bot.setModel(createBotRequest.model());
+        bot.setTokenCost(createBotRequest.tokenCost());
+        bot.setIsActive(true);
+        bot.setCreatedAt(Timestamp.from(java.time.Instant.now()));
+        bot.setUpdatedAt(Timestamp.from(java.time.Instant.now()));
+        bot.setType(type);
+        bot.setPromptTemplate(createBotRequest.promptTemplate());
+        bot.setGreetingMessage(createBotRequest.greetingMessage());
+        bot.setTemperature(createBotRequest.temperature());
+        bot.setAccessibility(createBotRequest.accessibility());
+        return bot;
+    }
+
     @Override
-    public Bot createBotWithRag(CreateBotRequest createBotRequest, User creator, Bot.BotType type, String ragDocUrl) {
-        Bot bot = getBot(createBotRequest, creator, type);
+    public Bot createBotWithRag(CreateRagBotRequest createRagBotRequest, User creator, Bot.BotType type, String ragDocUrl) {
+        Bot bot = getBot(createRagBotRequest, creator, type);
         bot.setRagDocUrl(ragDocUrl);
         return null;
     }
