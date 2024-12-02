@@ -100,7 +100,11 @@ public class BotServiceImpl implements BotService {
     public Bot createBotWithRag(CreateRagBotRequest createRagBotRequest, User creator, Bot.BotType type, String ragDocUrl) {
         Bot bot = getBot(createRagBotRequest, creator, type);
         bot.setRagDocUrl(ragDocUrl);
-        return bot;
+        try {
+            return botRepository.save(bot);
+        } catch (Exception e) {
+            throw new RuntimeException("Error creating bot: " + e.getMessage());
+        }
     }
 
     @Override
