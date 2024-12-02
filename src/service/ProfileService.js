@@ -22,7 +22,7 @@ const ProfileService = {
     changeBio(newBio) {
         return axiosInstance.put('/profile/change-bio', { newBio }, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json; charset=utf-8'
             }
         });
     },
@@ -32,7 +32,7 @@ const ProfileService = {
     postFeedback(feedbackForm) {
         return axiosInstance.post('/users/feedback', feedbackForm, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json; charset=utf-8'
             }
         });
     }

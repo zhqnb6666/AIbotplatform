@@ -36,7 +36,6 @@ export default {
         tokenCost: 0
       },
       messages: [],
-      files: [],
       newMessage: '',
       suggestionButtonWidth: '100px',
       isSingleTurn: false,
@@ -141,8 +140,6 @@ export default {
         this.messages.forEach((message) => {
           if (message.senderType === 'BOT') {
             message.content = md.render(message.content);
-          } else {
-            message.content = JSON.parse(message.content).content;
           }
         });
         this.highlightCode();
@@ -302,16 +299,31 @@ export default {
     triggerFileUpload() {
       this.$refs.imageInput.click();
     },
-    // 处理文件上传
-    handleFileUpload(event) {
-      if (!this.isStreamingComplete) return;
+    async handleFileUpload(event) {
       const file = event.target.files[0];
-      if (file) {
-        // Handle the uploaded image file
-        this.files.push(file);
-        console.log('Image uploaded:', file);
+      if (file && file.type === 'application/pdf') {
+        const fileSizeMB = file.size / (1024 * 1024);
+        if (fileSizeMB > 0 && fileSizeMB <= 10) {
+          try {
+            const formData = new FormData();
+            formData.append('file', file);
+            const response = await ChatService.uploadFile(formData, this.conversationBasicInfo.botId);
+            if (response.status === 200) {
+              this.$message.success('文件上传成功');
+            } else {
+              this.$message.error('文件上传失败');
+            }
+          } catch (err) {
+            console.error('File upload error:', err);
+            this.$message.error('文件上传失败');
+          }
+        } else {
+          this.$message.error('文件大小应在0到10MB之间');
+        }
+      } else {
+        this.$message.error('请上传PDF文件');
       }
-    },
+    }
   }
 };
 

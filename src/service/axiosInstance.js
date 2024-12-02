@@ -7,7 +7,7 @@ const axiosInstance = axios.create({
     withCredentials: true, // 发送跨域请求时携带 cookie
 
     headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
     }
 
 });

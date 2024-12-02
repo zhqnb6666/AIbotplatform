@@ -69,6 +69,26 @@
           </label>
         </div>
       </div>
+      <div class="field" style="margin-bottom: 20px">
+        <label class="label">RAG</label>
+        <div class="file has-name" style="margin-bottom: 5px;">
+          <label class="file-label">
+            <input class="file-input" type="file" name="resume" @change="handleImageUpload"/>
+            <span class="file-cta">
+              <span class="file-icon">
+                <i class="fas fa-upload"></i>
+              </span>
+              <span class="file-label"> 上传RAG所需文件 </span>
+            </span>
+            <span class="file-name">
+              {{filename}}
+            </span>
+          </label>
+        </div>
+        <label class="subtitle is-6">
+          请上传小于10MB的PDF文件
+        </label>
+      </div>
 
       <div class="field is-grouped" style="margin-bottom: 10px">
         <div class="control">
@@ -86,6 +106,7 @@
 import axiosInstance from "@/service/axiosInstance";
 import {BASIC_ROBOTS} from "@/util/constants";
 import {mapState} from "vuex";
+
 export default {
   data() {
     return {
@@ -97,9 +118,10 @@ export default {
         greetingMessage: '',
         tokenCost: 0,
         temperature: 0,
-        accessibility: "PUBLIC"
+        accessibility: "PUBLIC",
       },
-
+      file: null,
+      filename: '未选择文件'
     }
   },
   computed: {
@@ -124,7 +146,19 @@ export default {
       }
       this.formInfo.description = this.formInfo.description || '暂无描述。。。';
       try {
-        const response = await axiosInstance.post('/bots', this.formInfo);
+        let response = null;
+        if (!this.file) {
+          response = await axiosInstance.post('/bots', this.formInfo);
+        } else {
+          const formData = new FormData();
+          formData.append('createBotRequest', JSON.stringify(this.formInfo));
+          formData.append('file', this.file);
+          response = await axiosInstance.post('/bots/rag', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        }
         if(response.status === 201) {
           this.$message.success('创建成功');
         } else {
@@ -137,6 +171,27 @@ export default {
         this.$message.error('创建失败');
         console.error('Create bot error:', error);
       }
+    },
+    handleImageUpload(event) {
+      const file = event.target.files[0];
+      if (!this.beforeUpload(file)) {
+        return;
+      }
+      this.file = file;
+      this.filename = file.name;
+    },
+    beforeUpload(file) {
+      const isPDF = file.type === 'application/pdf';
+      const isLt10M = file.size <= 10 * 1024 * 1024;
+      if (!isPDF) {
+        this.$message.error('只能上传PDF文件');
+        return false;
+      }
+      if (!isLt10M) {
+        this.$message.error('文件大小不能超过10MB');
+        return false;
+      }
+      return true;
     },
     cancel() {
       this.$router.push('/');

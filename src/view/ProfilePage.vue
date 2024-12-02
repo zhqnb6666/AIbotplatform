@@ -142,7 +142,8 @@
           </span>
           <span class="file-label"> 上传图片 </span>
         </span>
-        <span class="file-name"> {{this.selectedFileName[0]}}
+        <span class="file-name">
+          {{this.selectedFileName[0]}}
         </span>
       </label>
     </div>

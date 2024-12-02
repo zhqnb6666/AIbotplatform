@@ -36,6 +36,13 @@ const ChatService = {
     },
     predictNext(content) {
         return axiosInstance.post(`/conversations/predict-next`, content);
-    }
+    },
+    uploadFile(formData, botId) {
+        return axiosInstance.post(`/bots/${botId}/rag`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+    },
 }
 export default ChatService
