@@ -24,11 +24,11 @@ export default {
       products: [
         { credits: 6, bonusCredits: 0, price: 6 },
         { credits: 30, bonusCredits: 3, price: 30 },
-        { credits: 90, bonusCredits: 8, price: 98 },
-        { credits: 120, bonusCredits: 12, price: 128 },
-        { credits: 200, bonusCredits: 28, price: 198 },
-        { credits: 350, bonusCredits: 98, price: 328 },
-        { credits: 700, bonusCredits: 200, price: 648 }
+        { credits: 90, bonusCredits: 12, price: 90 },
+        { credits: 120, bonusCredits: 20, price: 120 },
+        { credits: 200, bonusCredits: 50, price: 200 },
+        { credits: 350, bonusCredits: 150, price: 350 },
+        { credits: 700, bonusCredits: 350, price: 700 }
       ],
       dialogVisible: false,
       selectedProduct: null,
