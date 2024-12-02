@@ -151,8 +151,11 @@ export default {
           response = await axiosInstance.post('/bots', this.formInfo);
         } else {
           const formData = new FormData();
-          formData.append('createBotRequest', JSON.stringify(this.formInfo));
-          formData.append('file', this.file);
+          for (const key in this.formInfo) {
+            formData.append(key, this.formInfo[key]);
+          }
+          formData.append('docFile', this.file);
+          console.log(this.file);
           response = await axiosInstance.post('/bots/rag', formData, {
             headers: {
               'Content-Type': 'multipart/form-data'
