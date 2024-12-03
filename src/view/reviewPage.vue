@@ -141,16 +141,16 @@ export default {
           rating: this.form.rating
         });
         //更新评分
-        this.robotInfo.avgRating = ((this.robotInfo.avgRating * this.robotInfo.reviewCount + this.form.rating) /
-            (this.robotInfo.reviewCount + 1)).toFixed(2);
+        this.robotInfo.avgRating = Number(((this.robotInfo.avgRating * this.robotInfo.reviewCount + this.form.rating) /
+            (this.robotInfo.reviewCount + 1)).toFixed(2));
         //更新评价数
         this.robotInfo.reviewCount += 1;
         //更新评分百分比
         const totalRatings = this.robotInfo.reviewCount;
         const percentages = ['fiveStarPercent', 'fourStarPercent', 'threeStarPercent', 'twoStarPercent', 'oneStarPercent'];
         for (let i = 0; i < 5; i++) {
-          this.robotInfo[percentages[i]] = ((this.robotInfo[percentages[i]] * (totalRatings - 1) +
-              (this.form.rating === 5 - i ? 100 : 0)) / totalRatings).toFixed(2);
+          this.robotInfo[percentages[i]] = Number(((this.robotInfo[percentages[i]] * (totalRatings - 1) +
+              (this.form.rating === 5 - i ? 100 : 0)) / totalRatings).toFixed(2));
         }
         this.$message.success('评价成功');
       })

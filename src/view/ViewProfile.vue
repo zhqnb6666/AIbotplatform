@@ -157,7 +157,7 @@ export default {
         this.feedbackList.forEach((feedback) => {
           sum += feedback.rating;
         });
-        this.viewedProfile.avgRating = (sum / this.feedbackList.length).toFixed(2);
+        this.viewedProfile.avgRating = Number((sum / this.feedbackList.length).toFixed(2));
       }).catch((error) => {
         this.$message.error('评价失败');
         console.error(error);
