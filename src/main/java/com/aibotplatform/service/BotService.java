@@ -1,6 +1,7 @@
 package com.aibotplatform.service;
 
 import com.aibotplatform.dto.botDTO.CreateBotRequest;
+import com.aibotplatform.dto.botDTO.CreateRagBotRequest;
 import com.aibotplatform.dto.botDTO.UpdateBotRequest;
 import com.aibotplatform.model.Bot;
 import com.aibotplatform.model.User;
@@ -14,7 +15,7 @@ public interface BotService {
     Bot getBotById(Long botId);
     Optional<Bot> getBotByName(String name);
     Bot createBot(CreateBotRequest createBotRequest, User creator, Bot.BotType type);
-    Bot createBotWithRag(CreateBotRequest createBotRequest, User creator, Bot.BotType type, String ragDocUrl);
+    Bot createBotWithRag(CreateRagBotRequest createRagBotRequest, User creator, Bot.BotType type, String ragDocUrl);
     Bot updateBot(UpdateBotRequest updateBotRequest, User updateUser);
     void deleteBot(Long botId, User deleteUser);
     List<Bot> getUserCustomBots(Long userId);
