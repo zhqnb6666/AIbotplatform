@@ -1,9 +1,6 @@
 package com.aibotplatform.service.impl;
 
-import com.aibotplatform.dto.feedbackDTO.BotRatingRequest;
-import com.aibotplatform.dto.feedbackDTO.BotRatingResponse;
-import com.aibotplatform.dto.feedbackDTO.MessageFeedbackRequest;
-import com.aibotplatform.dto.feedbackDTO.UserFeedbackRequest;
+import com.aibotplatform.dto.feedbackDTO.*;
 import com.aibotplatform.exception.ApiException;
 import com.aibotplatform.model.*;
 import com.aibotplatform.repository.BotRatingRepository;
@@ -114,6 +111,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         if (botRatings.isEmpty()) {
             return new BotRatingResponse(
                     botId,
+                    0L,
                     0.0,
                     0.0,
                     0.0,
@@ -139,6 +137,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         return new BotRatingResponse(
                 botId,
+                (long) totalRatings,
                 averageRating,
                 oneStarPercentage,
                 twoStarPercentage,
@@ -148,4 +147,18 @@ public class FeedbackServiceImpl implements FeedbackService {
         );
     }
 
+    @Override
+    public List<BotRatingDetailResponse> getBotRatingDetails(Long botId) {
+        List<BotRating> botRatings = botRatingRepository.getBotRatingsByBot_BotId(botId);
+        if (botRatings.isEmpty()) {
+            return List.of();
+        }
+        return botRatings.stream()
+                .map(botRating -> new BotRatingDetailResponse(
+                        botRating.getUser().getUsername(),
+                        botRating.getUser().getAvatarUrl(),
+                        botRating.getRating()
+                ))
+                .collect(Collectors.toList());
+    }
 }
