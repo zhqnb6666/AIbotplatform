@@ -88,7 +88,6 @@ export default {
         verificationCode: '',
         password: '',
         confirmPassword: '',
-        personalProfile: ''
       },
       userInfoCheck: {
         email: false,

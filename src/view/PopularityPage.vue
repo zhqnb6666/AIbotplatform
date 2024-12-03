@@ -1,11 +1,15 @@
 <script>
 import PopularityService from "@/service/PopularityService";
 import RobotDisplay from "@/components/RobotDisplay.vue";
+import {mapState} from "vuex";
 export default {
   name: "PopularityPage",
   components: {RobotDisplay},
   created() {
     this.getPopularity();
+  },
+  computed: {
+    ...mapState(['personalProfile'])
   },
   data() {
     return {
@@ -78,8 +82,11 @@ export default {
   </div>
   <RobotDisplay v-for="(robot, index) in robots" :key="robot.id"
                 :robot="robot"
-                :show-right-button="false"
+                :show-right-button="true"
                 :index="index + 1"
+                :show-reward-button="this.personalProfile.role === 'ADMIN'"
+                :show-index="true"
+
   />
 </template>
 

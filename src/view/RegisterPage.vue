@@ -105,7 +105,6 @@ export default {
         verificationCode: '',
         password: '',
         confirmPassword: '',
-        personalProfile: ''
       },
       userInfoCheck: {
         username: false,

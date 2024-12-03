@@ -25,7 +25,7 @@
       <div class="column is-one-third" >
         <div class="box" style="height: 100%">
           <p class="title is-5">平均评分</p>
-          <el-rate v-model="rating"
+          <el-rate v-model="personalProfile.avgRating"
                    show-score
                    text-color="#ff9900"
                    :score-template="`${personalProfile.avgRating !== 0 ? `${personalProfile.avgRating} 分` : '暂无评分'}`"
@@ -60,7 +60,7 @@
     <div v-if="tab_index === 2">
       <div v-if="feedbackList.length !== 0">
         <FeedbackDisplay
-            v-for="feedback in personalProfile.feedbackList"
+            v-for="feedback in feedbackList"
             :key="feedback.name"
             :feedback="feedback"
         />
@@ -100,11 +100,6 @@ import {Edit} from "@element-plus/icons-vue";
 export default {
   name: 'ProfilePage',
   components: {Edit, FeedbackDisplay, RobotDisplay},
-  computed: {
-    rating() {
-      return parseFloat((this.personalProfile.avgRating / 100.0).toFixed(2));
-    }
-  },
   data() {
     return {
       userId: this.$route.query.userId,
@@ -146,6 +141,7 @@ export default {
     onSubmit() {
       ProfileService.postFeedback(this.feedbackForm).then(() => {
         this.$message.success('评价成功');
+        this.feedbackList.push(this.feedbackForm);
       }).catch((error) => {
         this.$message.error('评价失败');
         console.error(error);

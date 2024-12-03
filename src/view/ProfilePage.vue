@@ -40,7 +40,7 @@
       <div class="column">
         <div class="box">
           <p class="title is-5">他人对您的平均评分</p>
-          <el-rate v-model="rating"
+          <el-rate v-model="personalProfile.avgRating"
                    show-score
                    text-color="#ff9900"
                    :score-template="`${personalProfile.avgRating !== 0 ? `${personalProfile.avgRating} 分` : '暂无评分'}`"
@@ -200,9 +200,6 @@ export default {
   components: {FeedbackDisplay, RobotDisplay, Coin },
   computed: {
     ...mapState(['personalProfile']),
-    rating() {
-      return parseFloat((this.personalProfile.avgRating / 100.0).toFixed(2));
-    }
   },
   data() {
     return {
@@ -228,9 +225,12 @@ export default {
   },
   created() {
     Promise.all([ProfileService.getProfile(), ProfileService.getUserStatistics()]).then((responses) => {
+      let { username, email, role, credits, avatarUrl, bio, avgRating, token} = responses[0].data;
+      avatarUrl = `http://localhost:8080/${avatarUrl}`;
+      this.localProfile = { username, email, role, credits, avatarUrl, bio, avgRating, token};
+      this.updatePersonalProfile(this.localProfile);
       this.robots = responses[0].data.userBotList;
       this.feedbackList = responses[0].data.userFeedbackList;
-      console.log(this.feedbackList);
       this.userStatistic = responses[1].data;
     }).catch((error) => {
       this.$message.error('获取个人资料失败');
@@ -286,7 +286,7 @@ export default {
         return;
       }
       this.$message.success('修改成功');
-      await this.updatePersonalProfile(this.localProfile);
+      this.updatePersonalProfile(this.localProfile);
       this.isEditingProfile = false;
     },
     cancel() {
