@@ -71,7 +71,7 @@ public class ProfileServiceImpl implements ProfileService {
             avgRating = avgRating / 10 + (avgRating % 10 >= 5 ? 1 : 0);
             BigDecimal avgRatingDecimal = new BigDecimal(avgRating);
             BigDecimal divisor = new BigDecimal(100);
-            profileResponse.setAvgRating(avgRatingDecimal.divide(divisor, RoundingMode.HALF_UP));
+            profileResponse.setAvgRating(avgRatingDecimal.divide(divisor, 2, RoundingMode.HALF_UP));
         }
 
         List<UserFeedbackResponse> userFeedbackResponses = new ArrayList<>();
