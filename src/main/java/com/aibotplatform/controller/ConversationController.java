@@ -120,7 +120,7 @@ public class ConversationController {
         // 3. 保存消息，返回消息ID
         Message message = new Message(conversation,null, Message.SenderType.USER, content);
         Long savedMessageId= conversationService.saveMessage(conversationId, message);
-        return ResponseEntity.ok(new ConversationResponse(bot.getBotId(),savedMessageId));
+        return ResponseEntity.ok(new ConversationResponse(bot.getBotId(), savedMessageId));
     }
 
     @GetMapping(value = "/{botId}/messages/{messageId}/stream",
