@@ -124,17 +124,17 @@ public class FeedbackServiceImpl implements FeedbackService {
         Map<Integer, Long> ratingCounts = botRatings.stream()
                 .collect(Collectors.groupingBy(BotRating::getRating, Collectors.counting()));
 
-        double oneStarPercentage = (double) ratingCounts.getOrDefault(1, 0L) / totalRatings;
-        double twoStarPercentage = (double) ratingCounts.getOrDefault(2, 0L) / totalRatings;
-        double threeStarPercentage = (double) ratingCounts.getOrDefault(3, 0L) / totalRatings;
-        double fourStarPercentage = (double) ratingCounts.getOrDefault(4, 0L) / totalRatings;
-        double fiveStarPercentage = (double) ratingCounts.getOrDefault(5, 0L) / totalRatings;
+        double oneStarPercentage = ratingCounts.getOrDefault(1, 0L) * 100.0 / totalRatings;
+        double twoStarPercentage = ratingCounts.getOrDefault(2, 0L) * 100.0/ totalRatings;
+        double threeStarPercentage = ratingCounts.getOrDefault(3, 0L) * 100.0/ totalRatings;
+        double fourStarPercentage = ratingCounts.getOrDefault(4, 0L) * 100.0 / totalRatings;
+        double fiveStarPercentage = ratingCounts.getOrDefault(5, 0L) * 100.0/ totalRatings;
 
         double averageRating = botRatings.stream()
                 .mapToInt(BotRating::getRating)
                 .average()
                 .orElse(0.0);
-
+        averageRating = Double.parseDouble(String.format("%.2f", averageRating));
         return new BotRatingResponse(
                 botId,
                 (long) totalRatings,
