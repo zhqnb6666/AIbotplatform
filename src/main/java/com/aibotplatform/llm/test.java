@@ -22,15 +22,15 @@ public static void main(String[] args) {
 //    endTime = System.currentTimeMillis();
 //    System.out.println("Response time: " + (endTime - startTime) + " ms");
 //
-//    CalculatorBot calculatorBot = new CalculatorBot();
-//    calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2")
-//            .subscribe(
-//                    System.out::print,
-//                    error -> System.err.println("Error: " + error),  // onError
-//                    () -> {
-//                        System.out.println("\nStream completed!");
-//                    }
-//            );
+    CalculatorBot calculatorBot = new CalculatorBot();
+    calculatorBot.chat("What is the square root of 475695037565")
+            .subscribe(
+                    System.out::print,
+                    error -> System.err.println("Error: " + error),  // onError
+                    () -> {
+                        System.out.println("\nStream completed!");
+                    }
+            );
 
 //    System.out.println(calculatorBot.chat("计算下列值，(sin(34)+cos(32))^2"));
 

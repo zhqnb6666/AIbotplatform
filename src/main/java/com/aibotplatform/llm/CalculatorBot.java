@@ -10,8 +10,7 @@ import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import reactor.core.publisher.Flux;
-
-import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O_MINI;
+import static dev.langchain4j.model.openai.OpenAiChatModelName.GPT_4_O;
 
 public class CalculatorBot implements LLM {
     private static final String OPENAI_API_KEY = "sk-6hMxxGzo2ZT6WzKXBa9cB82d964e4cAe9eE0F95d70C1Ba0e";
@@ -22,7 +21,7 @@ public class CalculatorBot implements LLM {
         OpenAiStreamingChatModel model = OpenAiStreamingChatModel.builder()
                 .apiKey(OPENAI_API_KEY)
                 .baseUrl("https://xiaoai.plus/v1")
-                .modelName(GPT_4_O_MINI)
+                .modelName(GPT_4_O)
                 .temperature(0.0)
                 .build();
 
