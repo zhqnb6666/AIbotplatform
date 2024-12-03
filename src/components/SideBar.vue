@@ -51,7 +51,7 @@
           <span>管理员功能</span>
         </template>
         <el-menu-item index="/official-bot-edit">
-          修改官方机器人
+          修改机器人
         </el-menu-item>
       </el-sub-menu>
     </el-menu>

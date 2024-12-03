@@ -4,12 +4,12 @@
     <div class="level" style="margin-top: 1rem">
       <div class="level-left">
         <div class="level-item">
-          <el-avatar :size="128" :src="personalProfile.avatarUrl" />
+          <el-avatar :size="128" :src="viewedProfile.avatarUrl" />
         </div>
         <div class="level-item">
           <div class="control">
-            <p class="title is-4">{{ personalProfile.username }}</p>
-            <p class="subtitle is-6">@{{ personalProfile.email.split('@')[0] }}</p>
+            <p class="title is-4">{{ viewedProfile.username }}</p>
+            <p class="subtitle is-6">@{{ viewedProfile.email.split('@')[0] }}</p>
           </div>
         </div>
       </div>
@@ -19,16 +19,16 @@
       <div class="column is-one-third" >
         <div class="box" style="height: 100%">
           <p class="title is-5 is-spaced">用户身份</p>
-          <p class="subtitle is-4">{{personalProfile.role === 'USER'?'普通用户':'管理员'}}</p>
+          <p class="subtitle is-4">{{ viewedProfile.role === 'USER' ? '普通用户' : '管理员' }}</p>
         </div>
       </div>
       <div class="column is-one-third" >
         <div class="box" style="height: 100%">
           <p class="title is-5">平均评分</p>
-          <el-rate v-model="personalProfile.avgRating"
+          <el-rate v-model="viewedProfile.avgRating"
                    show-score
                    text-color="#ff9900"
-                   :score-template="`${personalProfile.avgRating !== 0 ? `${personalProfile.avgRating} 分` : '暂无评分'}`"
+                   :score-template="`${viewedProfile.avgRating !== 0 ? `${viewedProfile.avgRating} 分` : '暂无评分'}`"
                    disabled/>
         </div>
       </div>
@@ -96,17 +96,21 @@ import RobotDisplay from "@/components/RobotDisplay.vue";
 import ProfileService from "@/service/ProfileService";
 import FeedbackDisplay from "@/components/FeedbackDisplay.vue";
 import {Edit} from "@element-plus/icons-vue";
+import {mapState} from "vuex";
 
 export default {
   name: 'ProfilePage',
   components: {Edit, FeedbackDisplay, RobotDisplay},
+  computed: {
+    ...mapState(['personalProfile'])
+  },
   data() {
     return {
       userId: this.$route.query.userId,
       robots: [],
       tab_index: 0,
       feedbackList: [],
-      personalProfile: {
+      viewedProfile: {
         username: 'username',
         email: 'hello@gmail',
         role: 'USER',
@@ -126,7 +130,7 @@ export default {
     ProfileService.getProfile(this.userId).then((response) => {
       let { username, email, role, avatarUrl, bio, avgRating} = response.data;
       avatarUrl = `http://localhost:8080/${avatarUrl}`;
-      this.personalProfile = { username, email, role, avatarUrl, bio, avgRating};
+      this.viewedProfile = { username, email, role, avatarUrl, bio, avgRating};
       this.robots = response.data.userBotList;
       this.feedbackList = response.data.userFeedbackList;
     }).catch((error) => {
@@ -141,7 +145,12 @@ export default {
     onSubmit() {
       ProfileService.postFeedback(this.feedbackForm).then(() => {
         this.$message.success('评价成功');
-        this.feedbackList.push(this.feedbackForm);
+        this.feedbackList.push({
+          commenter: this.personalProfile.username,
+          commenterAvatarUrl: this.personalProfile.avatarUrl.replace('http://localhost:8080/', ''),
+          content: this.feedbackForm.content,
+          rating: this.feedbackForm.rating
+        });
       }).catch((error) => {
         this.$message.error('评价失败');
         console.error(error);

@@ -117,7 +117,7 @@ export default {
         description: '',
         greetingMessage: '',
         tokenCost: 0,
-        temperature: 0,
+        temperature: 0.8,
         accessibility: "PUBLIC",
       },
       file: null,
