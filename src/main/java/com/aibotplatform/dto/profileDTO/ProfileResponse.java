@@ -17,6 +17,6 @@ public class ProfileResponse {
     private String avatarUrl;
     private String bio;
     private List<Bot> userBotList;
-    private Integer avgRating; // multiply rating by 100 to avoid decimal
+    private BigDecimal avgRating; // multiply rating by 100 to avoid decimal
     private List<UserFeedbackResponse> userFeedbackList;
 }
