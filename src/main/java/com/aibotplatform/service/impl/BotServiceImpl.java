@@ -45,7 +45,8 @@ public class BotServiceImpl implements BotService {
 
     @Override
     public Optional<Bot> getBotByName(String name) {
-        return botRepository.findByName(name);
+        Optional<Bot> byName = botRepository.findByName(name);
+        return byName;
     }
 
     @Override

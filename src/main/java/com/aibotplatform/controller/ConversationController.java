@@ -88,8 +88,11 @@ public class ConversationController {
 
         // 1. 验证token
         Conversation conversation = conversationService.getConversationById(conversationId);
-        int spaceIndex = content.indexOf(' ');
         String botName = content;
+        while (content.startsWith("\"") && content.endsWith("\"")) {
+            content = content.substring(1, content.length() - 1);
+        }
+        int spaceIndex = content.indexOf(' ');
         if (spaceIndex != -1) {
             botName = content.substring(0, spaceIndex);
         }
