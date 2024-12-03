@@ -1,9 +1,6 @@
 package com.aibotplatform.service;
 
-import com.aibotplatform.dto.feedbackDTO.BotRatingRequest;
-import com.aibotplatform.dto.feedbackDTO.BotRatingResponse;
-import com.aibotplatform.dto.feedbackDTO.MessageFeedbackRequest;
-import com.aibotplatform.dto.feedbackDTO.UserFeedbackRequest;
+import com.aibotplatform.dto.feedbackDTO.*;
 import com.aibotplatform.model.BotRating;
 import com.aibotplatform.model.MessageFeedback;
 import com.aibotplatform.model.UserFeedback;
@@ -20,4 +17,6 @@ public interface FeedbackService {
     void ratingBot(BotRatingRequest botRatingRequest, String commenterName);
 
     BotRatingResponse getBotRating(Long botId);
+
+    List<BotRatingDetailResponse> getBotRatingDetails(Long botId);
 }

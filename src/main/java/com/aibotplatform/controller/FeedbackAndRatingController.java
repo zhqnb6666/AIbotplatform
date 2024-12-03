@@ -61,6 +61,21 @@ public class FeedbackAndRatingController {
     @GetMapping("/bots/{botId}/ratings")
     @Operation(summary = "Get ratings for a bot", description = "Get all ratings for a specific bot")
     public ResponseEntity<?> getBotRatings(@PathVariable Long botId) {
-        return ResponseEntity.ok(feedbackService.getBotRating(botId));
+        try {
+            return ResponseEntity.ok(feedbackService.getBotRating(botId));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @GetMapping("/bots/{botId}/ratings/detail")
+    @Operation(summary = "Get detailed ratings for a bot", description = "Get detailed ratings for a specific bot")
+    public ResponseEntity<?> getBotRatingsDetail(@PathVariable Long botId) {
+        try {
+            return ResponseEntity.ok(feedbackService.getBotRatingDetails(botId));
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

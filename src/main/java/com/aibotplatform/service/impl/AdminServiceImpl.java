@@ -180,4 +180,14 @@ public class AdminServiceImpl implements AdminService {
             cell.setCellValue(data[i]);
         }
     }
+
+    public void rewardUser(Long userId, Long token) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+        if (token <= 0) {
+            throw new ApiException("Token number should be positive", HttpStatus.BAD_REQUEST);
+        }
+        user.setToken(user.getToken() + token);
+        userRepository.save(user);
+    }
 }

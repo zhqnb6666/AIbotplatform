@@ -109,6 +109,30 @@ public class AdminController {
         return new ResponseEntity<>("Successfully export platform information into " + fileName , HttpStatus.OK);
     }
 
+    @PostMapping("/reward")
+    @Operation(summary = "Reward user", description = "Reward user with token, only admin can reward")
+    public ResponseEntity<?> rewardUser(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam Long userId,
+            @RequestParam Long token
+    ) {
+        User user = userService.getUserByName(userDetails.getUsername());
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        if (!user.getRole().equals(User.Role.ADMIN)) {
+            return new ResponseEntity<>("Only admin can reward user.", HttpStatus.FORBIDDEN);
+        }
+
+        try {
+            adminService.rewardUser(userId, token);
+        } catch (ApiException e) {
+            return new ResponseEntity<>(e.getMessage(), e.getStatus());
+        }
+
+        return new ResponseEntity<>("Successfully reward user with " + token + " tokens", HttpStatus.OK);
+    }
+
     // Convert Bot entity to BotDTO
     private BotResponse convertToDTO(Bot bot) {
         return new BotResponse(

@@ -88,8 +88,11 @@ public class ConversationController {
 
         // 1. 验证token
         Conversation conversation = conversationService.getConversationById(conversationId);
-        int spaceIndex = content.indexOf(' ');
         String botName = content;
+        while (content.startsWith("\"") && content.endsWith("\"")) {
+            content = content.substring(1, content.length() - 1);
+        }
+        int spaceIndex = content.indexOf(' ');
         if (spaceIndex != -1) {
             botName = content.substring(0, spaceIndex);
         }
@@ -117,7 +120,7 @@ public class ConversationController {
         // 3. 保存消息，返回消息ID
         Message message = new Message(conversation,null, Message.SenderType.USER, content);
         Long savedMessageId= conversationService.saveMessage(conversationId, message);
-        return ResponseEntity.ok(new ConversationResponse(bot.getBotId(),savedMessageId));
+        return ResponseEntity.ok(new ConversationResponse(bot.getBotId(), savedMessageId));
     }
 
     @GetMapping(value = "/{botId}/messages/{messageId}/stream",
