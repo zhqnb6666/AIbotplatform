@@ -57,4 +57,10 @@ public class FeedbackAndRatingController {
         feedbackService.leaveFeedbackForMessage(feedbackRequest, userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @GetMapping("/bots/{botId}/ratings")
+    @Operation(summary = "Get ratings for a bot", description = "Get all ratings for a specific bot")
+    public ResponseEntity<?> getBotRatings(@PathVariable Long botId) {
+        return ResponseEntity.ok(feedbackService.getBotRating(botId));
+    }
 }

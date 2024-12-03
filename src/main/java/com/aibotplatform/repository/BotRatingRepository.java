@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface BotRatingRepository extends JpaRepository<BotRating,Long>{
     List<BotRating> getBotRatingsByBot(Bot bot);
+    List<BotRating> getBotRatingsByBot_BotId(Long botId);
+
 }

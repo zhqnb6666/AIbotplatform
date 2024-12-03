@@ -1,6 +1,7 @@
 package com.aibotplatform.service.impl;
 
 import com.aibotplatform.dto.feedbackDTO.BotRatingRequest;
+import com.aibotplatform.dto.feedbackDTO.BotRatingResponse;
 import com.aibotplatform.dto.feedbackDTO.MessageFeedbackRequest;
 import com.aibotplatform.dto.feedbackDTO.UserFeedbackRequest;
 import com.aibotplatform.exception.ApiException;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -104,4 +107,45 @@ public class FeedbackServiceImpl implements FeedbackService {
             throw new ApiException("Bot rating not saved:" + e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @Override
+    public BotRatingResponse getBotRating(Long botId) {
+        List<BotRating> botRatings = botRatingRepository.getBotRatingsByBot_BotId(botId);
+        if (botRatings.isEmpty()) {
+            return new BotRatingResponse(
+                    botId,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+            );
+        }
+        int totalRatings = botRatings.size();
+        Map<Integer, Long> ratingCounts = botRatings.stream()
+                .collect(Collectors.groupingBy(BotRating::getRating, Collectors.counting()));
+
+        double oneStarPercentage = ratingCounts.getOrDefault(1, 0L) * 100.0 / totalRatings;
+        double twoStarPercentage = ratingCounts.getOrDefault(2, 0L) * 100.0 / totalRatings;
+        double threeStarPercentage = ratingCounts.getOrDefault(3, 0L) * 100.0 / totalRatings;
+        double fourStarPercentage = ratingCounts.getOrDefault(4, 0L) * 100.0 / totalRatings;
+        double fiveStarPercentage = ratingCounts.getOrDefault(5, 0L) * 100.0 / totalRatings;
+
+        double averageRating = botRatings.stream()
+                .mapToInt(BotRating::getRating)
+                .average()
+                .orElse(0.0);
+
+        return new BotRatingResponse(
+                botId,
+                averageRating,
+                oneStarPercentage,
+                twoStarPercentage,
+                threeStarPercentage,
+                fourStarPercentage,
+                fiveStarPercentage
+        );
+    }
+
 }
