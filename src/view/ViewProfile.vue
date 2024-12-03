@@ -145,12 +145,19 @@ export default {
     onSubmit() {
       ProfileService.postFeedback(this.feedbackForm).then(() => {
         this.$message.success('评价成功');
+        // 更新评论列表
         this.feedbackList.push({
           commenter: this.personalProfile.username,
           commenterAvatarUrl: this.personalProfile.avatarUrl.replace('http://localhost:8080/', ''),
           content: this.feedbackForm.content,
           rating: this.feedbackForm.rating
         });
+        // 更新平均评分
+        let sum = 0;
+        this.feedbackList.forEach((feedback) => {
+          sum += feedback.rating;
+        });
+        this.viewedProfile.avgRating = (sum / this.feedbackList.length).toFixed(2);
       }).catch((error) => {
         this.$message.error('评价失败');
         console.error(error);
