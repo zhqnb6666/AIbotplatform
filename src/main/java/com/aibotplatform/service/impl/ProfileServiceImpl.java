@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +61,7 @@ public class ProfileServiceImpl implements ProfileService {
         List<UserFeedback> feedbacks = feedbackService.getUserFeedback(user.getUserId());
         long totalRatingCnt = feedbacks.size();
         if (totalRatingCnt == 0) {
-            profileResponse.setAvgRating(0);
+            profileResponse.setAvgRating(BigDecimal.ZERO);
         } else {
             long totalRating = 0;
             for (UserFeedback userFeedback : feedbacks) {
@@ -67,7 +69,9 @@ public class ProfileServiceImpl implements ProfileService {
             }
             int avgRating = (int) (totalRating / totalRatingCnt);
             avgRating = avgRating / 10 + (avgRating % 10 >= 5 ? 1 : 0);
-            profileResponse.setAvgRating(avgRating);
+            BigDecimal avgRatingDecimal = new BigDecimal(avgRating);
+            BigDecimal divisor = new BigDecimal(100);
+            profileResponse.setAvgRating(avgRatingDecimal.divide(divisor, RoundingMode.HALF_UP));
         }
 
         List<UserFeedbackResponse> userFeedbackResponses = new ArrayList<>();
