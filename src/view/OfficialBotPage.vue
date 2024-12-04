@@ -17,9 +17,6 @@ export default {
     BASIC_ROBOTS() {
       return BASIC_ROBOTS
     },
-    infoDialogVisible() {
-      return this.infoDialogState !== 0;
-    }
   },
   created() {
     axiosInstance.get('/bots').then((response) => {
@@ -47,6 +44,7 @@ export default {
       ],
       search: "",
       infoDialogState: 0,
+      infoDialogVisible: false,
       currentBot: {
         botId: 0,
         avatar: "",
@@ -68,6 +66,7 @@ export default {
     openEditDialog(bot) {
       this.currentBot = { ...bot };
       this.infoDialogState = 1;
+      this.infoDialogVisible = true;
     },
     openAddDialog() {
       this.currentBot = {
@@ -83,6 +82,7 @@ export default {
         accessibility: "PUBLIC"
       };
       this.infoDialogState = 2;
+      this.infoDialogVisible = true;
     },
     handleUpdate() {
       axiosInstance.put(`/admin/bot`, this.currentBot).then(() => {
@@ -92,6 +92,7 @@ export default {
         }
         this.$message.success('更新成功');
         this.infoDialogState = 0;
+        this.infoDialogVisible = false;
       }).catch((error) => {
         console.error('Failed to update official bot:', error);
         this.$message.error('更新失败');
@@ -102,6 +103,7 @@ export default {
         this.officialBots.push(response.data);
         this.$message.success('添加成功');
         this.infoDialogState = 0;
+        this.infoDialogVisible = false;
       }).catch((error) => {
         console.error('Failed to add official bot:', error);
         this.$message.error('添加失败');
@@ -244,7 +246,7 @@ export default {
     </el-form-item>
   </el-form>
   <template #footer>
-    <el-button @click="infoDialogState = 0">取消</el-button>
+    <el-button @click="infoDialogState = 0;infoDialogVisible = false">取消</el-button>
     <el-button type="primary" @click="handleBotInfo()">{{infoDialogState === 1 ? '更新' : '添加'}}</el-button>
   </template>
 </el-dialog>
