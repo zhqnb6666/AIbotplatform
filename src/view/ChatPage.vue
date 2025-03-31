@@ -78,6 +78,15 @@ export default {
   methods: {
     ...mapActions(['updatePersonalProfile']),
     // 高亮代码
+    scrollToBottom() {
+      this.$nextTick(() => {
+        const container = document.querySelector('.scrollable-content');
+        if (container) {
+          container.scrollTop = container.scrollHeight - container.clientHeight;
+        }
+      });
+    },
+
     highlightCode() {
       this.$nextTick(() => {
         document.querySelectorAll('pre code').forEach((block) => {
@@ -176,6 +185,7 @@ export default {
       if(this.isSingleTurn){
         this.messages = [messageUser];
       }
+      this.scrollToBottom();
       try {
         //先发送消息
         const response = await Promise.all([ChatService.sendMessage(this.conversationBasicInfo.conversationId, this.newMessage),
@@ -215,6 +225,7 @@ export default {
         const utf8Data = new TextDecoder('utf-8').decode(new Uint8Array([...decodedData].map(char => char.charCodeAt(0)))); // Convert to UTF-8
         streamContent += utf8Data;
         this.messages[this.messages.length - 1].content += utf8Data;
+        this.scrollToBottom();
       });
       // 服务器端推送错误
       eventSource.addEventListener('error', (event) => {
@@ -223,6 +234,7 @@ export default {
           console.error('EventSource error:', event);
         }
         eventSource.close();
+        this.scrollToBottom();
         this.isStreamingComplete = true;
       });
       // 结束SSe
@@ -238,6 +250,7 @@ export default {
         }
         this.$nextTick(() => {
           this.highlightCode();
+          this.scrollToBottom();
         });
         eventSource.close();
       });
@@ -245,6 +258,7 @@ export default {
     handleFollowUpClick(suggestion) {
       this.newMessage = suggestion;
       this.sendMessage();
+
     },
     async submitReview() {
       const response = await ChatService.submitFeedback(this.feedbackDialogInfo);
@@ -331,9 +345,8 @@ export default {
 
 <template>
   <el-container>
-    <el-main>
+    <el-main class="scrollable-content" v-loading="loading">
     <!-- 聊天框内容 -->
-      <div class="scrollable-content" v-loading="loading">
         <div v-for="(message, index) in messages" :key="index" >
           <div v-if="message.senderType==='BOT'" class="title is-6">{{ robotInfo.name }}</div>
           <div :class="['message', message.senderType]">
@@ -370,7 +383,6 @@ export default {
               <el-icon class="el-icon--right" :size="22"><Right /></el-icon>
             </el-button>
         </div>
-      </div>
     </el-main>
     <!-- 聊天框底部 -->
     <el-footer>
